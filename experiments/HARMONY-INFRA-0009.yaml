@@ -1,0 +1,26 @@
+experiment_id: HARMONY-INFRA-0009
+type: temporal_stability_ablation
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+target_experiment: HARMONY-FIN-0003
+fixed_strategy: "BTC-ETH-LTC-XRP-BNB-BCH-ADA-DOGE-CSMOM-TOP2-DAILY-V1"
+
+ablation:
+  method: "partition the fixed 530-day OOS equity path into six contiguous chronological blocks"
+  block_count: 6
+  partition_rule: "deterministic near-equal contiguous block lengths from the fixed OOS sequence"
+  signal_rule_unchanged: true
+  universe_unchanged: true
+  costs_unchanged: true
+  parameters_unchanged: true
+  no_new_candidates: true
+
+objective:
+  "Determine whether the frozen FIN-0003 OOS result is materially concentrated in a small portion of its fixed OOS interval."
+
+integrity:
+  no_parameter_search: true
+  no_strategy_mutation: true
+  no_post_hoc_candidate_selection: true
