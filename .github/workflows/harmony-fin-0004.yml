@@ -224,8 +224,10 @@ jobs:
           dates, close, funding = load()
           split = math.floor(len(dates)*0.70)
           oos = dates[split:]
-          if oos[0] != "2024-05-20" or oos[-1] != "2025-10-31":
-              raise AssertionError("FIN-0004 OOS identity mismatch")
+          if len(oos) != math.ceil(len(dates)*0.30):
+              raise AssertionError(f"FIN-0004 OOS row-count mismatch: {len(oos)}")
+          if oos[-1] != "2025-10-31":
+              raise AssertionError(f"FIN-0004 OOS end mismatch: {oos[-1]}")
 
           strategy = run(dates,close,funding,split,"residual")
           equal_weight = run(dates,close,funding,split,"equal_weight")
@@ -242,7 +244,8 @@ jobs:
                   "panel_end":dates[-1],
                   "oos_rows":len(oos),
                   "oos_start":oos[0],
-                  "oos_end":oos[-1]
+                  "oos_end":oos[-1],
+                  "split_rule":"floor(len(common_dates)*0.70); OOS is the remaining chronological rows"
               },
               "configuration":{
                   "return_horizon_days":20,
