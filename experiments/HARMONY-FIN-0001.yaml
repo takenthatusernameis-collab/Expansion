@@ -20,6 +20,7 @@ data:
   timeframe: "1d"
   coverage: "2014-09-17 through 2025-10-31"
   encoding: "cp1252"
+  preprocessing: "parse DD-mmm-YY to ISO date, sort ascending by calendar date, reject duplicate dates"
 
 strategy:
   strategy_id: "BTC-SMA20x50-LONGONLY-V1"
@@ -36,6 +37,7 @@ validation:
   parameter_fitting_on_oos: false
   benchmark: "BTC buy-and-hold over identical OOS segment with identical round-trip costs"
   lookahead_control: "signal uses only prior daily close"
+  data_order_control: "deterministic chronological normalization; no row selection or deletion"
   independent_check: "core engine final cash must equal independent equity simulation"
 
 outputs:
