@@ -1,0 +1,134 @@
+name: Harmony USD-M derivatives data feasibility A1
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-INFRA-0010-A1.yaml"
+      - ".github/workflows/harmony-infra-0010-a1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified futures archive cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v3
+
+      - name: Run amended archive feasibility
+        run: |
+          python - <<'PY'
+          import csv,hashlib,io,json,zipfile
+          from concurrent.futures import ThreadPoolExecutor,as_completed
+          from datetime import datetime,timezone
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+
+          S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+          BASE="https://data.binance.vision/data/futures/um/monthly"
+          ROOT=Path("data/cache/binance/futures_um/monthly")
+          OUT=Path("artifacts/HARMONY-INFRA-0010-A1"); OUT.mkdir(parents=True,exist_ok=True)
+
+          def get(u):
+              with urlopen(Request(u,headers={"User-Agent":"Harmony/INFRA-0010-A1"}),timeout=120) as r:return r.read()
+          def h(b):return hashlib.sha256(b).hexdigest()
+          def mos():
+              r=[];y,m=2021,1
+              while(y,m)<=(2025,10):
+                  r.append((y,m));m+=1
+                  if m==13:y,m=y+1,1
+              return r
+          def day(ms):return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
+          def rows(raw):
+              with zipfile.ZipFile(io.BytesIO(raw)) as z:
+                  ns=[n for n in z.namelist() if n.lower().endswith(".csv")]
+                  if len(ns)!=1:raise RuntimeError("unexpected zip members")
+                  return list(csv.reader(io.StringIO(z.read(ns[0]).decode("utf-8")))
+
+          def price(s,y,m):
+              fn=f"{s}-1d-{y:04d}-{m:02d}.zip";p=ROOT/"klines"/s/"1d"/fn;p.parent.mkdir(parents=True,exist_ok=True)
+              u=f"{BASE}/klines/{s}/1d/{fn}"; exp=get(u+".CHECKSUM").decode().split()[0].lower()
+              raw=p.read_bytes() if p.exists() else get(u)
+              if not p.exists():p.write_bytes(raw)
+              if h(raw)!=exp:raise RuntimeError(f"price checksum {fn}")
+              ps=[(int(r[0]),float(r[4])) for r in rows(raw) if r and r[0].isdigit()]
+              ts=[x[0] for x in ps]
+              if not ts or len(ts)!=len(set(ts)) or ts!=sorted(ts):raise RuntimeError(f"price timestamps {fn}")
+              return {"symbol":s,"year":y,"month":m,"filename":fn,"url":u,"sha256":exp,"rows":len(ps),"dates":[day(x) for x in ts],"closes":{day(x):p for x,p in ps}}
+
+          def funding(s,y,m):
+              fn=f"{s}-fundingRate-{y:04d}-{m:02d}.zip";p=ROOT/"fundingRate"/s/fn;p.parent.mkdir(parents=True,exist_ok=True)
+              u=f"{BASE}/fundingRate/{s}/{fn}";exp=get(u+".CHECKSUM").decode().split()[0].lower()
+              raw=p.read_bytes() if p.exists() else get(u)
+              if not p.exists():p.write_bytes(raw)
+              if h(raw)!=exp:raise RuntimeError(f"funding checksum {fn}")
+              ps=[]
+              for r in rows(raw):
+                  if r and r[0].isdigit():
+                      ps.append(int(r[0]))
+              if len(ps)!=len(set(ps)) or ps!=sorted(ps):raise RuntimeError(f"funding timestamps {fn}")
+              return {"symbol":s,"year":y,"month":m,"filename":fn,"url":u,"sha256":exp,"rows":len(ps),"dates":[day(x) for x in ps]}
+
+          jobs=[(s,y,m) for s in S for y,m in mos()]
+          P=[];F=[]
+          with ThreadPoolExecutor(max_workers=16) as x:
+              for z in as_completed([x.submit(price,*j) for j in jobs]):P.append(z.result())
+          with ThreadPoolExecutor(max_workers=16) as x:
+              for z in as_completed([x.submit(funding,*j) for j in jobs]):F.append(z.result())
+
+          pb={s:[] for s in S};fb={s:[] for s in S}
+          for r in P:pb[r["symbol"]].append(r)
+          for r in F:fb[r["symbol"]].append(r)
+
+          common=None
+          for s in S:
+              d=set()
+              for r in pb[s]:d.update(r["dates"])
+              common=d if common is None else common&d
+          cd=sorted(common or set()); cm=sorted(set(x[:7] for x in cd))
+
+          fc={}
+          for s in S:
+              m=set();first=None;last=None;n=0
+              for r in fb[s]:
+                  m.update(r["dates"][0:1] and [z[:7] for z in r["dates"]])
+                  n+=r["rows"]
+                  if r["dates"]:
+                      first=r["dates"][0] if first is None else min(first,r["dates"][0])
+                      last=r["dates"][-1] if last is None else max(last,r["dates"][-1])
+              overlap=len(m&set(cm))
+              fc[s]={"records":n,"first":first,"last":last,"covered_common_months":overlap,"common_months":len(cm),"coverage_fraction":overlap/len(cm) if cm else 0.0}
+
+          pg=len(cd)>=1000 and len(cm)>=36
+          fg=all(x["records"]>0 and x["coverage_fraction"]>=0.90 for x in fc.values())
+          panel=OUT/"price-panel.csv"
+          maps={s:{d:p for r in pb[s] for d,p in r["closes"].items()} for s in S}
+          with panel.open("w",newline="") as f:
+              w=csv.writer(f);w.writerow(["date"]+[s+"_close" for s in S])
+              for d in cd:w.writerow([d]+[f"{maps[s][d]:.17g}" for s in S])
+
+          manifest={"experiment_id":"HARMONY-INFRA-0010-A1","amendment_id":"HARMONY-INFRA-0010-A1","symbols":S,
+                    "price_common_history":{"rows":len(cd),"months":len(cm),"start":cd[0] if cd else None,"end":cd[-1] if cd else None},
+                    "funding_coverage":fc,"price_archive_count":len(P),"funding_archive_count":len(F),
+                    "price_panel_sha256":h(panel.read_bytes()),
+                    "gate":{"price_history":pg,"funding_coverage":fg,"overall":pg and fg}}
+          (OUT/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
+          (OUT/"provenance.json").write_text(json.dumps({"price_archives_verified":len(P),"funding_archives_verified":len(F),"no_api_dependency":True,"no_forward_fill":True,"no_interpolation":True,"strategy_execution":False},indent=2,sort_keys=True)+"\n")
+          print(json.dumps({"price_common_rows":len(cd),"price_common_months":len(cm),"funding_coverage":fc,"gate":manifest["gate"]},indent=2,sort_keys=True))
+          PY
+
+      - name: Upload amended feasibility evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0010-a1
+          path: artifacts/HARMONY-INFRA-0010-A1
+          if-no-files-found: error
+          retention-days: 90
