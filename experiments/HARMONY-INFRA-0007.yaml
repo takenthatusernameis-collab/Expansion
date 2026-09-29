@@ -1,0 +1,58 @@
+experiment_id: HARMONY-INFRA-0007
+type: multi_asset_data_feasibility
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+objective: "Determine whether a fixed multi-asset daily dataset can be materialized reproducibly with sufficient common history for an orthogonal cross-sectional research scope."
+
+source:
+  publisher: Binance Public Data
+  archive_family: "Spot monthly klines"
+  interval: "1d"
+  base_url: "https://data.binance.vision/data/spot/monthly/klines"
+  checksum_sidecar_required: true
+  source_family_fixed: true
+
+universe:
+  policy: "fixed_preexisting_research_basket"
+  symbols:
+    - BTCUSDT
+    - ETHUSDT
+    - LTCUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - BCHUSDT
+    - ADAUSDT
+    - DOGEUSDT
+  selection_note: "Inherited fixed basket; not selected from current-period returns, volume, or OOS results."
+  survivorship_scope: "This is a fixed trace-bounded basket, not an exhaustive historical market universe."
+
+period:
+  start_month: "2021-01"
+  end_month: "2025-10"
+
+integrity:
+  verify_archive_sha256_against_sidecar: true
+  verify_zip_member_names: true
+  verify_one_daily_row_per_symbol_timestamp: true
+  verify_monotonic_timestamps: true
+  verify_no_duplicate_timestamps: true
+  use_one_archive_family_only: true
+  do_not_mix_daily_and_monthly_archives: true
+  do_not_use_current_exchange_universe_discovery: true
+
+common_history_gate:
+  minimum_common_daily_rows: 1000
+  minimum_common_months: 36
+  missing_common_dates_allowed: 0
+
+outputs:
+  manifest: "artifacts/HARMONY-INFRA-0007/manifest.json"
+  normalized_panel: "artifacts/HARMONY-INFRA-0007/panel.csv"
+  provenance: "artifacts/HARMONY-INFRA-0007/provenance.json"
+
+not_strategy_execution:
+  generates_trading_signals: false
+  backtests_strategy: false
+  releases_candidate: false
