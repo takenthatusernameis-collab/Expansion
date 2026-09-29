@@ -2,12 +2,41 @@
 
 This document defines the minimum public-safe contract for an experiment artifact.
 
-The contract is intentionally implementation-neutral. A concrete backtesting engine may
-change, but an experiment record must preserve the identity of the scientific object.
+The experiment itself **runs on Expansion**.
+Its durable research tracking **runs on Contraction**.
+
+## Execution authority
+
+Expansion owns:
+
+- experiment implementation
+- data acquisition required for the experiment
+- feature construction
+- candidate generation
+- backtests
+- validation runs
+- benchmarks and ablations
+- experiment-level execution tests
+- execution-side artifacts
+
+Contraction owns:
+
+- experiment identity tracking
+- provenance and lineage tracking
+- outcome/status tracking
+- decision history
+- result pointers and artifact hashes
+- reconciliation and audit records
+- durable research state
+
+Contraction must not be used as the experimental compute location.
 
 ## Lifecycle
 
 SOURCE → FEATURE → CANDIDATE → BACKTEST → VALIDATION → EVIDENCE
+
+Execution of this lifecycle occurs on Expansion.
+Tracking of this lifecycle occurs on Contraction.
 
 ## Required identity
 
