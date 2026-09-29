@@ -1,0 +1,74 @@
+experiment_id: HARMONY-INFRA-0010
+type: derivatives_data_feasibility
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+objective: "Determine whether a deterministic USD-M futures price plus funding-rate substrate can support a future residual-momentum research scope."
+
+universe:
+  policy: "reuse fixed trace-bounded basket from HARMONY-INFRA-0007"
+  symbols:
+    - BTCUSDT
+    - ETHUSDT
+    - LTCUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - BCHUSDT
+    - ADAUSDT
+    - DOGEUSDT
+
+price_source:
+  publisher: "Binance Public Data"
+  market: "USD-M Futures"
+  archive_family: "monthly klines"
+  interval: "1d"
+  base_url: "https://data.binance.vision/data/futures/um/monthly/klines"
+  checksum_sidecar_required: true
+  source_family_fixed: true
+
+funding_source:
+  publisher: "Binance USD-M Futures public market-data API"
+  endpoint: "GET /fapi/v1/fundingRate"
+  timestamp_field: "fundingTime"
+  native_cadence_preserved: true
+  no_resampling_before_feasibility_validation: true
+  raw_response_bytes_hashed: true
+
+period:
+  start: "2021-01-01"
+  end: "2025-10-31"
+
+integrity:
+  verify_price_archive_sha256_against_sidecar: true
+  verify_price_zip_members: true
+  verify_price_daily_timestamp_uniqueness: true
+  verify_price_monotonic_timestamps: true
+  verify_funding_timestamp_uniqueness: true
+  verify_funding_monotonic_timestamps: true
+  verify_one_fixed_source_family_for_prices: true
+  no_current_universe_discovery: true
+  no_forward_fill: true
+  no_interpolation: true
+  funding_request_manifest_required: true
+
+feasibility_gate:
+  minimum_common_price_daily_rows: 1000
+  minimum_common_price_months: 36
+  minimum_funding_coverage_fraction_per_symbol: 0.90
+  funding_records_must_span_common_price_window: true
+  missing_funding_days_may_exist: true
+  funding_frequency_must_not_be_assumed: true
+
+scope_limits:
+  strategy_backtest: false
+  candidate_generation: false
+  profitability_claim: false
+  shortability_or_borrowability_claim: false
+  liquidation_model_validation: false
+
+outputs:
+  manifest: "artifacts/HARMONY-INFRA-0010/manifest.json"
+  funding_manifest: "artifacts/HARMONY-INFRA-0010/funding-manifest.json"
+  provenance: "artifacts/HARMONY-INFRA-0010/provenance.json"
+  normalized_price_panel: "artifacts/HARMONY-INFRA-0010/price-panel.csv"
