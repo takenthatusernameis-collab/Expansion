@@ -94,7 +94,7 @@ def run_long_only(
         elif not signal and in_position:
             exit_price = bar.close * (1.0 - slippage_rate)
             gross_return = exit_price / entry_price - 1.0
-            net_return = gross_return - (2.0 * fee_rate)
+            net_return = (1.0 - fee_rate) ** 2 * (1.0 + gross_return) - 1.0
             cash *= max(0.0, exit_price / entry_price)
             cash *= max(0.0, 1.0 - fee_rate)
             trades.append(
@@ -113,7 +113,7 @@ def run_long_only(
         bar = bars[-1]
         exit_price = bar.close * (1.0 - slippage_rate)
         gross_return = exit_price / entry_price - 1.0
-        net_return = gross_return - (2.0 * fee_rate)
+        net_return = (1.0 - fee_rate) ** 2 * (1.0 + gross_return) - 1.0
         cash *= max(0.0, exit_price / entry_price)
         cash *= max(0.0, 1.0 - fee_rate)
         trades.append(
