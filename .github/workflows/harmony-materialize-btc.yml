@@ -1,0 +1,118 @@
+name: Harmony BTC-USD materialization
+
+on:
+  push:
+    paths:
+      - ".github/workflows/harmony-materialize-btc.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore cached BTC-USD bytes
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/btc_usd_historico_diario_2014_2025.csv
+          key: harmony-btc-md5-83fe59d97270462851ab906f86961689
+
+      - name: Materialize and verify dataset
+        env:
+          SOURCE_URL: "https://zenodo.org/records/17566064/files/btc_usd_historico_diario_2014_2025.csv?download=1"
+          EXPECTED_MD5: "83fe59d97270462851ab906f86961689"
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import os
+          from pathlib import Path
+          from urllib.request import urlopen
+
+          path = Path("data/cache/btc_usd_historico_diario_2014_2025.csv")
+          path.parent.mkdir(parents=True, exist_ok=True)
+
+          if path.exists():
+              print("CACHE_HIT=true")
+          else:
+              print("CACHE_HIT=false")
+              with urlopen(os.environ["SOURCE_URL"], timeout=120) as response:
+                  path.write_bytes(response.read())
+
+          md5 = hashlib.md5(path.read_bytes()).hexdigest()
+          if md5 != os.environ["EXPECTED_MD5"]:
+              raise SystemExit(
+                  f"MD5 mismatch: expected {os.environ['EXPECTED_MD5']}, got {md5}"
+              )
+
+          sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+
+          with path.open("r", newline="", encoding="utf-8-sig") as handle:
+              rows = list(csv.reader(handle))
+
+          if not rows:
+              raise SystemExit("dataset is empty")
+
+          data_rows = len(rows) - 1
+          header = rows[0]
+
+          print(f"SOURCE_URL={os.environ['SOURCE_URL']}")
+          print(f"SOURCE_MD5={md5}")
+          print(f"SHA256={sha256}")
+          print(f"SIZE_BYTES={path.stat().st_size}")
+          print(f"ROW_COUNT={data_rows}")
+          print("HEADER=" + "|".join(header))
+          PY
+
+      - name: Write deterministic manifest
+        env:
+          SOURCE_URL: "https://zenodo.org/records/17566064/files/btc_usd_historico_diario_2014_2025.csv?download=1"
+          SOURCE_MD5: "83fe59d97270462851ab906f86961689"
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("data/cache/btc_usd_historico_diario_2014_2025.csv")
+          sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+          md5 = hashlib.md5(path.read_bytes()).hexdigest()
+
+          with path.open("r", newline="", encoding="utf-8-sig") as handle:
+              rows = list(csv.reader(handle))
+
+          manifest = {
+              "dataset_id": "HARMONY-DATA-BTCUSD-DAILY-2014-2025",
+              "instrument": "BTC-USD",
+              "timeframe": "1d",
+              "source_url": os.environ["SOURCE_URL"],
+              "source_md5": md5,
+              "expected_source_md5": os.environ["SOURCE_MD5"],
+              "sha256": sha256,
+              "size_bytes": path.stat().st_size,
+              "row_count": max(0, len(rows) - 1),
+              "header": rows[0] if rows else [],
+              "coverage": "2014-09-17 through 2025-10-31",
+              "execution_repository": "takenthatusernameis-collab/Expansion",
+          }
+
+          out = Path("harmony-materialization-manifest.json")
+          out.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+          print(out.read_text())
+          PY
+
+      - name: Upload manifest only
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-btc-materialization-manifest
+          path: harmony-materialization-manifest.json
+          if-no-files-found: error
+          retention-days: 30
