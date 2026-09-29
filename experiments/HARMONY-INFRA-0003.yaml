@@ -1,0 +1,24 @@
+experiment_id: "HARMONY-INFRA-0003"
+type: "data_materialization_efficiency"
+status: "validated_locally"
+scientific_claim: "none"
+scope: "cache-aware immutable dataset materialization"
+
+execution_repository: "takenthatusernameis-collab/Expansion"
+tracking_repository: "takenthatusernameis-collab/Contraction"
+
+artifacts:
+  - path: "src/harmony_backtest/data.py"
+    commit: "464cbccbd72883256711e1af5a39f7f2616646ee"
+  - path: "tests/test_data.py"
+    commit: "79b660b4fc2ae1395a82a8729be781712f0d5e2b"
+
+validation:
+  local_cache_checks: 2
+  checks:
+    - "matching MD5/SHA-256 reuses existing bytes without download"
+    - "existing-file SHA-256 mismatch fails closed"
+  external_dataset_bytes_materialized: false
+  scientific_interpretation: >
+    The efficiency mechanism is locally validated. No claim is made that the selected
+    market dataset has been downloaded or verified in this environment.
