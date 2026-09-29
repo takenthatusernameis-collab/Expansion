@@ -1,0 +1,36 @@
+name: Harmony multi-asset data feasibility
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-INFRA-0007.yaml"
+      - "experiments/run_harmony_infra_0007.py"
+      - ".github/workflows/harmony-infra-0007.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified archive cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/spot/monthly/klines_1d
+          key: harmony-binance-spot-1d-2021-01-2025-10-v1
+
+      - name: Run preregistered data feasibility
+        run: python experiments/run_harmony_infra_0007.py
+
+      - name: Upload deterministic data-feasibility artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0007
+          path: artifacts/HARMONY-INFRA-0007
+          if-no-files-found: error
+          retention-days: 90
