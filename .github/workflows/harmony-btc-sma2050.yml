@@ -1,0 +1,40 @@
+name: Harmony BTC SMA20x50 baseline
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-FIN-0001.yaml"
+      - "experiments/run_btc_sma2050_baseline.py"
+      - ".github/workflows/harmony-btc-sma2050.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified BTC-USD dataset cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/btc_usd_historico_diario_2014_2025.csv
+          key: harmony-btc-md5-83fe59d97270462851ab906f86961689
+          fail-on-cache-miss: true
+
+      - name: Run preregistered baseline
+        env:
+          HARMONY_DATA_SHA256: "7bfbbcabb92b91898b67ed38bae71f4e50f2a37c636762703a3b9af08968343b"
+        run: |
+          python experiments/run_btc_sma2050_baseline.py
+
+      - name: Upload baseline evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-fin-0001-evidence
+          path: artifacts/HARMONY-FIN-0001
+          if-no-files-found: error
+          retention-days: 90
