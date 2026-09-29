@@ -53,6 +53,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def parse_source_date(raw: str) -> str:
+    return datetime.strptime(raw.strip().lower(), "%d-%b-%y").date().isoformat()
+
+
 def parse_number(raw: str) -> float:
     value = raw.strip().replace("\\u00ad", "")
     if "," in value and "." in value:
@@ -87,16 +91,15 @@ def load_bars(path: Path) -> list[Bar]:
 
         bars: list[Bar] = []
         for row in reader:
-            date = row["Fecha"].strip()
+            date = parse_source_date(row["Fecha"])
             close = parse_number(row["Cierre"])
             bars.append(Bar(timestamp=date, close=close))
 
+    bars.sort(key=lambda bar: bar.timestamp)
     for i in range(1, len(bars)):
-        if bars[i].timestamp <= bars[i - 1].timestamp:
+        if bars[i].timestamp == bars[i - 1].timestamp:
             raise ValueError(
-                "Non-increasing timestamps at rows "
-                f"{i} and {i + 1}: "
-                f"{bars[i - 1].timestamp!r} -> {bars[i].timestamp!r}"
+                f"Duplicate calendar date after deterministic normalization: {bars[i].timestamp}"
             )
     return bars
 
