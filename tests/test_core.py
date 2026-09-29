@@ -17,9 +17,10 @@ def test_one_profitable_trade_with_costs() -> None:
         slippage_rate=0.0,
     )
     assert len(result.trades) == 1
-    assert round(result.trades[0].gross_return, 10) == 0.10
-    assert result.final_cash > 1.0
-    assert result.cumulative_return == result.final_cash - 1.0
+    trade = result.trades[0]
+    assert round(trade.gross_return, 10) == 0.10
+    assert round(trade.net_return, 10) == round((0.99 ** 2) * 1.10 - 1.0, 10)
+    assert round(result.cumulative_return, 10) == round(trade.net_return, 10)
 
 
 def test_flat_signal_has_no_trades() -> None:
@@ -47,3 +48,21 @@ def test_signal_length_is_part_of_experiment_identity() -> None:
         assert "signals length" in str(exc)
     else:
         raise AssertionError("expected signal-length validation failure")
+
+
+def test_entry_and_exit_slippage_are_applied() -> None:
+    bars = [
+        Bar("2026-01-01", 100.0),
+        Bar("2026-01-02", 110.0),
+    ]
+    result = run_long_only(
+        bars,
+        [True, False],
+        initial_cash=1.0,
+        fee_rate=0.0,
+        slippage_rate=0.01,
+    )
+    trade = result.trades[0]
+    assert trade.entry_price == 101.0
+    assert trade.exit_price == 108.9
+    assert round(trade.gross_return, 10) == round(108.9 / 101.0 - 1.0, 10)
