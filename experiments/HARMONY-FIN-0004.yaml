@@ -1,0 +1,40 @@
+experiment_id: HARMONY-FIN-0004
+type: fixed_residual_momentum_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+strategy:
+  strategy_id: residual_momentum_with_funding
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  return_horizon_days: 20
+  beta_window_days: 60
+  beta_method: rolling_OLS_with_intercept_using_only_completed_daily_returns_through_t_minus_1
+  score: prior_20d_asset_return_minus_prior_60d_beta_times_prior_20d_BTC_return
+  portfolio_rule: equal_weight_top_2_and_bottom_2_with_zero_net_exposure
+  rebalance: daily_at_close
+  signal_cutoff: t_minus_1_close
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement rate to the position held immediately before each settlement; use calc_time and funding_interval_hours from the archive; never assume an 8h cadence"
+  terminal_liquidation: true
+
+data:
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  benchmark_1: "same-universe equal-weight baseline with identical price, turnover, and funding accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+
+integrity:
+  no_post_convergence_optimization: true
+  no_universe_search: true
+  no_new_candidate_search: true
+  do_not_modify_prior_experiments: true
