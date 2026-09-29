@@ -1,0 +1,49 @@
+experiment_id: HARMONY-FIN-0003
+type: fixed_cross_sectional_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+strategy:
+  strategy_id: "BTC-ETH-LTC-XRP-BNB-BCH-ADA-DOGE-CSMOM-TOP2-DAILY-V1"
+  family: "cross_sectional_relative_momentum"
+  universe:
+    - BTCUSDT
+    - ETHUSDT
+    - LTCUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - BCHUSDT
+    - ADAUSDT
+    - DOGEUSDT
+  score: "prior_20d_simple_return"
+  signal_data_cutoff: "t-1 close"
+  lookback_days: 20
+  portfolio_rule: "long top 2 equal-weight; all other weights zero"
+  rebalance: "daily at close"
+  execution: "apply signal-derived target weights at current daily close"
+  turnover_cost_rule: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  terminal_liquidation: true
+
+data:
+  source: "Binance Spot monthly 1d klines"
+  fixed_trace: "2021-01 through 2025-10"
+  common_panel_rows: 1765
+  common_dates: "2021-01-01 through 2025-10-31"
+  common_missing_dates: 0
+  fixed_basket_trace_bounded: true
+  no_forward_fill: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  execution_oos_only: true
+  benchmark_1: "equal-weight buy-and-hold of the same eight-symbol basket with identical cost treatment"
+  benchmark_2: "BTCUSDT buy-and-hold with identical cost treatment"
+
+integrity:
+  no_post_convergence_optimization: true
+  no_current_market_universe_discovery: true
+  no_post_hoc_parameter_search: true
