@@ -53,6 +53,28 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def parse_number(raw: str) -> float:
+    value = raw.strip().replace("\\u00ad", "")
+    if "," in value and "." in value:
+        # The rightmost separator is the decimal marker.
+        if value.rfind(",") > value.rfind("."):
+            value = value.replace(".", "").replace(",", ".")
+        else:
+            value = value.replace(",", "")
+    elif value.count(".") > 1:
+        # Example: 109.556.16 -> 109556.16 (dot thousands + dot decimal
+        # after an earlier naive locale normalization is still reversible).
+        parts = value.split(".")
+        value = "".join(parts[:-1]) + "." + parts[-1]
+    elif "," in value:
+        tail = value.rsplit(",", 1)[1]
+        if len(tail) in (1, 2):
+            value = value.replace(",", ".")
+        else:
+            value = value.replace(",", "")
+    return float(value)
+
+
 def load_bars(path: Path) -> list[Bar]:
     with path.open("r", newline="", encoding="cp1252") as handle:
         reader = csv.DictReader(handle, delimiter=";")
@@ -66,7 +88,7 @@ def load_bars(path: Path) -> list[Bar]:
         bars: list[Bar] = []
         for row in reader:
             date = row["Fecha"].strip()
-            close = float(row["Cierre"].strip().replace(",", "."))
+            close = parse_number(row["Cierre"])
             bars.append(Bar(timestamp=date, close=close))
     return bars
 
