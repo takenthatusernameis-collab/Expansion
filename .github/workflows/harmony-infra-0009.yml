@@ -1,0 +1,71 @@
+name: Harmony FIN-0003 temporal stability
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-INFRA-0009.yaml"
+      - ".github/workflows/harmony-infra-0009.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  temporal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified multi-asset archive cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/spot/monthly/klines_1d
+          key: harmony-binance-spot-1d-2021-01-2025-10-v1
+          fail-on-cache-miss: true
+      - name: Run fixed six-block temporal ablation
+        run: |
+          python - <<'PY'
+          import math, json
+          from pathlib import Path
+          from experiments.validate_harmony_fin_0003 import load_local_cache, run
+          dates, books, _ = load_local_cache()
+          split = math.floor(len(dates) * 0.7)
+          cost = 0.0011
+          curve = run(dates, books, split, [
+              "BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT",
+              "BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"
+          ], cost)["curve"]
+          oos = dates[split:]
+          edges = [round(i * len(curve) / 6) for i in range(7)]
+          blocks = []
+          for b in range(6):
+              a,z = edges[b], edges[b+1]
+              base = curve[a-1] if a else 1.0
+              blocks.append({
+                  "block": b+1,
+                  "start": oos[a],
+                  "end": oos[z-1],
+                  "observations": z-a,
+                  "cumulative_return": curve[z-1] / base - 1.0
+              })
+          result = {
+              "experiment_id": "HARMONY-INFRA-0009",
+              "target": "HARMONY-FIN-0003",
+              "blocks": blocks,
+              "positive_block_count": sum(x["cumulative_return"] > 0 for x in blocks),
+              "all_blocks_positive": all(x["cumulative_return"] > 0 for x in blocks),
+              "minimum_block_cumulative_return": min(x["cumulative_return"] for x in blocks),
+              "maximum_block_cumulative_return": max(x["cumulative_return"] for x in blocks)
+          }
+          out = Path("artifacts/HARMONY-INFRA-0009")
+          out.mkdir(parents=True, exist_ok=True)
+          (out/"temporal-stability.json").write_text(json.dumps(result, indent=2, sort_keys=True)+"\n")
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+      - name: Upload temporal stability evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0009
+          path: artifacts/HARMONY-INFRA-0009
+          if-no-files-found: error
+          retention-days: 90
