@@ -10,10 +10,11 @@ source:
   filename: "btc_usd_historico_diario_2014_2025.csv"
   coverage: "2014-09-17 through 2025-10-31"
   source_md5: "83fe59d97270462851ab906f86961689"
-  size_bytes_reported: 280300
-  retrieval_note: >
-    Source catalog reports a 280.3 kB CSV and the MD5 above. Expansion must verify
-    the downloaded bytes before assigning the final SHA-256 identity.
+  size_reported: "280.3 kB"
+  provenance_note: >
+    Zenodo describes this as a daily BTC-USD OHLCV dataset and identifies Yahoo Finance
+    as the creator. Expansion must verify the downloaded bytes before assigning the
+    final SHA-256 identity.
 materialization:
   final_sha256: null
   verified_bytes: false
