@@ -53,8 +53,47 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+SPANISH_MONTHS = {
+    "ene": 1,
+    "feb": 2,
+    "mar": 3,
+    "abr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "ago": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dic": 12,
+}
+ENGLISH_MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
+
+
 def parse_source_date(raw: str) -> str:
-    return datetime.strptime(raw.strip().lower(), "%d-%b-%y").date().isoformat()
+    parts = raw.strip().lower().split("-")
+    if len(parts) != 3:
+        raise ValueError(f"Unexpected source date format: {raw!r}")
+    day = int(parts[0])
+    month_token = parts[1]
+    year = 2000 + int(parts[2])
+    month = SPANISH_MONTHS.get(month_token) or ENGLISH_MONTHS.get(month_token)
+    if month is None:
+        raise ValueError(f"Unknown source month token: {month_token!r}")
+    return datetime(year, month, day).date().isoformat()
 
 
 def parse_number(raw: str) -> float:
