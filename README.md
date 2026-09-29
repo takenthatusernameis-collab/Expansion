@@ -1,29 +1,43 @@
 # Expansion
 
-Expansion is Harmony's public research surface.
+Expansion is Harmony's public **experiment-execution plane**.
 
 Its purpose is to enlarge the space of publicly shareable, reusable capabilities for
-systematic financial research while preserving scientific discipline.
+systematic financial research by actually running experiments.
 
-## Boundary
+## Execution boundary
+
+**Experiments run here.**
+
+This includes, where applicable:
+
+- data acquisition
+- feature construction
+- candidate generation
+- backtests
+- walk-forward / out-of-sample validation runs
+- benchmarks
+- ablations
+- experiment-level tests
+- public-safe result artifacts
 
 The companion private repository is:
 
 - `takenthatusernameis-collab/Contraction`
 
-Do not place private hypotheses, secrets, credentials, private datasets, or private
-research state here.
+Contraction is the tracking and memory plane. It records experiment identities,
+provenance, status, decisions, results pointers, and durable research state.
 
 ## Primitive
 
 Expansion asks:
 
-> What valuable capability, hypothesis, connection, or experiment could exist next?
+> What valuable possibility can we execute and test next?
 
 Expansion must remain coupled to Contraction:
 
-- Expansion generates possibilities.
-- Contraction determines what deserves to survive.
+- Expansion generates and executes possibilities.
+- Contraction tracks, evaluates, and preserves what deserves to survive.
 - Harmony is the resulting iterative process.
 
 ## Current mission
