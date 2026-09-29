@@ -36,9 +36,10 @@ def materialize(
     destination: str | Path,
     *,
     expected_md5: str | None = None,
+    expected_sha256: str | None = None,
     timeout_seconds: int = 60,
 ) -> MaterializedDataset:
-    """Download bytes, verify optional upstream MD5, then compute SHA-256 identity."""
+    """Reuse verified local bytes or download, then fingerprint the exact artifact."""
 
     if not source_url:
         raise ValueError("source_url must be non-empty")
@@ -46,14 +47,42 @@ def materialize(
     path = Path(destination)
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Contraction's efficiency objective implies: never redownload bytes that
+    # already exist and whose identity can be verified.
+    if path.exists():
+        md5 = _hash_file(path, "md5")
+        sha256 = _hash_file(path, "sha256")
+        if expected_md5 is not None and md5.lower() != expected_md5.lower():
+            raise ValueError(
+                f"Existing-file MD5 mismatch: expected {expected_md5.lower()}, got {md5.lower()}"
+            )
+        if expected_sha256 is not None and sha256.lower() != expected_sha256.lower():
+            raise ValueError(
+                f"Existing-file SHA-256 mismatch: expected {expected_sha256.lower()}, got {sha256.lower()}"
+            )
+        return MaterializedDataset(
+            source_url=source_url,
+            path=str(path),
+            size_bytes=path.stat().st_size,
+            md5=md5,
+            sha256=sha256,
+        )
+
     with urlopen(source_url, timeout=timeout_seconds) as response:
         path.write_bytes(response.read())
 
     md5 = _hash_file(path, "md5")
+    sha256 = _hash_file(path, "sha256")
     if expected_md5 is not None and md5.lower() != expected_md5.lower():
         path.unlink(missing_ok=True)
         raise ValueError(
             f"MD5 mismatch: expected {expected_md5.lower()}, got {md5.lower()}"
+        )
+
+    if expected_sha256 is not None and sha256.lower() != expected_sha256.lower():
+        path.unlink(missing_ok=True)
+        raise ValueError(
+            f"SHA-256 mismatch: expected {expected_sha256.lower()}, got {sha256.lower()}"
         )
 
     return MaterializedDataset(
@@ -61,7 +90,7 @@ def materialize(
         path=str(path),
         size_bytes=path.stat().st_size,
         md5=md5,
-        sha256=_hash_file(path, "sha256"),
+        sha256=sha256,
     )
 
 
