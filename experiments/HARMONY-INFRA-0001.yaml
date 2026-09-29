@@ -1,13 +1,28 @@
 experiment_id: "HARMONY-INFRA-0001"
 type: "execution_substrate_smoke"
-status: "validated"
-scope: "deterministic backtest interface acceptance"
-repository: "takenthatusernameis-collab/Expansion"
-code_paths:
-  - "src/harmony_backtest/core.py"
-  - "tests/test_core.py"
-  - "experiments/execution_substrate_smoke.py"
+status: "validated_locally"
 scientific_claim: "none"
-note: >
-  This run validates substrate behavior only. It is not evidence that any
-  financial strategy is profitable.
+scope: "deterministic backtest interface acceptance"
+execution_repository: "takenthatusernameis-collab/Expansion"
+tracking_repository: "takenthatusernameis-collab/Contraction"
+
+execution_artifacts:
+  - path: "src/harmony_backtest/core.py"
+    commit: "4702283eff896fa1b4f1c26c51c2c3d90466eccc"
+  - path: "tests/test_core.py"
+    commit: "23dd99edc841992d72989fb66ab2608ca3e48927"
+  - path: "experiments/execution_substrate_smoke.py"
+    commit: "117891e03176a12e25c62b83b89a8b02d08a36e7"
+
+validation:
+  method: "independent_local_reproduction_of_committed_source"
+  tests_passed: 5
+  remote_repository_runner: false
+  scientific_interpretation: >
+    The substrate behavior was independently reproduced from the committed source.
+    This validates infrastructure behavior only; it provides no evidence that any
+    financial strategy is profitable.
+
+boundary_check:
+  experiments_run_on: "Expansion"
+  tracking_recorded_on: "Contraction"
