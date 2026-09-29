@@ -1,0 +1,29 @@
+amendment_id: HARMONY-INFRA-0010-A1
+experiment_id: HARMONY-INFRA-0010
+status: approved_before_rerun
+
+reason:
+  "The initial execution path used GET /fapi/v1/fundingRate and returned HTTP 451 from the GitHub runner. No scientific result was produced and no feasibility conclusion was drawn."
+
+change:
+  funding_source:
+    from: "Binance USD-M Futures public market-data API"
+    to: "Binance Public Data monthly fundingRate archives"
+    base_url: "https://data.binance.vision/data/futures/um/monthly/fundingRate"
+    checksum_sidecar_required: true
+    native_timestamp_field: "calc_time"
+
+unchanged:
+  - "same eight-symbol fixed universe"
+  - "same 2021-01-01 through 2025-10-31 period"
+  - "same USD-M 1d price archive family"
+  - "same no-forward-fill and no-interpolation rules"
+  - "same strategy-execution=false scope"
+  - "same 0.90 funding coverage gate, interpreted as common-calendar-month coverage"
+  - "no candidate generation or optimization"
+
+integrity:
+  scientific_hypothesis_changed: false
+  candidate_frontier_changed: false
+  evaluation_period_changed: false
+  api_failure_interpreted_as_data_failure: false
