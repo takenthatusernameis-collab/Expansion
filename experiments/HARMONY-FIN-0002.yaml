@@ -1,0 +1,29 @@
+experiment_id: HARMONY-FIN-0002
+type: fixed_baseline_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+data:
+  dataset_id: HARMONY-DATA-BTCUSD-DAILY-2014-2025
+  sha256: 7bfbbcabb92b91898b67ed38bae71f4e50f2a37c636762703a3b9af08968343b
+  row_count: 4063
+
+strategy:
+  strategy_id: BTC-MOM20-SIGN-LONGONLY-V1
+  lookback: 20
+  signal_lag_bars: 1
+  signal: "LONG iff close(t-1) > close(t-21); otherwise flat"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+
+validation:
+  split: chronological_70_30
+  oos_fraction: 0.30
+  parameter_fitting_on_oos: false
+  benchmark: BTC buy-and-hold on the identical OOS interval with identical costs
+  lookahead_control: prior completed daily closes only
+
+integrity:
+  no_post_convergence_optimization: true
+  no_parameter_search: true
