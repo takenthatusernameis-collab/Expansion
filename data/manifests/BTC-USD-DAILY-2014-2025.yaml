@@ -1,4 +1,4 @@
-status: "source_selected_pending_materialization"
+status: "verified_materialized"
 dataset_id: "HARMONY-DATA-BTCUSD-DAILY-2014-2025"
 instrument: "BTC-USD"
 timeframe: "1d"
@@ -16,6 +16,10 @@ source:
     as the creator. Expansion must verify the downloaded bytes before assigning the
     final SHA-256 identity.
 materialization:
-  final_sha256: null
-  verified_bytes: false
-  row_count: null
+  final_sha256: "7bfbbcabb92b91898b67ed38bae71f4e50f2a37c636762703a3b9af08968343b"
+  verified_bytes: true
+  row_count: 4063
+  encoding: "cp1252"
+  size_bytes: 280258
+  cache_key: "harmony-btc-md5-83fe59d97270462851ab906f86961689"
+  cache_reuse_verified: true
