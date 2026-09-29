@@ -1,0 +1,13 @@
+experiment_id: "HARMONY-INFRA-0001"
+type: "execution_substrate_smoke"
+status: "validated"
+scope: "deterministic backtest interface acceptance"
+repository: "takenthatusernameis-collab/Expansion"
+code_paths:
+  - "src/harmony_backtest/core.py"
+  - "tests/test_core.py"
+  - "experiments/execution_substrate_smoke.py"
+scientific_claim: "none"
+note: >
+  This run validates substrate behavior only. It is not evidence that any
+  financial strategy is profitable.
