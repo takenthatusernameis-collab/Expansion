@@ -1,0 +1,37 @@
+experiment_id: HARMONY-FIN-0005
+type: fixed_funding_cross_sectional_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+strategy:
+  strategy_id: funding_contrarian_market_neutral
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  score: "mean native funding rate observed during the immediately preceding calendar day"
+  portfolio_rule: "long lowest 2 funding-score symbols at +0.25 each; short highest 2 at -0.25 each"
+  rebalance: daily_at_close
+  signal_cutoff: completed_native_funding_settlements_only
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement rate to the position held immediately before each settlement; use calc_time and funding_interval_hours; do not assume cadence"
+  terminal_liquidation: true
+
+data:
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  benchmark_1: "same-universe equal-weight futures portfolio with identical price, turnover, and funding accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+
+integrity:
+  no_post_convergence_optimization: true
+  no_universe_search: true
+  no_new_candidate_search: true
+  do_not_modify_prior_experiments: true
