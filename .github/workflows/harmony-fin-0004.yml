@@ -1,0 +1,296 @@
+name: Harmony FIN-0004 residual momentum OOS
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-FIN-0004.yaml"
+      - ".github/workflows/harmony-fin-0004.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified USD-M price and funding archives
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Execute preregistered FIN-0004
+        run: |
+          python - <<'PY'
+          import csv, io, json, math, statistics, zipfile
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          SYMBOLS = [
+              "BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT",
+              "BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"
+          ]
+          ROOT = Path("data/cache/binance/futures_um/monthly")
+          OUT = Path("artifacts/HARMONY-FIN-0004")
+          LOOKBACK, BETA_WINDOW = 20, 60
+          FEE, SLIPPAGE = 0.0006, 0.0005
+          COST = FEE + SLIPPAGE
+
+          def day(ms):
+              return datetime.fromtimestamp(
+                  ms / 1000, tz=timezone.utc
+              ).date().isoformat()
+
+          def months():
+              out=[]; y,m=2021,1
+              while (y,m) <= (2025,10):
+                  out.append((y,m)); m += 1
+                  if m == 13: y,m = y+1,1
+              return out
+
+          def read_csv_zip(path):
+              with zipfile.ZipFile(path) as z:
+                  names = [n for n in z.namelist() if n.lower().endswith(".csv")]
+                  if len(names) != 1:
+                      raise RuntimeError(f"Unexpected CSV members in {path}: {names}")
+                  text = z.read(names[0]).decode("utf-8")
+                  return list(csv.reader(io.StringIO(text)))
+
+          def load():
+              close = {s:{} for s in SYMBOLS}
+              funding = {s:[] for s in SYMBOLS}
+              for s in SYMBOLS:
+                  for y,m in months():
+                      kp = ROOT/"klines"/s/"1d"/f"{s}-1d-{y:04d}-{m:02d}.zip"
+                      fp = ROOT/"fundingRate"/s/f"{s}-fundingRate-{y:04d}-{m:02d}.zip"
+                      if not kp.exists() or not fp.exists():
+                          raise FileNotFoundError(str(kp if not kp.exists() else fp))
+
+                      for row in read_csv_zip(kp):
+                          if row and row[0].strip().isdigit():
+                              if len(row) < 6:
+                                  raise RuntimeError(f"Malformed kline row: {kp}")
+                              close[s][day(int(row[0]))] = float(row[4])
+
+                      rows = read_csv_zip(fp)
+                      header = rows[0] if rows and not rows[0][0].strip().isdigit() else None
+                      if header:
+                          idx = {name.strip(): i for i,name in enumerate(header)}
+                          required = {"calc_time","funding_interval_hours","last_funding_rate"}
+                          if not required.issubset(idx):
+                              raise RuntimeError(
+                                  f"Funding schema mismatch {fp}: expected {sorted(required)}, got {header}"
+                              )
+                          data_rows = rows[1:]
+                          for row in data_rows:
+                              if not row:
+                                  continue
+                              ts = int(row[idx["calc_time"]])
+                              interval = int(float(row[idx["funding_interval_hours"]]))
+                              rate = float(row[idx["last_funding_rate"]])
+                              funding[s].append((ts, interval, rate))
+                      else:
+                          raise RuntimeError(f"Funding archive missing schema header: {fp}")
+
+              common = set.intersection(*(set(close[s]) for s in SYMBOLS))
+              dates = sorted(common)
+              if len(dates) != 1760:
+                  raise AssertionError(f"Unexpected common futures panel rows: {len(dates)}")
+              if dates[0] != "2021-01-01" or dates[-1] != "2025-10-31":
+                  raise AssertionError("Unexpected futures panel boundaries")
+              return dates, close, funding
+
+          def beta(asset_returns, btc_returns):
+              mx, my = statistics.mean(btc_returns), statistics.mean(asset_returns)
+              den = sum((x-mx)**2 for x in btc_returns)
+              return (
+                  sum((x-mx)*(y-my) for x,y in zip(btc_returns,asset_returns)) / den
+                  if den else 0.0
+              )
+
+          def target(dates, close, i):
+              if i < max(BETA_WINDOW, LOOKBACK) + 1:
+                  return {s:0.0 for s in SYMBOLS}
+
+              p = dates[i-1]
+              a = dates[i-LOOKBACK-1]
+              btc20 = close["BTCUSDT"][p] / close["BTCUSDT"][a] - 1.0
+              btc_ret = [
+                  close["BTCUSDT"][dates[j]] / close["BTCUSDT"][dates[j-1]] - 1.0
+                  for j in range(i-BETA_WINDOW, i)
+              ]
+
+              scores=[]
+              for s in SYMBOLS:
+                  asset_ret = [
+                      close[s][dates[j]] / close[s][dates[j-1]] - 1.0
+                      for j in range(i-BETA_WINDOW, i)
+                  ]
+                  b = beta(asset_ret, btc_ret)
+                  r20 = close[s][p] / close[s][a] - 1.0
+                  scores.append((r20 - b*btc20, s))
+
+              scores.sort(key=lambda x:(-x[0], x[1]))
+              w={s:0.0 for s in SYMBOLS}
+              for _,s in scores[:2]:
+                  w[s]=0.25
+              for _,s in scores[-2:]:
+                  w[s]=-0.25
+              return w
+
+          def run(dates, close, funding, start, mode):
+              funding_by_day={s:{} for s in SYMBOLS}
+              for s in SYMBOLS:
+                  for ts, interval, rate in funding[s]:
+                      funding_by_day[s].setdefault(day(ts),[]).append((interval,rate))
+
+              eq=1.0
+              prev={s:0.0 for s in SYMBOLS}
+              curve=[]
+              funding_count=0
+              funding_pnl=0.0
+              turnover=0.0
+              costs=0.0
+
+              for i in range(start, len(dates)):
+                  d = dates[i]
+
+                  # Funding is charged at native settlement timestamps to the
+                  # position held immediately before each settlement.
+                  if mode != "btc_no_funding":
+                      for s in SYMBOLS:
+                          for interval, rate in funding_by_day[s].get(d, []):
+                              eq *= (1.0 - prev[s] * rate)
+                              funding_pnl += -prev[s] * rate
+                              funding_count += 1
+
+                  if i > start:
+                      prev_d = dates[i-1]
+                      gross = sum(
+                          prev[s] * (close[s][d]/close[s][prev_d] - 1.0)
+                          for s in SYMBOLS
+                      )
+                      eq *= (1.0 + gross)
+
+                  if mode == "residual":
+                      tgt = target(dates, close, i)
+                  elif mode == "equal_weight":
+                      tgt = {s:1.0/len(SYMBOLS) for s in SYMBOLS}
+                  elif mode == "btc_no_funding":
+                      tgt = {s:(1.0 if s=="BTCUSDT" else 0.0) for s in SYMBOLS}
+                  else:
+                      raise ValueError(mode)
+
+                  delta = sum(abs(tgt[s]-prev[s]) for s in SYMBOLS)
+                  eq *= (1.0 - COST*delta)
+                  turnover += delta/2.0
+                  costs += COST*delta
+                  curve.append(eq)
+                  prev=tgt
+
+              liq=sum(abs(v) for v in prev.values())
+              eq *= (1.0 - COST*liq)
+              curve[-1] = eq
+              costs += COST*liq
+
+              returns=[curve[j]/curve[j-1]-1.0 for j in range(1,len(curve))]
+              sd=statistics.stdev(returns) if len(returns)>=2 else 0.0
+              sharpe=(statistics.mean(returns)/sd)*math.sqrt(365.0) if sd else 0.0
+              peak=curve[0]; mdd=0.0
+              for x in curve:
+                  peak=max(peak,x); mdd=min(mdd,x/peak-1.0)
+              elapsed=max(1,len(curve)-1)
+              cagr=curve[-1]**(365.25/elapsed)-1.0
+
+              return {
+                  "final_equity":eq,
+                  "cumulative_return":eq-1.0,
+                  "cagr":cagr,
+                  "max_drawdown":mdd,
+                  "sharpe":sharpe,
+                  "observations":len(curve),
+                  "total_one_way_turnover":turnover,
+                  "mean_daily_one_way_turnover":turnover/len(curve),
+                  "total_transaction_cost_fraction":costs,
+                  "funding_events_applied":funding_count,
+                  "funding_pnl_fraction_sum":funding_pnl
+              }
+
+          dates, close, funding = load()
+          split = math.floor(len(dates)*0.70)
+          oos = dates[split:]
+          if oos[0] != "2024-05-20" or oos[-1] != "2025-10-31":
+              raise AssertionError("FIN-0004 OOS identity mismatch")
+
+          strategy = run(dates,close,funding,split,"residual")
+          equal_weight = run(dates,close,funding,split,"equal_weight")
+          btc = run(dates,close,funding,split,"btc_no_funding")
+
+          OUT.mkdir(parents=True,exist_ok=True)
+          result={
+              "experiment_id":"HARMONY-FIN-0004",
+              "strategy_id":"residual_momentum_with_funding",
+              "data":{
+                  "symbols":SYMBOLS,
+                  "panel_rows":len(dates),
+                  "panel_start":dates[0],
+                  "panel_end":dates[-1],
+                  "oos_rows":len(oos),
+                  "oos_start":oos[0],
+                  "oos_end":oos[-1]
+              },
+              "configuration":{
+                  "return_horizon_days":20,
+                  "beta_window_days":60,
+                  "fee_rate":FEE,
+                  "slippage_rate":SLIPPAGE,
+                  "signal_cutoff":"t_minus_1_close",
+                  "rebalance":"daily_at_close",
+                  "terminal_liquidation":True,
+                  "parameters_fit_on_oos":False,
+                  "funding_timestamp_column":"calc_time",
+                  "funding_interval_column":"funding_interval_hours",
+                  "funding_rate_column":"last_funding_rate"
+              },
+              "oos_strategy":strategy,
+              "oos_equal_weight":equal_weight,
+              "oos_btc":btc,
+              "comparisons":{
+                  "strategy_minus_equal_weight_cumulative_return":
+                      strategy["cumulative_return"]-equal_weight["cumulative_return"],
+                  "strategy_minus_btc_cumulative_return":
+                      strategy["cumulative_return"]-btc["cumulative_return"]
+              },
+              "integrity":{
+                  "fixed_universe":True,
+                  "fixed_price_trace":True,
+                  "fixed_funding_trace":True,
+                  "prior_only_signal_data":True,
+                  "native_funding_timestamps_used":True,
+                  "funding_interval_hours_parsed":True,
+                  "no_forward_fill":True,
+                  "no_universe_search":True,
+                  "no_post_convergence_optimization":True,
+                  "prior_experiments_modified":False
+              }
+          }
+
+          (OUT/"result.json").write_text(
+              json.dumps(result,indent=2,sort_keys=True)+"\n",
+              encoding="utf-8"
+          )
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload FIN-0004 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-fin-0004-evidence
+          path: artifacts/HARMONY-FIN-0004
+          if-no-files-found: error
+          retention-days: 90
