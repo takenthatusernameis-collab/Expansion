@@ -90,6 +90,14 @@ def load_bars(path: Path) -> list[Bar]:
             date = row["Fecha"].strip()
             close = parse_number(row["Cierre"])
             bars.append(Bar(timestamp=date, close=close))
+
+    for i in range(1, len(bars)):
+        if bars[i].timestamp <= bars[i - 1].timestamp:
+            raise ValueError(
+                "Non-increasing timestamps at rows "
+                f"{i} and {i + 1}: "
+                f"{bars[i - 1].timestamp!r} -> {bars[i].timestamp!r}"
+            )
     return bars
 
 
