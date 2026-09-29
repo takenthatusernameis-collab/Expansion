@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Same immutable cache key: unchanged source identity must reuse verified bytes.
       - name: Restore cached BTC-USD bytes
         id: cache
         uses: actions/cache@v4
