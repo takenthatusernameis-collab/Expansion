@@ -4,6 +4,7 @@ import io
 import json
 import math
 import statistics
+import time
 from calendar import monthrange
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -26,9 +27,19 @@ def sha256_bytes(raw: bytes) -> str:
 
 
 def fetch(url: str) -> bytes:
-    req = Request(url, headers={"User-Agent": "Harmony/DEEP-DISCOVERY-BATCH-003"})
-    with urlopen(req, timeout=120) as response:
-        return response.read()
+    last_error = None
+    for attempt in range(4):
+        try:
+            req = Request(url, headers={"User-Agent": "Harmony/DEEP-DISCOVERY-BATCH-003"})
+            with urlopen(req, timeout=120) as response:
+                return response.read()
+        except HTTPError as exc:
+            if exc.code not in (502, 503, 504):
+                raise
+            last_error = exc
+            if attempt < 3:
+                time.sleep(2 ** attempt)
+    raise last_error
 
 
 def load_btc_close():
