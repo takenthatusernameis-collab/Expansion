@@ -170,13 +170,13 @@ def run_weight_batch(
             # Returning None means no rebalance; returning a mapping means rebalance.
             target = candidate_weight_functions[name](date, state)
             if target is not None:
-                    missing = set(state.symbols) - set(target)
-                    extra = set(target) - set(state.symbols)
-                    if missing or extra:
-                        raise ValueError(
-                            f"candidate {name} weight universe mismatch: "
-                            f"missing={sorted(missing)} extra={sorted(extra)}"
-                        )
+                missing = set(state.symbols) - set(target)
+                extra = set(target) - set(state.symbols)
+                if missing or extra:
+                    raise ValueError(
+                        f"candidate {name} weight universe mismatch: "
+                        f"missing={sorted(missing)} extra={sorted(extra)}"
+                    )
                 target = {s: float(target[s]) for s in state.symbols}
                 delta = sum(abs(target[s] - current[s]) for s in state.symbols)
                 turnover[name] += delta / 2.0
