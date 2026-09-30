@@ -116,7 +116,12 @@ def write_daily_store(path: str | Path, rows: Iterable[DailyMarketRow]) -> str:
     destination.parent.mkdir(parents=True, exist_ok=True)
     payload = canonical_store_bytes(rows)
     with destination.open("wb") as handle:
-        with gzip.GzipFile(fileobj=handle, mode="wb", mtime=0) as compressed:
+        with gzip.GzipFile(
+            fileobj=handle,
+            mode="wb",
+            filename="",
+            mtime=0,
+        ) as compressed:
             compressed.write(payload)
     return hashlib.sha256(destination.read_bytes()).hexdigest()
 
