@@ -180,24 +180,42 @@ def metrics(curve):
     }
 
 def segment_metrics(dates, equity, start_date):
-    selected = [(d, e) for d, e in zip(dates, equity) if d >= start_date]
+    selected = [(i, d, e) for i, (d, e) in enumerate(zip(dates, equity)) if d >= start_date]
     if not selected:
         return None
-    base = selected[0][1]
-    curve = [e / base for _, e in selected]
-    return metrics(curve)
+    first_index, first_date, _first_equity = selected[0]
+    base = 1.0 if first_index == 0 else equity[first_index - 1]
+    curve = [1.0] + [e / base for _i, _d, e in selected]
+    result = metrics(curve)
+    result["start"] = first_date
+    result["end"] = selected[-1][1]
+    result["observations"] = len(selected)
+    return result
 
 def halves_metrics(dates, equity, start_date):
-    selected = [(d, e) for d, e in zip(dates, equity) if d >= start_date]
+    selected = [(i, d, e) for i, (d, e) in enumerate(zip(dates, equity)) if d >= start_date]
     if len(selected) < 4:
         return None
     mid = len(selected) // 2
-    first = selected[:mid]
-    second = selected[mid:]
+
     def run(part):
-        base = part[0][1]
-        return metrics([e / base for _, e in part])
-    return {"first_half": run(first), "second_half": run(second)}
+        first_index, first_date, _first_equity = part[0]
+        base = 1.0 if first_index == 0 else equity[first_index - 1]
+        curve = [1.0] + [e / base for _i, _d, e in part]
+        result = metrics(curve)
+        result["start"] = first_date
+        result["end"] = part[-1][1]
+        result["observations"] = len(part)
+        return result
+
+    return {
+        "first_half": run(selected[:mid]),
+        "second_half": run(selected[mid:]),
+        "split": {
+            "first_half_end": selected[mid - 1][1],
+            "second_half_start": selected[mid][1],
+        },
+    }
 
 def simulate_panel(dates, close, funding, weight_fn, rebalance_fn, cost_mult=1.0):
     eq = 1.0
@@ -376,19 +394,25 @@ def main():
         lambda i, d: i % 7 == 0,
         1.0,
     )
-    btc = simulate_btc_cot(
-        futures["BTCUSDT"],
-        funding["BTCUSDT"],
-        [(common[0], 0.0)],
+    # BTC buy-and-hold benchmark with the same funding and transaction-cost accounting.
+    btc_dates = sorted(d for d in futures["BTCUSDT"] if d <= END.isoformat())
+    def btc_hold_rebalance(i, _d):
+        return i == 0
+    def btc_hold_weights(i, _d):
+        return {"BTCUSDT": 1.0}
+
+    btc_bh_run = simulate_panel(
+        btc_dates,
+        {"BTCUSDT": futures["BTCUSDT"]},
+        {"BTCUSDT": funding["BTCUSDT"]},
+        btc_hold_weights,
+        btc_hold_rebalance,
         1.0,
     )
-    # Replace the dummy positioning signal with a true BTC buy-and-hold curve.
-    btc_dates = sorted(d for d in futures["BTCUSDT"] if d <= END.isoformat())
-    btc_curve = [futures["BTCUSDT"][d] / futures["BTCUSDT"][btc_dates[0]] for d in btc_dates]
     btc_bh = {
-        "metrics": metrics(btc_curve),
-        "oos": segment_metrics(btc_dates, btc_curve, OOS_START),
-        "oos_halves": halves_metrics(btc_dates, btc_curve, OOS_START),
+        "metrics": btc_bh_run["metrics"],
+        "oos": btc_bh_run["oos"],
+        "oos_halves": btc_bh_run["oos_halves"],
     }
 
     spot_files = []
