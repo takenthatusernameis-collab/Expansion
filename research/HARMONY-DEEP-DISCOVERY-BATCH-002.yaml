@@ -1,0 +1,23 @@
+batch_id: HARMONY-DEEP-DISCOVERY-BATCH-002
+status: preregistered_frozen
+purpose: "Execute only the strongest candidates from hypothesis slate 002 on their longest verified histories."
+candidates:
+  - HARMONY-FIN-0017
+  - HARMONY-FIN-0018
+shared_controls:
+  holdout_access: false
+  selection_end: "2025-10-31"
+  no_parameter_search: true
+  no_universe_search: true
+  no_candidate_mutation: true
+  fixed_oos_boundary: "2024-05-22"
+  benchmarks_required: true
+  temporal_halves_required: true
+  cost_stress_required: true
+compute:
+  single_workflow: true
+  shared_futures_cache: true
+  reusable_spot_cache: true
+  reusable_cftc_cache: true
+  batch_reporting: true
+  no_duplicate_downloads: true
