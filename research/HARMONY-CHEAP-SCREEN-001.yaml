@@ -5,8 +5,8 @@ scope: "Apply only to candidates whose definitions are already frozen. This scre
 decision_rule:
   pass_if:
     minimum_rebalances: 20
-    minimum_cumulative_return_after_costs: 0.0
-    minimum_sharpe_after_costs: 0.0
+    cumulative_return_after_costs: "strictly greater than 0"
+    sharpe_after_costs: "strictly greater than 0"
   fail_if: "Any pass_if condition is false."
 integrity:
   parameters_fixed_before_execution: true
