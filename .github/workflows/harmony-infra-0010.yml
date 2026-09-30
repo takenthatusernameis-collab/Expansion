@@ -33,3 +33,5 @@ jobs:
           path: artifacts/HARMONY-HOLDOUT-DATA-001
           if-no-files-found: error
           retention-days: 90
+
+# holdout partial-month archive fallback activation
