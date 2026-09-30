@@ -146,8 +146,8 @@ def main():
         "cheap_screen_policy": {
             "screen_id": SCREEN_ID,
             "minimum_rebalances": MIN_REBALANCES,
-            "minimum_cumulative_return_after_costs": MIN_CUMULATIVE_RETURN,
-            "minimum_sharpe_after_costs": MIN_SHARPE,
+            "cumulative_return_after_costs_rule": "strictly greater than 0",
+            "sharpe_after_costs_rule": "strictly greater than 0",
         },
         "candidates": candidate_reports,
         "execution_model": "one_normalized_load_shared_state_two_candidates",
