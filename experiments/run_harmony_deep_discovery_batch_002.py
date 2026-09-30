@@ -391,8 +391,48 @@ def main():
         "oos_halves": halves_metrics(btc_dates, btc_curve, OOS_START),
     }
 
+    spot_files = []
+    for path in sorted(SPOT_ROOT.rglob("*.zip")):
+        raw = path.read_bytes()
+        spot_files.append({
+            "path": str(path),
+            "bytes": len(raw),
+            "sha256": sha256_bytes(raw),
+        })
+    cot_files = []
+    for path in sorted(COT_ROOT.glob("deacot*.zip")):
+        raw = path.read_bytes()
+        cot_files.append({
+            "path": str(path),
+            "bytes": len(raw),
+            "sha256": sha256_bytes(raw),
+        })
+
+    input_manifest = {
+        "batch_id": "HARMONY-DEEP-DISCOVERY-BATCH-002",
+        "futures_cache_key": "harmony-binance-um-deep-history-2019-2025-10-v1-36777989764",
+        "futures_common_history": {
+            s: {
+                "start": min(futures[s]) if futures[s] else None,
+                "end": max(futures[s]) if futures[s] else None,
+                "rows": len(futures[s]),
+            }
+            for s in SYMBOLS
+        },
+        "spot_files": spot_files,
+        "cftc_files": cot_files,
+        "cftc_source": "https://www.cftc.gov/files/dea/history/deacotYYYY.zip",
+        "selection_end": END.isoformat(),
+        "oos_start": OOS_START,
+        "github_sha": __import__("os").environ.get("GITHUB_SHA"),
+    }
+    manifest_bytes = json.dumps(input_manifest, sort_keys=True, indent=2).encode() + b"\n"
+    manifest_sha = sha256_bytes(manifest_bytes)
+    (OUT / "input-manifest.json").write_bytes(manifest_bytes)
+
     payload = {
         "batch_id": "HARMONY-DEEP-DISCOVERY-BATCH-002",
+        "input_manifest_sha256": manifest_sha,
         "candidates": {
             "HARMONY-FIN-0017": basis_result,
             "HARMONY-FIN-0018": {
