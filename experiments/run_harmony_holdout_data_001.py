@@ -197,8 +197,13 @@ with ThreadPoolExecutor(max_workers=12) as ex:
         for d in PARTIAL_DAYS:
             jobs.append(ex.submit(load_price,s,"daily",d))
         jobs.append(ex.submit(load_funding_partial_archive,s))
+    errors=[]
     for f in as_completed(jobs):
-        meta,payload=f.result()
+        try:
+            meta,payload=f.result()
+        except Exception as exc:
+            errors.append(str(exc))
+            continue
         if isinstance(meta,list):
             symbol=next(x["symbol"] for x in meta if x.get("kind")=="funding_partial_summary")
             fund_meta.extend(meta); funding_events.setdefault(symbol,[]).extend(payload)
@@ -206,6 +211,23 @@ with ThreadPoolExecutor(max_workers=12) as ex:
             price_meta.append(meta); price_dates.setdefault(meta["symbol"],set()).update(payload)
         else:
             fund_meta.append(meta); funding_events.setdefault(meta["symbol"],[]).extend(payload)
+
+if errors:
+    audit={
+        "experiment_id":"HARMONY-HOLDOUT-DATA-001",
+        "status":"blocked_source_availability",
+        "selection_data_end":"2025-10-31",
+        "holdout_start":START,"holdout_end":END,
+        "frontier_digest":"bfdbd2a4e3bd5fd393479ae93f821d13d8f23d455e6763a574ed664da80e4966",
+        "errors":sorted(errors),
+        "accepted_materialization":False,
+        "holdout_outcomes_released":False,
+        "observed_price_archives":len(price_meta),
+        "observed_funding_archives":len(fund_meta)
+    }
+    (OUT/"materialization-audit.json").write_text(json.dumps(audit,indent=2,sort_keys=True)+"\n")
+    print(json.dumps(audit,indent=2,sort_keys=True))
+    raise SystemExit(0)
 
 price_meta.sort(key=lambda x:(x["symbol"],x["period"],x["archive_frequency"]))
 fund_meta.sort(key=lambda x:(x["symbol"],x["period"],x["archive_frequency"]))
