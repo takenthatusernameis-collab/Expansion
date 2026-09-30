@@ -26,7 +26,7 @@ def metrics(c):
 
 def segment(dates,eq):
     idx=[i for i,d in enumerate(dates) if d>=OOS_START]
-    b=eq[idx[0]-1]
+    b=1.0 if idx[0]==0 else eq[idx[0]-1]
     c=[1.0]+[eq[i]/b for i in idx]
     x=metrics(c); x["start"]=dates[idx[0]]; x["end"]=dates[idx[-1]]
     return x
@@ -131,7 +131,9 @@ expected={
  "HARMONY-FIN-0012":{"cumulative_return":0.4169009579470373,"sharpe":0.9706848261971941},
  "HARMONY-FIN-0024":{"cumulative_return":0.43002307869081013,"sharpe":1.3589824243083648}
 }
-base12=run_0012(1,True); base24=run_0024(1,True)
+
+def main():
+ base12=run_0012(1,True); base24=run_0024(1,True)
 for k,b in [("HARMONY-FIN-0012",base12),("HARMONY-FIN-0024",base24)]:
     for field,val in expected[k].items():
         if abs(b["oos"][field]-val)>1e-12: raise RuntimeError(f"{k} baseline mismatch {field}: {b['oos'][field]} != {val}")
@@ -147,4 +149,7 @@ result={
 OUT.mkdir(parents=True,exist_ok=True)
 raw=json.dumps(result,sort_keys=True,indent=2).encode()+b"\n"
 (OUT/"HARMONY-PROMOTED-VALIDATION-001-RESULT.json").write_bytes(raw)
-print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest()},indent=2))
+ print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest()},indent=2))
+
+if __name__=="__main__":
+ main()
