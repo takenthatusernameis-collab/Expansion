@@ -6,15 +6,15 @@ tracking_repository: takenthatusernameis-collab/Contraction
 protocol: HARMONY-HOLDOUT-PROTOCOL-001
 selection_data_end: "2025-10-31"
 holdout_start: "2025-11-01"
-holdout_end: "2026-09-20"
+holdout_end: "2026-08-31"
 universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
 data:
   price:
     completed_months: "Binance USD-M monthly 1d kline archives for 2025-11 through 2026-08"
-    partial_month: "Binance USD-M daily 1d kline archives for 2026-09-01 through 2026-09-20"
+    partial_month: none
   funding:
     completed_months: "Binance USD-M monthly fundingRate archives for 2025-11 through 2026-08"
-    partial_month: "official Binance USD-M fundingRate API responses for 2026-09-01 through 2026-09-20"
+    partial_month: none
   source_substitution_preregistered: true
   required_months:
     - "2025-11"
@@ -27,9 +27,7 @@ data:
     - "2026-06"
     - "2026-07"
     - "2026-08"
-  required_partial_days:
-    start: "2026-09-01"
-    end: "2026-09-20"
+  required_partial_days: none
   common_date_intersection_required: true
   no_forward_fill: true
   upstream_checksum_required: true
