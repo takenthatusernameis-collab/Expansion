@@ -188,6 +188,7 @@ for root,label,months in [
                 b=p.read_bytes()
                 manifest_entries.append({"cache":label,"kind":kind,"path":str(p),"sha256":hashlib.sha256(b).hexdigest(),"bytes":len(b)})
 manifest_entries.sort(key=lambda x:x["path"])
+assert len(manifest_entries)==1088
 input_manifest_bytes=json.dumps({
     "selection_cache_verified_manifest_sha256":"555b2be6e2671729a2613ad58c1c0b4eed7272415b154673fedd34db4b0f5da5",
     "holdout_materialization_manifest_sha256":"8f626b3bc8b682b6213e414fd5d47f9339a04852abdf3b43d23f7b1481c8f00b",
@@ -236,11 +237,9 @@ for exp_id,cid in candidate_configs:
             "input_manifest_bound_to_result":True
         }
     }
-    # exact byte-bound companion manifests
-    rb=json.dumps(result,indent=2,sort_keys=True).encode()+b"\n"
-    result["result_self_sha256"]=hashlib.sha256(rb).hexdigest()
     rb=json.dumps(result,indent=2,sort_keys=True).encode()+b"\n"
     (OUT/f"{exp_id}-result.json").write_bytes(rb)
+    result["_result_bytes_sha256"]=hashlib.sha256(rb).hexdigest()
     all_results[exp_id]=result
 
 summary={
