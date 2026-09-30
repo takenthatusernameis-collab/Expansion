@@ -16,7 +16,7 @@ strategy:
   return_definition: "close(t-1) / close(t-21) - 1"
   signal: "sign(prior_20d_return)"
   portfolio_rule: "equal-weight all assets with positive signal long and negative signal short; zero only for exactly zero signal; normalize long and short books independently to 0.5 gross each when both sides exist; otherwise use the single available side at 1.0 gross"
-  rebalance_schedule: "first rebalance on the first common date with 20 prior common observations; subsequent rebalances every 7th common observation"
+  rebalance_schedule: "first rebalance on the first common date with 21 prior common observations; subsequent rebalances every 7th common observation"
   signal_cutoff: "t-1 close"
   fee_rate: 0.0006
   slippage_rate: 0.0005
