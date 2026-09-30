@@ -23,6 +23,8 @@ permissions:
 jobs:
   substrate:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
     steps:
       - uses: actions/checkout@v4
       - name: Install test runner
