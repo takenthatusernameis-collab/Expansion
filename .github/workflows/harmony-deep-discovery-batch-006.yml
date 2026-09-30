@@ -1,0 +1,40 @@
+name: Harmony deep discovery batch 006
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-FIN-0032.yaml"
+      - "experiments/HARMONY-FIN-0033.yaml"
+      - "experiments/run_harmony_deep_discovery_batch_006.py"
+      - "tests/test_deep_discovery_batch_006.py"
+      - "research/HARMONY-DEEP-DISCOVERY-BATCH-006.yaml"
+      - ".github/workflows/harmony-deep-discovery-batch-006.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deep-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified futures deep-history cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+          fail-on-cache-miss: true
+      - name: Install test runner
+        run: python -m pip install --disable-pip-version-check --no-input pytest
+      - name: Validate deep-batch components
+        run: python -m pytest -q tests/test_deep_discovery_batch_006.py
+      - name: Execute the two frozen deep tests
+        run: python experiments/run_harmony_deep_discovery_batch_006.py
+      - name: Upload deep-batch evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-deep-discovery-batch-006
+          path: artifacts/HARMONY-DEEP-DISCOVERY-BATCH-006
+          if-no-files-found: error
+          retention-days: 90
