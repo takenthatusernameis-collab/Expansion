@@ -4,6 +4,7 @@ import io
 import json
 import math
 import statistics
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
@@ -122,10 +123,23 @@ def build_initial_finu(months):
     factor = {}
     provenance = {}
     for m in months:
-        raw, vintage, value = alfred_initial_value(m)
+        y, mo = map(int, m.split("-"))
+        vintage = f"{(y + (1 if mo == 12 else 0)):04d}-{(1 if mo == 12 else mo + 1):02d}-20"
+        try:
+            raw, actual_vintage, value = alfred_initial_value(m)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                provenance[m] = {
+                    "vintage_date": vintage,
+                    "status": "unavailable_at_preregistered_vintage",
+                    "http_status": 404,
+                }
+                continue
+            raise
         factor[m] = value
         provenance[m] = {
-            "vintage_date": vintage,
+            "vintage_date": actual_vintage,
+            "status": "available",
             "raw_sha256": sha256_bytes(raw),
         }
     return factor, provenance
