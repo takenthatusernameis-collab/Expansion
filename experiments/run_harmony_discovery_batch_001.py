@@ -95,7 +95,7 @@ def main():
             f"{STORE} is missing; run the deterministic daily-store materializer first"
         )
 
-    rows = read_daily_store(STORE)
+    rows = [row for row in read_daily_store(STORE) if row.date <= "2024-05-21"]
     if tuple(sorted({row.symbol for row in rows})) != tuple(sorted(SYMBOLS)):
         raise RuntimeError("daily store symbol universe mismatch")
 
@@ -129,6 +129,7 @@ def main():
             for name, result in results.items()
         },
         "execution_model": "one_normalized_load_shared_state_two_candidates",
+        "selection_window_end": "2024-05-21",
         "holdout_access": False,
         "candidate_mutation": False,
         "purpose": "compute-amortized discovery execution; not a substitute for preregistered acceptance artifacts",
