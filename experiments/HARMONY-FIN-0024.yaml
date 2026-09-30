@@ -1,0 +1,31 @@
+experiment_id: HARMONY-FIN-0024
+type: deep_perpetual_funding_crowding_reversal
+status: preregistered_frozen
+strategy_id: weekly_funding_extremes_v1
+market: eight_symbol_binance_usdt_perpetual_cross_section
+signal:
+  source: native Binance perpetual funding events
+  observation_window: prior 21 funding observations per symbol
+  rebalance: weekly on the fixed common daily panel cadence
+  ranking: lowest mean funding = long; highest mean funding = short
+  portfolio: long 3 / short 3; equal gross weight; 0.5 gross each side
+  cutoff: use funding observations strictly before the rebalance day's close
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: native funding cashflows
+data:
+  source_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  end: "2025-10-31"
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_start: "2024-05-22"
+  temporal_stability: two equal chronological OOS halves
+  benchmarks: [BTCUSDT_buy_and_hold, equal_weight_long_only]
+  cost_stress: [1.0x, 1.5x, 2.0x]
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
