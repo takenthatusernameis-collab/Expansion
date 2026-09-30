@@ -232,9 +232,11 @@ jobs:
               for mult in (1.0, 1.5, 2.0)
           }
 
-          cache_manifest_sha256 = hashlib.sha256(
-              "\n".join(f"{p}|{h}|{z}" for p, h, z in sorted(cache_hashes)).encode()
-          ).hexdigest()
+          manifest_payload = json.dumps(
+              [{"path":p,"sha256":h,"bytes":z} for p,h,z in sorted(cache_hashes)],
+              indent=2, sort_keys=True
+          ) + "\n"
+          cache_manifest_sha256 = hashlib.sha256(manifest_payload.encode()).hexdigest()
 
           result = {
               "experiment_id":"HARMONY-FIN-0012",
@@ -287,11 +289,13 @@ jobs:
           }
 
           OUT.mkdir(parents=True, exist_ok=True)
+          (OUT / "cache_manifest.json").write_text(manifest_payload)
+          actual_manifest_sha256 = hashlib.sha256((OUT / "cache_manifest.json").read_bytes()).hexdigest()
+          if actual_manifest_sha256 != cache_manifest_sha256:
+              raise RuntimeError(f"cache manifest self-hash mismatch: declared={cache_manifest_sha256} actual={actual_manifest_sha256}")
+          result["data"]["cache_manifest_sha256"] = actual_manifest_sha256
+          result["integrity"]["cache_manifest_bound_to_result_bytes"] = True
           (OUT / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-          (OUT / "cache_manifest.json").write_text(json.dumps(
-              [{"path":p,"sha256":h,"bytes":z} for p,h,z in sorted(cache_hashes)],
-              indent=2, sort_keys=True
-          ) + "\n")
           print(json.dumps(result, indent=2, sort_keys=True))
           PY
 
