@@ -80,7 +80,7 @@ def parse_stablecoin_series(raw: bytes):
             value = value.get("peggedUSD")
         if value is None:
             continue
-        rows.append((date.fromtimestamp(int(row["date"]), timezone.utc).isoformat(), float(value)))
+        rows.append((datetime.fromtimestamp(int(row["date"]), timezone.utc).date().isoformat(), float(value)))
     rows.sort()
     dedup = {}
     for d, value in rows:
