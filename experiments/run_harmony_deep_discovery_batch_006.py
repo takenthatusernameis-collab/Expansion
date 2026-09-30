@@ -136,6 +136,16 @@ def build_initial_finu(months):
                 }
                 continue
             raise
+        except RuntimeError as exc:
+            if str(exc).startswith("LMNUF1M initial-vintage value unavailable"):
+                provenance[m] = {
+                    "vintage_date": vintage,
+                    "status": "unavailable_at_preregistered_vintage",
+                    "http_status": 200,
+                    "reason": str(exc),
+                }
+                continue
+            raise
         factor[m] = value
         provenance[m] = {
             "vintage_date": actual_vintage,
