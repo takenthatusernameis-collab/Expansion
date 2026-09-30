@@ -1,0 +1,107 @@
+name: Harmony METHOD-0003 source-manifest binding validation
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-METHOD-0003.yaml"
+      - ".github/workflows/harmony-method-0003.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run deterministic source-manifest binding checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          ROOT = Path(".").resolve()
+          WORK = ROOT / "methodology" / "fixtures" / "method-0003"
+          WORK.mkdir(parents=True, exist_ok=True)
+          manifest = WORK / "source_manifest.json"
+          state = WORK / "state.json"
+          artifact = ROOT / "artifacts" / "HARMONY-METHOD-0003"
+          artifact.mkdir(parents=True, exist_ok=True)
+
+          manifest_bytes = b'{"fixture":"HARMONY-METHOD-0003","version":1}\n'
+          manifest.write_bytes(manifest_bytes)
+          expected = hashlib.sha256(manifest_bytes).hexdigest()
+          state.write_text(json.dumps({
+              "source_manifest_path": str(manifest.relative_to(ROOT)),
+              "source_manifest_sha256": expected,
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+          def safe_path(relative):
+              candidate = (ROOT / relative).resolve()
+              if candidate != ROOT and ROOT not in candidate.parents:
+                  raise ValueError("path escapes repository root")
+              return candidate
+
+          def verify_binding(st):
+              p = st["source_manifest_path"]
+              declared = st["source_manifest_sha256"]
+              path = safe_path(p)
+              actual = hashlib.sha256(path.read_bytes()).hexdigest()
+              if actual != declared:
+                  raise ValueError("source_manifest.sha256 mismatch")
+              return actual
+
+          original = verify_binding(json.loads(state.read_text(encoding="utf-8")))
+
+          tampered = manifest.read_bytes()
+          manifest.write_bytes(b'{"fixture":"TAMPERED","version":1}\n')
+          try:
+              verify_binding(json.loads(state.read_text(encoding="utf-8")))
+              tampering_rejected = False
+          except ValueError:
+              tampering_rejected = True
+          manifest.write_bytes(tampered)
+
+          mismatch_state = json.loads(state.read_text(encoding="utf-8"))
+          mismatch_state["source_manifest_path"] = "methodology/fixtures/method-0003/other.json"
+          (WORK / "other.json").write_text(manifest.read_text(encoding="utf-8"), encoding="utf-8")
+          try:
+              verify_binding(mismatch_state)
+              path_mismatch_rejected = False
+          except (ValueError, KeyError, FileNotFoundError):
+              path_mismatch_rejected = True
+
+          escape_state = json.loads(state.read_text(encoding="utf-8"))
+          escape_state["source_manifest_path"] = "../../../etc/passwd"
+          try:
+              verify_binding(escape_state)
+              path_escape_rejected = False
+          except (ValueError, KeyError, FileNotFoundError):
+              path_escape_rejected = True
+
+          result = {
+              "methodology_id": "HARMONY-METHOD-0003",
+              "status": "PASS" if (original == expected and tampering_rejected and path_mismatch_rejected and path_escape_rejected) else "FAIL",
+              "original_manifest_sha256": expected,
+              "binding_pass": original == expected,
+              "tampering_rejected": tampering_rejected,
+              "path_mismatch_rejected": path_mismatch_rejected,
+              "path_escape_rejected": path_escape_rejected,
+          }
+          (artifact / "result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(json.dumps(result, indent=2, sort_keys=True))
+          if result["status"] != "PASS":
+              raise SystemExit(1)
+          PY
+
+      - name: Upload METHOD-0003 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-method-0003-evidence
+          path: artifacts/HARMONY-METHOD-0003
+          if-no-files-found: error
+          retention-days: 90
