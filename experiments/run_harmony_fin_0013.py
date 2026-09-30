@@ -69,10 +69,13 @@ def load_funding():
 
 
 def normalized_panel_sha(prices, dates) -> str:
-    buf = ["date," + ",".join(f"{s}_close" for s in SYMBOLS)]
+    import io
+    stream = io.StringIO(newline="")
+    writer = csv.writer(stream)
+    writer.writerow(["date"] + [s + "_close" for s in SYMBOLS])
     for d in dates:
-        buf.append(d + "," + ",".join(f"{prices[s][d]:.17g}" for s in SYMBOLS))
-    return sha256_bytes(("\n".join(buf) + "\n").encode())
+        writer.writerow([d] + [f"{prices[s][d]:.17g}" for s in SYMBOLS])
+    return sha256_bytes(stream.getvalue().encode())
 
 
 def weights(prices, dates, i):
