@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request,urlopen
 
+# validation trigger: current runner must pass its full regression gate before accrual.
 SYMBOLS=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
 START=date(2026,9,1); MIN_OBS=180
 ROOT=Path("data/cache/binance/futures_um/future_holdout_2026-09-forward/monthly")
