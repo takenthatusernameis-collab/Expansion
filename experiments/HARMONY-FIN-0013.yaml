@@ -1,0 +1,67 @@
+experiment_id: HARMONY-FIN-0013
+type: fixed_time_series_momentum_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration:
+  strategy_id: time_series_momentum_20d_weekly_v1
+  candidate_id: time_series_momentum_20d_weekly_v1
+  objective: "Test whether each asset's own prior-20-day return sign provides time-series momentum information independent of the prior cross-sectional and funding-carry families."
+  candidate_frontier_size: 1
+
+strategy:
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  signal_horizon_days: 20
+  return_definition: "close(t-1) / close(t-21) - 1"
+  signal: "sign(prior_20d_return)"
+  portfolio_rule: "equal-weight all assets with positive signal long and negative signal short; zero only for exactly zero signal; normalize long and short books independently to 0.5 gross each when both sides exist; otherwise use the single available side at 1.0 gross"
+  rebalance: "every_7th_daily_observation"
+  signal_cutoff: "t-1 close"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement rate to the position held immediately before each settlement using calc_time and funding_interval_hours from the archive; never assume an 8h cadence"
+  terminal_liquidation: true
+
+data:
+  source_protocol: "HARMONY-DEEP-HISTORY-2019-001"
+  requested_history_start: "2019-01-01"
+  execution_trace_end: "2025-10-31"
+  universe_trace_bounded: true
+  discovery_data_boundary: "pre-holdout only; dates ending 2025-10-31 or earlier"
+  manifest_required: true
+  exact_intersection_only: true
+  no_forward_fill: true
+  reuse_verified_cache_only: true
+  no_new_selection_data_after_preregistration: true
+  holdout_access_forbidden: true
+
+validation:
+  split: "chronological discovery/OOS protocol defined before execution"
+  parameters_fit_on_oos: false
+  candidate_definition_fixed: true
+  benchmark_1: "same-universe equal-weight long-only benchmark with identical price, turnover, funding, and transaction-cost accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+  temporal_stability: "evaluate the fixed OOS segment in two equal chronological halves; no parameter changes"
+  predefined_cost_stress:
+    - "1.0x base fees and slippage"
+    - "1.5x base fees and slippage"
+    - "2.0x base fees and slippage"
+
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_parameter_search: true
+  no_universe_search: true
+  no_post_execution_candidate_mutation: true
+  prior_experiments_immutable: true
+  distinct_from_prior_frozen_funding_and_cross_sectional_families: true
+  holdout_selection_firewall: true
+
+execution_gate:
+  requires_verified_input_manifest: true
+  requires_candidate_digest: true
+  requires_deterministic_implementation: true
+  requires_reconciliation_artifact: true
+  strategy_execution_authorized: false
+  reason: "Preregistration is complete; execution begins only after the deep-history manifest and deterministic batch execution path are bound and verified."
