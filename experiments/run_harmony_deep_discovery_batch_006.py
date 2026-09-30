@@ -319,7 +319,7 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     dates,px,funding=load_daily_panel()
     months,month_end_dates_cached,monthly_returns=month_returns(dates,px)
-    usable_months=[m for m in months if m >= "2020-08" and m <= END[:7]]
+    usable_months=[m for m in months if m >= "2023-02" and m <= END[:7]]
 
     factor, factor_prov=build_initial_finu(usable_months)
     finu_signals=build_finu_signals(usable_months,monthly_returns,factor)
