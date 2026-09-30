@@ -1,0 +1,16 @@
+{
+  "experiment_id": "HARMONY-FIN-0015",
+  "binding_id": "HARMONY-FIN-0015-BINDING-001",
+  "status": "preregistered_frozen",
+  "candidate_digest_sha256": "dc047df14db4c7daf2e1f84c9609e0abe479db6cc16181d9e26a1795eeda3c53",
+  "spec_path": "experiments/HARMONY-FIN-0015.yaml",
+  "candidate_definition_frozen": true,
+  "holdout_access": false,
+  "parameter_search": false,
+  "universe_search": false,
+  "candidate_mutation": false,
+  "execution_status": "not_executed",
+  "execution_authorization": "requires_deterministic_implementation_and_data_readiness",
+  "input_manifest_sha256": "14a8872ed007efadf5237e6d931a21c230bfa34e0b80a6020120767abb095c41",
+  "normalized_panel_sha256": "2b28b2975dd2c77fabb35d4641892b24855a79b55eedeba5b8fada71a97f7e2c"
+}
