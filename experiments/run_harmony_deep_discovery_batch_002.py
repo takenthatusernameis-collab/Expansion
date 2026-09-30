@@ -80,7 +80,13 @@ def load_daily_closes(root: Path, symbol: str, source_kind: str):
             continue
         for row in parse_zip_rows(path):
             if row and row[0].isdigit() and len(row) >= 5:
-                d = datetime.fromtimestamp(int(row[0]) / 1000.0, timezone.utc).date().isoformat()
+                raw_open_time = int(row[0])
+                if raw_open_time >= 100_000_000_000_000:
+                    # Binance Vision spot files can use microsecond timestamps in newer archives.
+                    timestamp_seconds = raw_open_time / 1_000_000.0
+                else:
+                    timestamp_seconds = raw_open_time / 1_000.0
+                d = datetime.fromtimestamp(timestamp_seconds, timezone.utc).date().isoformat()
                 closes[d] = float(row[4])
     return closes
 
