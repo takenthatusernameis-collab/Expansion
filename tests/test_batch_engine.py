@@ -15,11 +15,32 @@ def _rows():
     ]
 
 
+def test_shared_state_rejects_duplicate_rows():
+    rows = _rows() + [_rows()[0]]
+    try:
+        build_shared_state(rows)
+    except ValueError as exc:
+        assert "duplicate" in str(exc)
+    else:
+        raise AssertionError("expected duplicate rows to be rejected")
+
+
 def test_shared_state_precomputes_returns_once():
     state = build_shared_state(_rows())
     assert state.symbols == ("A", "B")
     assert math.isclose(state.daily_return[("A", "2025-01-02")], 0.10)
     assert math.isclose(state.daily_return[("B", "2025-01-03")], -0.10)
+
+
+def test_shared_state_rejects_non_positive_close():
+    rows = _rows()
+    rows[0] = DailyMarketRow("A", "2025-01-01", 0.0, 1000.0, 600.0)
+    try:
+        build_shared_state(rows)
+    except ValueError as exc:
+        assert "non-positive close" in str(exc)
+    else:
+        raise AssertionError("expected non-positive close to be rejected")
 
 
 def test_two_candidates_share_state_and_produce_distinct_results():
