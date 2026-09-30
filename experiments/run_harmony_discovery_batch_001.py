@@ -11,6 +11,10 @@ STORE = Path("data/cache/research/daily_8sym_v1.csv.gz")
 FUNDING_ROOT = Path("data/cache/binance/futures_um/deep_history_2019/funding_gateway")
 
 CANDIDATES = ("HARMONY-FIN-0014", "HARMONY-FIN-0015")
+SCREEN_ID = "HARMONY-CHEAP-SCREEN-001"
+MIN_REBALANCES = 20
+MIN_CUMULATIVE_RETURN = 0.0
+MIN_SHARPE = 0.0
 
 
 def _load_funding():
@@ -113,21 +117,39 @@ def main():
         terminal_liquidation=True,
     )
 
+    candidate_reports = {}
+    for name, result in results.items():
+        gates = {
+            "minimum_rebalances": result.rebalance_count >= MIN_REBALANCES,
+            "minimum_cumulative_return_after_costs": result.cumulative_return > MIN_CUMULATIVE_RETURN,
+            "minimum_sharpe_after_costs": result.sharpe > MIN_SHARPE,
+        }
+        candidate_reports[name] = {
+            "final_equity": result.final_equity,
+            "cumulative_return": result.cumulative_return,
+            "cagr": result.cagr,
+            "sharpe": result.sharpe,
+            "max_drawdown": result.max_drawdown,
+            "turnover": result.turnover,
+            "funding_pnl_sum": result.funding_pnl_sum,
+            "rebalance_count": result.rebalance_count,
+            "cheap_screen": {
+                "screen_id": SCREEN_ID,
+                "passed": all(gates.values()),
+                "gates": gates,
+            },
+        }
+
     output = {
         "batch_id": "HARMONY-DISCOVERY-BATCH-001",
         "candidate_count": len(functions),
-        "candidates": {
-            name: {
-                "final_equity": result.final_equity,
-                "cumulative_return": result.cumulative_return,
-                "cagr": result.cagr,
-                "sharpe": result.sharpe,
-                "max_drawdown": result.max_drawdown,
-                "turnover": result.turnover,
-                "funding_pnl_sum": result.funding_pnl_sum,
-            }
-            for name, result in results.items()
+        "cheap_screen_policy": {
+            "screen_id": SCREEN_ID,
+            "minimum_rebalances": MIN_REBALANCES,
+            "minimum_cumulative_return_after_costs": MIN_CUMULATIVE_RETURN,
+            "minimum_sharpe_after_costs": MIN_SHARPE,
         },
+        "candidates": candidate_reports,
         "execution_model": "one_normalized_load_shared_state_two_candidates",
         "selection_window_end": "2024-05-21",
         "holdout_access": False,
