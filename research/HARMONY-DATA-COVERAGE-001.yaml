@@ -1,0 +1,41 @@
+control_id: HARMONY-DATA-COVERAGE-001
+version: "1.0"
+status: active
+objective: >-
+  Make the usable historical boundary explicit for every research dataset and expose
+  common-intersection shrinkage before strategy evidence is interpreted.
+
+required_report:
+  dataset_identity:
+    - source_protocol
+    - cache_key
+    - artifact_sha256
+    - normalized_panel_sha256
+  per_symbol:
+    - first_price_observation
+    - last_price_observation
+    - price_row_count
+    - first_funding_observation_when_applicable
+    - last_funding_observation_when_applicable
+    - funding_event_count_when_applicable
+  common_panel:
+    - exact_intersection_start
+    - exact_intersection_end
+    - common_row_count
+    - missing_symbol_or_source_reason_when_available
+
+rules:
+  - Use exact intersection for multi-asset strategy evidence unless a preregistered alternative is explicitly authorized.
+  - Do not forward-fill, interpolate, or synthesize pre-inception observations.
+  - A longer requested acquisition window must not be described as usable evidence when the common panel begins later.
+  - Coverage shrinkage must be reported before execution approval.
+  - Coverage diagnostics are descriptive and cannot be used to select a more favorable universe retrospectively.
+
+current_known_boundary:
+  requested_history_start: "2019-01-01"
+  verified_common_price_start: "2020-07-10"
+  verified_common_price_end: "2025-10-31"
+  verified_common_price_rows: 1935
+
+future_data_requirement:
+  any_new_candidate_must_bind_exact_usable_boundary_before_execution: true
