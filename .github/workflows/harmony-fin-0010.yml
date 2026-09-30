@@ -1,3 +1,4 @@
+# FIN-0010 deterministic reproduction activation marker; no strategy logic change.
 # FIN-0010 runner activation marker; no strategy logic change.
 name: Harmony FIN-0010 trend-efficiency momentum OOS
 
