@@ -1,0 +1,106 @@
+substrate_id: HARMONY-RESEARCH-SUBSTRATE-001
+version: "1.0"
+status: active
+purpose: >-
+  Provide a reusable deep-history research substrate so future Theta activations spend
+  effort on hypotheses and evidence rather than repeatedly rebuilding acquisition,
+  cache, manifest, and backtest plumbing.
+
+planes:
+  source:
+    authority: upstream_publisher
+    rule: exact_archive_or_api_source_must_be_declared_before_execution
+  cache:
+    authority: Expansion
+    rule: >-
+      Reuse an existing byte artifact only after recomputing its declared SHA-256 and,
+      where available, verifying the upstream checksum sidecar.
+  manifest:
+    authority: Expansion
+    rule: >-
+      Every dataset scope produces one deterministic manifest containing source locators,
+      coverage, symbols, file identities, byte counts, and content hashes.
+  research:
+    authority: Expansion
+    rule: >-
+      Candidate generation and long backtests consume manifest-bound datasets and write
+      immutable experiment artifacts.
+  tracking:
+    authority: Contraction
+    rule: >-
+      Contraction stores only durable identities, provenance, status, results pointers,
+      evidence hashes, decisions, and blockers.
+
+cache_policy:
+  no_unnecessary_redownload: true
+  existing_file_hash_must_be_recomputed: true
+  expected_upstream_checksum_must_be_revalidated: true
+  mismatch_disposition: delete_and_refetch
+  partial_or_unknown_bytes: do_not_accept
+  cache_keys_bind:
+    - dataset_id
+    - source_family
+    - symbols
+    - timeframe
+    - coverage
+    - schema_version
+  cache_key_must_not_bind_only_to_date_strings: true
+
+dataset_layers:
+  raw_archive:
+    immutable: true
+    identity: sha256
+    storage: "data/cache/"
+  normalized_table:
+    immutable: true
+    identity: sha256
+    provenance: raw_archive_identity_plus_normalizer_revision
+  feature_table:
+    immutable: true
+    identity: sha256
+    provenance: normalized_table_identity_plus_feature_revision
+  experiment_input_manifest:
+    immutable: true
+    identity: sha256
+    provenance: all_input_file_identities_plus_scope
+  result:
+    immutable: true
+    identity: sha256
+    provenance: experiment_input_manifest_plus_candidate_digest_plus_code_revision
+
+deep_history:
+  default_behavior: >-
+    Prefer the longest defensible history already available for the chosen instrument
+    family and data source. Expand the history only when the extension materially improves
+    regime coverage or answers a declared research question.
+  repeated_scope_rule: >-
+    Once a dataset scope is materialized and fingerprinted, later experiments reference
+    the existing manifest instead of reacquiring the same bytes.
+  selection_holdout_separation: >-
+    Deep-history research may use pre-holdout history for discovery/selection. A sealed
+    holdout remains immutable and cannot be consumed by discovery campaigns.
+
+campaign_contract:
+  finite_scope_required: true
+  candidate_ids_fixed_before_execution: true
+  family_digest_required: true
+  parameter_search_after_execution: false
+  universe_search_after_execution: false
+  one_campaign_can_execute_many_candidates: true
+  shared_data_materialization_across_candidates: true
+  shared_feature_materialization_across_candidates: true
+  automatic_benchmark_and_cost_stress: true
+  automatic_artifact_reconciliation: true
+
+theta_autonomy:
+  one_activation_should_prefer:
+    - reuse_existing_verified_datasets
+    - resume_or_extend_an_existing_finite_campaign
+    - run_a_whole_preregistered_candidate_batch
+    - persist_a_complete_reconciliation_record
+  user_intervention:
+    ask_only_for: [authorization_boundary, material_ambiguity, unavailable_capability]
+  micro_workflow_management:
+    disallowed_as_default: true
+  routine_implementation:
+    inferred_from_state_and_contract: true
