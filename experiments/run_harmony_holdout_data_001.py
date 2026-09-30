@@ -138,7 +138,10 @@ def load_funding_partial_archive(symbol):
         if path.exists():
             raw=path.read_bytes(); source="cache"
         else:
-            raw=fetch(url)
+            try:
+                raw=fetch(url)
+            except Exception as exc:
+                raise RuntimeError(f"FUNDING_DAILY_FETCH_FAILED: {url} :: {exc}") from exc
             path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(raw); source="download"
         local_sha=sha256(raw)
