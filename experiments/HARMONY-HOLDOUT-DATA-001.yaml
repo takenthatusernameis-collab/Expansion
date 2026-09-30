@@ -6,7 +6,7 @@ tracking_repository: takenthatusernameis-collab/Contraction
 protocol: HARMONY-HOLDOUT-PROTOCOL-001
 selection_data_end: "2025-10-31"
 holdout_start: "2025-11-01"
-holdout_end: "2026-09-20"
+holdout_end: "2026-08-31"
 universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
 data:
   price: Binance USD-M monthly 1d klines
