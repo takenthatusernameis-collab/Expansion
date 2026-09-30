@@ -133,23 +133,24 @@ expected={
 }
 
 def main():
- base12=run_0012(1,True); base24=run_0024(1,True)
-for k,b in [("HARMONY-FIN-0012",base12),("HARMONY-FIN-0024",base24)]:
-    for field,val in expected[k].items():
-        if abs(b["oos"][field]-val)>1e-12: raise RuntimeError(f"{k} baseline mismatch {field}: {b['oos'][field]} != {val}")
-result={
- "validation_id":"HARMONY-PROMOTED-VALIDATION-001",
- "baseline_reproduction":{"FIN-0012":base12,"FIN-0024":base24},
- "stress":{
-   "FIN-0012":{"three_times_transaction_cost":run_0012(3,True),"funding_neutral":run_0012(1,False)},
-   "FIN-0024":{"three_times_transaction_cost":run_0024(3,True),"funding_neutral":run_0024(1,False)}
- },
- "integrity":{"fixed_definitions":True,"parameter_search":False,"universe_search":False,"direction_search":False,"holdout_access":False}
-}
-OUT.mkdir(parents=True,exist_ok=True)
-raw=json.dumps(result,sort_keys=True,indent=2).encode()+b"\n"
-(OUT/"HARMONY-PROMOTED-VALIDATION-001-RESULT.json").write_bytes(raw)
- print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest()},indent=2))
+    base12=run_0012(1,True); base24=run_0024(1,True)
+    for k,b in [("HARMONY-FIN-0012",base12),("HARMONY-FIN-0024",base24)]:
+        for field,val in expected[k].items():
+            if abs(b["oos"][field]-val)>1e-12:
+                raise RuntimeError(f"{k} baseline mismatch {field}: {b['oos'][field]} != {val}")
+    result={
+      "validation_id":"HARMONY-PROMOTED-VALIDATION-001",
+      "baseline_reproduction":{"FIN-0012":base12,"FIN-0024":base24},
+      "stress":{
+        "FIN-0012":{"three_times_transaction_cost":run_0012(3,True),"funding_neutral":run_0012(1,False)},
+        "FIN-0024":{"three_times_transaction_cost":run_0024(3,True),"funding_neutral":run_0024(1,False)}
+      },
+      "integrity":{"fixed_definitions":True,"parameter_search":False,"universe_search":False,"direction_search":False,"holdout_access":False}
+    }
+    OUT.mkdir(parents=True,exist_ok=True)
+    raw=json.dumps(result,sort_keys=True,indent=2).encode()+b"\n"
+    (OUT/"HARMONY-PROMOTED-VALIDATION-001-RESULT.json").write_bytes(raw)
+    print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest()},indent=2))
 
 if __name__=="__main__":
- main()
+    main()
