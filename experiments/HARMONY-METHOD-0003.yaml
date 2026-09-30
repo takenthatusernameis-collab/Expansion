@@ -23,3 +23,5 @@ integrity:
   no_strategy_logic: true
 
 # activation: deterministic remote validation pass 1; no methodology logic change.
+
+# PR execution diagnostic; no methodology logic change.
