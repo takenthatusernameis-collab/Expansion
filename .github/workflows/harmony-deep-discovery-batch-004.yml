@@ -42,3 +42,5 @@ jobs:
           path: artifacts/HARMONY-DEEP-DISCOVERY-BATCH-004
           if-no-files-found: error
           retention-days: 90
+
+# FIN-0024 frozen validation replication 2026-10-01; no candidate-definition change.
