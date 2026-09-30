@@ -64,7 +64,6 @@ def test_batch_engine_applies_funding_before_rebalance():
         {"candidate": target},
         fee_rate=0.0,
         slippage_rate=0.0,
-        rebalance_every=1,
         terminal_liquidation=False,
     )
 
