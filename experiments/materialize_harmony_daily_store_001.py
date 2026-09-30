@@ -11,7 +11,7 @@ OUT = Path("artifacts/HARMONY-DAILY-STORE-001")
 SOURCE_CACHE_KEY = "harmony-binance-um-deep-history-2019-2025-10-v1-36777989764"
 REVISION = "daily_8sym_v1_r1"
 
-rows = load_monthly_klines(ROOT, SYMBOLS, (2020, 1), (2025, 10))
+rows = load_monthly_klines(ROOT, SYMBOLS, (2020, 7), (2025, 10))
 
 dates = sorted({row.date for row in rows})
 common = set(dates)
