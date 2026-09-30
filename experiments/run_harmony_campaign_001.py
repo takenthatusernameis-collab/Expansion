@@ -158,7 +158,7 @@ def simulate(candidate_id, mode="strategy", cost_mult=1.0):
     first_valid=None
     for i,d in enumerate(dates):
         for s in S:
-            for _,rate in funding[s].get(d,[]):
+            for _,_,rate in funding[s].get(d,[]):
                 eq*=1-prev[s]*rate
                 funding_sum += -prev[s]*rate
                 funding_events += 1
