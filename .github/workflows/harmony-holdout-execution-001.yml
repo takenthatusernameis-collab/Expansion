@@ -28,11 +28,18 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: data/cache/binance/futures_um/holdout_2025-11_2026-08
-          key: harmony-binance-um-holdout-2025-11-2026-08-v3
-          fail-on-cache-miss: true
+          key: harmony-binance-um-holdout-2025-11-2026-08-v4
+          fail-on-cache-miss: false
 
       - name: Execute frozen frontier
         run: python experiments/run_harmony_holdout_execution_001.py
+
+      - name: Save clean execution cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/binance/futures_um/holdout_2025-11_2026-08
+          key: harmony-binance-um-holdout-2025-11-2026-08-v4
 
       - name: Upload sealed execution evidence
         uses: actions/upload-artifact@v4
