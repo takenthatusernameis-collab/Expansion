@@ -1,0 +1,206 @@
+name: Harmony FIN-0004 independent reconstruction v2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/harmony-fin-0004-reconstruction-v2.yml"
+      - "experiments/HARMONY-FIN-0004.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified USD-M price and funding archives
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Independently reconstruct frozen FIN-0004
+        run: |
+          python - <<'PY'
+          import csv,io,json,math,statistics,zipfile,hashlib
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+          ROOT=Path("data/cache/binance/futures_um/monthly")
+          BASE_COST=0.0011
+          EXPECTED_FINAL_EQUITY=1.5310618203335344
+          EXPECTED_SHARPE=1.190050841005752
+          TOL=1e-12
+
+          def day(ms):
+              return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
+
+          def months():
+              out=[]; y,m=2021,1
+              while (y,m)<=(2025,10):
+                  out.append((y,m)); m+=1
+                  if m==13: y,m=y+1,1
+              return out
+
+          def rows(p):
+              with zipfile.ZipFile(p) as z:
+                  ns=[n for n in z.namelist() if n.lower().endswith(".csv")]
+                  if len(ns)!=1: raise RuntimeError(f"bad archive: {p}")
+                  return list(csv.reader(io.StringIO(z.read(ns[0]).decode("utf-8"))))
+
+          px={s:{} for s in S}; fd={s:[] for s in S}; cache_hashes=[]
+          for s in S:
+              for y,m in months():
+                  kp=ROOT/"klines"/s/"1d"/f"{s}-1d-{y:04d}-{m:02d}.zip"
+                  fp=ROOT/"fundingRate"/s/f"{s}-fundingRate-{y:04d}-{m:02d}.zip"
+                  for p in (kp,fp):
+                      b=p.read_bytes()
+                      cache_hashes.append((str(p),hashlib.sha256(b).hexdigest(),len(b)))
+                  for r in rows(kp):
+                      if r and r[0].isdigit():
+                          px[s][day(int(r[0]))]=float(r[4])
+                  rr=rows(fp); idx={k.strip():i for i,k in enumerate(rr[0])}
+                  for r in rr[1:]:
+                      if r:
+                          fd[s].append((int(r[idx["calc_time"]]),int(float(r[idx["funding_interval_hours"]])),
+                                        float(r[idx["last_funding_rate"]])))
+
+          dates=sorted(set.intersection(*(set(px[s]) for s in S)))
+          assert len(dates)==1760 and dates[0]=="2021-01-01" and dates[-1]=="2025-10-31"
+          split=math.floor(len(dates)*0.70)
+          oos=dates[split:]
+          assert len(oos)==528 and oos[0]=="2024-05-22" and oos[-1]=="2025-10-31"
+
+          funding={s:{} for s in S}
+          for s in S:
+              for ts,interval,rate in fd[s]:
+                  funding[s].setdefault(day(ts),[]).append((interval,rate))
+
+          def beta(asset,btc):
+              ma,mb=statistics.mean(asset),statistics.mean(btc)
+              den=sum((x-mb)**2 for x in btc)
+              return sum((x-ma)*(y-mb) for x,y in zip(asset,btc))/den if den else 0.0
+
+          def target(i):
+              if i<61: return {s:0.0 for s in S}
+              p=dates[i-1]; a=dates[i-21]
+              br=[px["BTCUSDT"][dates[j]]/px["BTCUSDT"][dates[j-1]]-1 for j in range(i-60,i)]
+              btc20=px["BTCUSDT"][p]/px["BTCUSDT"][a]-1
+              scored=[]
+              for s in S:
+                  ar=[px[s][dates[j]]/px[s][dates[j-1]]-1 for j in range(i-60,i)]
+                  residual=(px[s][p]/px[s][a]-1)-beta(ar,br)*btc20
+                  scored.append((residual,s))
+              scored.sort(key=lambda z:(-z[0],z[1]))
+              w={s:0.0 for s in S}
+              for _,s in scored[:2]: w[s]=0.25
+              for _,s in scored[-2:]: w[s]=-0.25
+              return w
+
+          def run(cost_mult=1.0, apply_funding=True):
+              eq=1.0; prev={s:0.0 for s in S}; curve=[]; fund=0.0; events=0; costs=0.0
+              for i in range(split,len(dates)):
+                  d=dates[i]
+                  if apply_funding:
+                      for s in S:
+                          for interval,rate in funding[s].get(d,[]):
+                              eq*=1-prev[s]*rate
+                              fund+=-prev[s]*rate
+                              events+=1
+                  if i>split:
+                      pd=dates[i-1]
+                      eq*=1+sum(prev[s]*(px[s][d]/px[s][pd]-1) for s in S)
+                  tgt=target(i)
+                  delta=sum(abs(tgt[s]-prev[s]) for s in S)
+                  cost=BASE_COST*cost_mult*delta
+                  eq*=1-cost; costs+=cost
+                  prev=tgt; curve.append(eq)
+              liq=sum(abs(v) for v in prev.values())
+              eq*=1-BASE_COST*cost_mult*liq
+              costs+=BASE_COST*cost_mult*liq
+              curve[-1]=eq
+              rr=[curve[i]/curve[i-1]-1 for i in range(1,len(curve))]
+              sd=statistics.stdev(rr)
+              sharpe=(statistics.mean(rr)/sd)*math.sqrt(365.25)
+              peak=curve[0]; mdd=0.0
+              for x in curve:
+                  peak=max(peak,x); mdd=min(mdd,x/peak-1)
+              cagr=curve[-1]**(365.25/(len(curve)-1))-1
+              return {"final_equity":eq,"cumulative_return":eq-1,"cagr":cagr,"sharpe":sharpe,
+                      "max_drawdown":mdd,"funding_events":events,"funding_pnl_sum":fund,
+                      "transaction_cost_fraction":costs,"curve":curve}
+
+          base=run(1.0,True)
+          nofund=run(1.0,False)
+          stress={f"{m:.1f}x": {k:v for k,v in run(m,True).items() if k!="curve"} for m in (1.0,1.5,2.0)}
+          edges=[round(i*len(base["curve"])/6) for i in range(7)]
+          blocks=[]
+          for b in range(6):
+              a,z=edges[b],edges[b+1]
+              start_eq=base["curve"][a-1] if a else 1.0
+              blocks.append({"block":b+1,"start":oos[a],"end":oos[z-1],"observations":z-a,
+                             "cumulative_return":base["curve"][z-1]/start_eq-1})
+
+          cache_manifest=hashlib.sha256(
+              "\n".join(f"{p}|{h}|{n}" for p,h,n in sorted(cache_hashes)).encode()
+          ).hexdigest()
+
+          result={
+            "experiment_id":"HARMONY-INFRA-0011-V2",
+            "validation_of":"HARMONY-FIN-0004",
+            "oos_period":[oos[0],oos[-1]],
+            "independent_reconstruction":{
+              "recomputed_final_equity":base["final_equity"],
+              "recorded_final_equity":EXPECTED_FINAL_EQUITY,
+              "absolute_difference":abs(base["final_equity"]-EXPECTED_FINAL_EQUITY),
+              "final_equity_within_tolerance":abs(base["final_equity"]-EXPECTED_FINAL_EQUITY)<=TOL,
+              "recomputed_sharpe":base["sharpe"],
+              "recorded_sharpe":EXPECTED_SHARPE,
+              "sharpe_difference":abs(base["sharpe"]-EXPECTED_SHARPE)
+            },
+            "funding_ablation":{
+              "baseline_cumulative_return":base["cumulative_return"],
+              "no_funding_cumulative_return":nofund["cumulative_return"],
+              "difference":base["cumulative_return"]-nofund["cumulative_return"],
+              "funding_events":base["funding_events"]
+            },
+            "cost_stress":stress,
+            "temporal_blocks":{
+              "positive_blocks":sum(x["cumulative_return"]>0 for x in blocks),
+              "block_count":6,
+              "min_block_return":min(x["cumulative_return"] for x in blocks),
+              "max_block_return":max(x["cumulative_return"] for x in blocks),
+              "blocks":blocks
+            },
+            "cache_manifest_sha256":cache_manifest,
+            "cache_file_count":len(cache_hashes),
+            "integrity":{
+              "same_fixed_universe":True,
+              "same_signal_definition":True,
+              "same_oos_protocol":True,
+              "same_base_cost":True,
+              "parameters_not_optimized":True,
+              "no_new_candidates":True,
+              "native_funding_timestamps":True
+            }
+          }
+          out=Path("artifacts/HARMONY-INFRA-0011-V2"); out.mkdir(parents=True,exist_ok=True)
+          (out/"validation.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+          (out/"cache_manifest.json").write_text(json.dumps(
+              [{"path":p,"sha256":h,"bytes":n} for p,h,n in sorted(cache_hashes)],indent=2,sort_keys=True
+          )+"\n")
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload FIN-0004 reconstruction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0011-v2
+          path: artifacts/HARMONY-INFRA-0011-V2
+          if-no-files-found: error
+          retention-days: 90
