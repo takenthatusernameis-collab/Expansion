@@ -1,0 +1,40 @@
+name: Harmony campaign 002 temporal robustness
+
+on:
+  push:
+    paths:
+      - "research/campaigns/HARMONY-CAMPAIGN-002.yaml"
+      - "experiments/run_harmony_campaign_002.py"
+      - ".github/workflows/harmony-campaign-002.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified long-history USD-M dataset
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+      - name: Restore persistent funding feature store
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/features/funding_carry_v1
+          key: harmony-feature-store-funding-carry-v1-2026-09-30-r1
+          fail-on-cache-miss: true
+      - name: Run frozen four-candidate robustness batch
+        run: python experiments/run_harmony_campaign_002.py
+      - name: Upload robustness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-campaign-002
+          path: artifacts/HARMONY-CAMPAIGN-002
+          if-no-files-found: error
+          retention-days: 90
