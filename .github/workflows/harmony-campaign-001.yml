@@ -1,0 +1,35 @@
+name: Harmony campaign 001 long-history funding carry
+
+on:
+  push:
+    paths:
+      - "research/campaigns/HARMONY-CAMPAIGN-001.yaml"
+      - "experiments/HARMONY-CAMPAIGN-001.yaml"
+      - "experiments/run_harmony_campaign_001.py"
+      - ".github/workflows/harmony-campaign-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  campaign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified long-history USD-M dataset
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+      - name: Run preregistered candidate batch
+        run: python experiments/run_harmony_campaign_001.py
+      - name: Upload immutable campaign evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-campaign-001
+          path: artifacts/HARMONY-CAMPAIGN-001
+          if-no-files-found: error
+          retention-days: 90
