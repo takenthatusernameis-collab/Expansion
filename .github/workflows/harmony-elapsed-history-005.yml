@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Restore elapsed historical cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/elapsed_history_2026-09-daily-v5
+          key: harmony-elapsed-history-2026-09-daily-v5
+          restore-keys: |
+            harmony-elapsed-history-2026-09-daily-v5-
       - name: Materialize elapsed price plus public funding gateway
         run: python experiments/run_harmony_elapsed_history_005.py
       - name: Save elapsed historical cache
