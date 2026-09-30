@@ -6,9 +6,9 @@ from urllib.request import Request, urlopen
 
 SYMBOLS = ["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
 START = "2025-11-01"
-END = "2026-09-20"
+END = "2026-08-31"
 MONTHS = [(2025,m) for m in range(11,13)] + [(2026,m) for m in range(1,9)]
-PARTIAL_DAYS = [date(2026,9,1) + timedelta(days=i) for i in range(20)]
+PARTIAL_DAYS = []
 
 ROOT = Path("data/cache/binance/futures_um/holdout_2025-11_2026-09")
 KLINE_ROOT = ROOT / "klines"
@@ -194,9 +194,7 @@ with ThreadPoolExecutor(max_workers=12) as ex:
         for ym in MONTHS:
             jobs.append(ex.submit(load_price,s,"monthly",ym))
             jobs.append(ex.submit(load_funding_monthly,s,ym))
-        for d in PARTIAL_DAYS:
-            jobs.append(ex.submit(load_price,s,"daily",d))
-        jobs.append(ex.submit(load_funding_partial_archive,s))
+        # No partial-month acquisition: holdout ends at completed 2026-08 month.
     errors=[]
     for f in as_completed(jobs):
         try:
@@ -248,8 +246,8 @@ manifest={
  "selection_data_end":"2025-10-31",
  "holdout_start":START,"holdout_end":END,"symbols":SYMBOLS,
  "completed_months":[f"{y:04d}-{m:02d}" for y,m in MONTHS],
- "partial_month_days":{"start":"2026-09-01","end":"2026-09-20","count":20},
- "source_rule":"monthly archives for completed months; daily kline archives and daily funding archives for partial final month",
+ "partial_month_days":None,
+ "source_rule":"monthly checksum-verified archives for 2025-11 through 2026-08",
  "price_archives":price_meta,"funding_archives":fund_meta,
  "common_panel":{"start":common[0],"end":common[-1],"observations":len(common)},
  "native_funding_intervals_hours":{s:sorted({e["funding_interval_hours"] for e in funding_events[s]}) for s in SYMBOLS},
