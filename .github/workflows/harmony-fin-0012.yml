@@ -306,3 +306,5 @@ jobs:
           path: artifacts/HARMONY-FIN-0012
           if-no-files-found: error
           retention-days: 90
+
+# reproducibility activation: corrected cache-manifest binding unchanged.
