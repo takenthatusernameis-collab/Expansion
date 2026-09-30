@@ -1,0 +1,232 @@
+name: Harmony FIN-0006 cross sectional reversal OOS
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-FIN-0006.yaml"
+      - ".github/workflows/harmony-fin-0006.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified USD-M price and funding archives
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Execute preregistered FIN-0006
+        run: |
+          python - <<'PY'
+          import csv,io,json,math,statistics,zipfile
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+          ROOT=Path("data/cache/binance/futures_um/monthly")
+          FEE=.0006
+          SLIP=.0005
+          COST=FEE+SLIP
+          OUT=Path("artifacts/HARMONY-FIN-0006")
+
+          def day(ms):
+              return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
+
+          def months():
+              z=[];y,m=2021,1
+              while (y,m)<=(2025,10):
+                  z.append((y,m));m+=1
+                  if m==13:y,m=y+1,1
+              return z
+
+          def csvrows(p):
+              with zipfile.ZipFile(p) as z:
+                  names=[n for n in z.namelist() if n.lower().endswith(".csv")]
+                  if len(names)!=1: raise RuntimeError(f"bad archive: {p}")
+                  return list(csv.reader(io.StringIO(z.read(names[0]).decode("utf-8"))))
+
+          px={s:{} for s in S}
+          rawfd={s:[] for s in S}
+          for s in S:
+              for y,m in months():
+                  kp=ROOT/"klines"/s/"1d"/f"{s}-1d-{y:04d}-{m:02d}.zip"
+                  fp=ROOT/"fundingRate"/s/f"{s}-fundingRate-{y:04d}-{m:02d}.zip"
+                  for r in csvrows(kp):
+                      if r and r[0].isdigit():
+                          px[s][day(int(r[0]))]=float(r[4])
+                  rr=csvrows(fp)
+                  h={k.strip():i for i,k in enumerate(rr[0])}
+                  required={"calc_time","funding_interval_hours","last_funding_rate"}
+                  if not required.issubset(h):
+                      raise RuntimeError(f"funding schema mismatch: {fp}")
+                  for r in rr[1:]:
+                      if r:
+                          rawfd[s].append((
+                              int(r[h["calc_time"]]),
+                              int(float(r[h["funding_interval_hours"]])),
+                              float(r[h["last_funding_rate"]])
+                          ))
+
+          dates=sorted(set.intersection(*(set(px[s]) for s in S)))
+          assert len(dates)==1760 and dates[0]=="2021-01-01" and dates[-1]=="2025-10-31"
+
+          funding={s:{} for s in S}
+          for s in S:
+              for ts,interval,rate in rawfd[s]:
+                  funding[s].setdefault(day(ts),[]).append((interval,rate))
+
+          split=math.floor(len(dates)*.70)
+          oos=dates[split:]
+          assert len(oos)==528 and oos[-1]=="2025-10-31"
+
+          def target(i):
+              if i<2:
+                  return {s:0.0 for s in S}
+              signal_date=dates[i-1]
+              prev_signal_date=dates[i-2]
+              score=[]
+              for s in S:
+                  r=px[s][signal_date]/px[s][prev_signal_date]-1.0
+                  score.append((r,s))
+              score.sort(key=lambda z:(z[0],z[1]))
+              w={s:0.0 for s in S}
+              for _,s in score[:2]:
+                  w[s]=0.25
+              for _,s in score[-2:]:
+                  w[s]=-0.25
+              return w
+
+          def run(start,mode):
+              eq=1.0
+              prev={s:0.0 for s in S}
+              curve=[]
+              funding_events=0
+              funding_sum=0.0
+              cost_sum=0.0
+              turnover=0.0
+
+              for i in range(start,len(dates)):
+                  d=dates[i]
+                  for s in S:
+                      for interval,rate in funding[s].get(d,[]):
+                          eq*=1-prev[s]*rate
+                          funding_sum+=-prev[s]*rate
+                          funding_events+=1
+
+                  if i>start:
+                      pd=dates[i-1]
+                      gross=sum(prev[s]*(px[s][d]/px[s][pd]-1.0) for s in S)
+                      eq*=1+gross
+
+                  if mode=="strategy":
+                      tgt=target(i)
+                  elif mode=="equal_weight":
+                      tgt={s:1/len(S) for s in S}
+                  elif mode=="btc":
+                      tgt={s:(1.0 if s=="BTCUSDT" else 0.0) for s in S}
+                  else:
+                      raise ValueError(mode)
+
+                  delta=sum(abs(tgt[s]-prev[s]) for s in S)
+                  eq*=1-COST*delta
+                  turnover+=delta/2.0
+                  cost_sum+=COST*delta
+                  curve.append(eq)
+                  prev=tgt
+
+              liq=sum(abs(v) for v in prev.values())
+              eq*=1-COST*liq
+              curve[-1]=eq
+              cost_sum+=COST*liq
+
+              rr=[curve[i]/curve[i-1]-1.0 for i in range(1,len(curve))]
+              sd=statistics.stdev(rr) if len(rr)>1 else 0.0
+              sharpe=(statistics.mean(rr)/sd)*math.sqrt(365) if sd else 0.0
+              peak=curve[0]
+              mdd=0.0
+              for x in curve:
+                  peak=max(peak,x)
+                  mdd=min(mdd,x/peak-1.0)
+              cagr=curve[-1]**(365.25/max(1,len(curve)-1))-1.0
+
+              return {
+                  "final_equity":eq,
+                  "cumulative_return":eq-1.0,
+                  "cagr":cagr,
+                  "max_drawdown":mdd,
+                  "sharpe":sharpe,
+                  "observations":len(curve),
+                  "total_one_way_turnover":turnover,
+                  "mean_daily_one_way_turnover":turnover/len(curve),
+                  "total_transaction_cost_fraction":cost_sum,
+                  "funding_events":funding_events,
+                  "funding_pnl_sum":funding_sum
+              }
+
+          strategy=run(split,"strategy")
+          equal_weight=run(split,"equal_weight")
+          btc=run(split,"btc")
+
+          OUT.mkdir(parents=True,exist_ok=True)
+          result={
+              "experiment_id":"HARMONY-FIN-0006",
+              "strategy_id":"cross_sectional_reversal_1d_top2_bottom2",
+              "data":{
+                  "panel_rows":len(dates),
+                  "panel_start":dates[0],
+                  "panel_end":dates[-1],
+                  "oos_rows":len(oos),
+                  "oos_start":oos[0],
+                  "oos_end":oos[-1],
+                  "symbols":S
+              },
+              "configuration":{
+                  "signal":"prior_completed_daily_close_to_close_return",
+                  "portfolio_reference":"HARMONY-CONVERGENCE-SCOPE-0010",
+                  "fee_rate":FEE,
+                  "slippage_rate":SLIP,
+                  "daily_rebalance":True,
+                  "signal_cutoff":"t_minus_1_close",
+                  "parameters_fit_on_oos":False,
+                  "native_funding_timestamps":True,
+                  "terminal_liquidation":True
+              },
+              "oos_strategy":strategy,
+              "oos_equal_weight":equal_weight,
+              "oos_btc":btc,
+              "comparisons":{
+                  "strategy_minus_equal_weight_cumulative_return":
+                      strategy["cumulative_return"]-equal_weight["cumulative_return"],
+                  "strategy_minus_btc_cumulative_return":
+                      strategy["cumulative_return"]-btc["cumulative_return"]
+              },
+              "integrity":{
+                  "fixed_universe":True,
+                  "prior_only_price_signal":True,
+                  "native_funding_timestamps_used":True,
+                  "no_forward_fill":True,
+                  "no_universe_search":True,
+                  "no_post_convergence_optimization":True,
+                  "prior_experiments_modified":False
+              }
+          }
+          (OUT/"result.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload FIN-0006 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-fin-0006-evidence
+          path: artifacts/HARMONY-FIN-0006
+          if-no-files-found: error
+          retention-days: 90
