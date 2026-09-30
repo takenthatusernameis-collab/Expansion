@@ -1,0 +1,35 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-003
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Construct already-elapsed historical price and native Binance USDⓈ-M funding history
+  immediately. The source ladder is deterministic: daily public archives first; official
+  Binance funding-history API second when the daily funding archive is unavailable.
+  This remains data construction only and cannot mutate selection or create OOS claims.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  timeframe: "1d"
+source_ladder:
+  price:
+    - "Binance futures/um/daily/klines"
+  funding:
+    - "Binance futures/um/daily/fundingRate"
+    - "Binance USD-M REST /fapi/v1/fundingRate"
+fallback_rule:
+  use_api_only_when_daily_funding_archive_is_unavailable: true
+  api_source_must_be_official_binance: true
+  api_response_sha256_required: true
+  exact_request_scope_required: true
+integrity:
+  local_sha256_required: true
+  zip_validation_required: true
+  csv_schema_required: true
+  funding_response_schema_required: true
+  complete_8_symbol_panel_required: true
+  complete_elapsed_date_coverage_required: true
+firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
