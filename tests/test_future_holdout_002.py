@@ -21,3 +21,9 @@ def test_candidate_scope_digest_is_bound():
     assert "CANDIDATE_SCOPE_DIGEST" in text
     assert "candidate_scope_digest" in text
     assert "\"candidate_ids\":CAND" in text
+
+
+def test_workflow_cache_key_uses_runtime_run_id():
+    workflow = (SCRIPT.parents[1] / ".github/workflows/harmony-future-holdout-002.yml").read_text()
+    assert "key: harmony-future-holdout-2026-09-forward-v1-${{ github.run_id }}" in workflow
+    assert "\\"+expr not in workflow
