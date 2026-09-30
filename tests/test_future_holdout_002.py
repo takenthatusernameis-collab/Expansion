@@ -27,3 +27,11 @@ def test_workflow_cache_key_uses_runtime_run_id():
     workflow = (SCRIPT.parents[1] / ".github/workflows/harmony-future-holdout-002.yml").read_text()
     assert "key: harmony-future-holdout-2026-09-forward-v1-${{ github.run_id }}" in workflow
     assert "\\"+expr not in workflow
+
+
+def test_gate_requires_contiguous_complete_start():
+    text = SCRIPT.read_text()
+    assert "WAITING_FOR_180_CONTIGUOUS_COMPLETE_OBSERVATIONS" in text
+    assert "d==START" in text
+    assert "all(funding[s].get(d) for s in SYMBOLS)" in text
+    assert "(d-contiguous[-1]).days==1" in text
