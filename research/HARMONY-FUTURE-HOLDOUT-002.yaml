@@ -1,0 +1,20 @@
+protocol_id: HARMONY-HOLDOUT-PROTOCOL-002
+automation_id: HARMONY-FUTURE-HOLDOUT-002
+status: automated_accrual
+schedule: weekly_monday_03:17_UTC
+purpose: >-
+  Accrue the preregistered future tail without requiring repeated Theta prompting.
+gate:
+  start: "2026-09-01"
+  minimum_common_observations: 180
+  first_contiguous_segment_only: true
+  shorten_after_inspection: false
+source_policy:
+  completed_month_archives_only: true
+  upstream_checksum_required: true
+  local_sha256_required: true
+  missing_month_is_waiting_not_pass: true
+execution:
+  all_four_candidates: true
+  cost_stress: [1.0,1.5,2.0]
+  holdout_result_release_to_selection: false
