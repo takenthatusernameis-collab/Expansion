@@ -1,6 +1,8 @@
 import math
 import unittest
 
+from experiments.run_harmony_fin_0013 import normalized_segment_metrics, oos_report
+
 
 def fixed_weights(close, i, symbols):
     if i < 21:
@@ -45,6 +47,26 @@ class FIN0013PortfolioTests(unittest.TestCase):
         self.assertEqual(w["C"], 0)
         self.assertTrue(math.isclose(sum(x for x in w.values() if x > 0), 0.5))
         self.assertTrue(math.isclose(sum(-x for x in w.values() if x < 0), 0.5))
+
+    def test_oos_segment_metrics_normalize_to_one(self):
+        rows = [
+            ("2024-05-21", 2.0),
+            ("2024-05-22", 2.2),
+            ("2024-05-23", 2.0),
+        ]
+        result = normalized_segment_metrics(rows, "2024-05-22", "2024-05-23")
+        self.assertEqual(result["start"], "2024-05-22")
+        self.assertEqual(result["end"], "2024-05-23")
+        self.assertTrue(math.isclose(result["final_equity"], 1.0))
+
+    def test_oos_report_has_two_fixed_halves(self):
+        rows = [(f"2024-05-{22+i:02d}", 1.0 + i * 0.01) for i in range(8)]
+        report = oos_report(rows)
+        self.assertIn("full_oos", report)
+        self.assertIn("first_half", report)
+        self.assertIn("second_half", report)
+        self.assertEqual(report["first_half"]["end"], report["split"]["first_half_end"])
+        self.assertEqual(report["second_half"]["start"], report["split"]["second_half_start"])
 
     def test_single_side_normalization(self):
         symbols = ["A", "B"]
