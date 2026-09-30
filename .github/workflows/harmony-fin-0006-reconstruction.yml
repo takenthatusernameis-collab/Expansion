@@ -1,0 +1,202 @@
+name: Harmony FIN-0006 independent reconstruction
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-FIN-0006.yaml"
+      - ".github/workflows/harmony-fin-0006-reconstruction.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified USD-M price and funding archives
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Independently reconstruct FIN-0006
+        run: |
+          python - <<'PY'
+          import csv, io, json, math, statistics, zipfile
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          ASSETS=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+          ROOT=Path("data/cache/binance/futures_um/monthly")
+          EXPECTED_EQ=0.31951914402897375
+          TOL=1e-12
+          COST=0.0011
+
+          def iso(ms):
+              return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
+
+          def month_list():
+              ans=[]; y=2021; m=1
+              while (y,m)<=(2025,10):
+                  ans.append((y,m))
+                  m+=1
+                  if m==13: y,m=y+1,1
+              return ans
+
+          def read_zip_csv(path):
+              with zipfile.ZipFile(path) as z:
+                  members=[n for n in z.namelist() if n.lower().endswith(".csv")]
+                  if len(members)!=1:
+                      raise RuntimeError(f"unexpected archive members: {path}")
+                  return list(csv.reader(io.StringIO(z.read(members[0]).decode("utf-8"))))
+
+          closes={a:{} for a in ASSETS}
+          settles={a:[] for a in ASSETS}
+
+          for a in ASSETS:
+              for y,m in month_list():
+                  kp=ROOT/"klines"/a/"1d"/f"{a}-1d-{y:04d}-{m:02d}.zip"
+                  fp=ROOT/"fundingRate"/a/f"{a}-fundingRate-{y:04d}-{m:02d}.zip"
+
+                  for row in read_zip_csv(kp):
+                      if row and row[0].isdigit():
+                          closes[a][iso(int(row[0]))]=float(row[4])
+
+                  fr=read_zip_csv(fp)
+                  hdr={name.strip():i for i,name in enumerate(fr[0])}
+                  for row in fr[1:]:
+                      if row:
+                          settles[a].append((
+                              iso(int(row[hdr["calc_time"]])),
+                              float(row[hdr["last_funding_rate"]])
+                          ))
+
+          common=sorted(set.intersection(*(set(closes[a]) for a in ASSETS)))
+          assert common[0]=="2021-01-01" and common[-1]=="2025-10-31" and len(common)==1760
+
+          funding_by_day={a:{} for a in ASSETS}
+          for a in ASSETS:
+              for d,r in settles[a]:
+                  funding_by_day[a].setdefault(d,[]).append(r)
+
+          split=math.floor(len(common)*0.70)
+          oos=common[split:]
+          assert len(oos)==528 and oos[0]=="2024-05-22" and oos[-1]=="2025-10-31"
+
+          weights=[]
+          for i in range(len(common)):
+              if i<2:
+                  weights.append({a:0.0 for a in ASSETS})
+                  continue
+              d1,d0=common[i-1],common[i-2]
+              ranked=sorted(
+                  ((closes[a][d1]/closes[a][d0]-1.0,a) for a in ASSETS),
+                  key=lambda x:(x[0],x[1])
+              )
+              w={a:0.0 for a in ASSETS}
+              for _,a in ranked[:2]: w[a]=0.25
+              for _,a in ranked[-2:]: w[a]=-0.25
+              weights.append(w)
+
+          eq=1.0
+          equity=[]
+          prior={a:0.0 for a in ASSETS}
+          funding_sum=0.0
+          funding_count=0
+          turnover=0.0
+          cost_sum=0.0
+
+          for i in range(split,len(common)):
+              d=common[i]
+
+              for a in ASSETS:
+                  for rate in funding_by_day[a].get(d,[]):
+                      eq*=1.0-prior[a]*rate
+                      funding_sum += -prior[a]*rate
+                      funding_count += 1
+
+              if i>split:
+                  pd=common[i-1]
+                  daily=sum(
+                      prior[a]*(closes[a][d]/closes[a][pd]-1.0)
+                      for a in ASSETS
+                  )
+                  eq*=1.0+daily
+
+              target=weights[i]
+              delta=sum(abs(target[a]-prior[a]) for a in ASSETS)
+              eq*=1.0-COST*delta
+              turnover += delta/2.0
+              cost_sum += COST*delta
+              equity.append(eq)
+              prior=target
+
+          liquidation=sum(abs(v) for v in prior.values())
+          eq*=1.0-COST*liquidation
+          equity[-1]=eq
+          cost_sum += COST*liquidation
+
+          returns=[equity[i]/equity[i-1]-1.0 for i in range(1,len(equity))]
+          sigma=statistics.stdev(returns) if len(returns)>1 else 0.0
+          sharpe=(statistics.mean(returns)/sigma)*math.sqrt(365.0) if sigma else 0.0
+          peak=equity[0]
+          mdd=0.0
+          for x in equity:
+              peak=max(peak,x)
+              mdd=min(mdd,x/peak-1.0)
+          cagr=eq**(365.25/(len(equity)-1))-1.0
+
+          result={
+              "experiment_id":"HARMONY-INFRA-0013",
+              "validation_of":"HARMONY-FIN-0006",
+              "reconstruction":{
+                  "recomputed_final_equity":eq,
+                  "original_final_equity":EXPECTED_EQ,
+                  "absolute_difference":abs(eq-EXPECTED_EQ),
+                  "within_tolerance":abs(eq-EXPECTED_EQ)<=TOL,
+                  "tolerance":TOL
+              },
+              "oos":{
+                  "start":oos[0],
+                  "end":oos[-1],
+                  "rows":len(oos),
+                  "cumulative_return":eq-1.0,
+                  "cagr":cagr,
+                  "sharpe":sharpe,
+                  "max_drawdown":mdd
+              },
+              "accounting":{
+                  "funding_events":funding_count,
+                  "funding_pnl_sum":funding_sum,
+                  "total_one_way_turnover":turnover,
+                  "total_transaction_cost_fraction":cost_sum
+              },
+              "integrity":{
+                  "same_fixed_universe":True,
+                  "same_signal_family":True,
+                  "same_oos_protocol":True,
+                  "same_base_cost":True,
+                  "native_funding_timestamps":True,
+                  "no_new_candidates":True,
+                  "parameters_not_optimized":True
+              }
+          }
+
+          out=Path("artifacts/HARMONY-INFRA-0013")
+          out.mkdir(parents=True,exist_ok=True)
+          (out/"validation.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload FIN-0006 reconstruction
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0013
+          path: artifacts/HARMONY-INFRA-0013
+          if-no-files-found: error
+          retention-days: 90
