@@ -1,0 +1,37 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-004
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Construct already-elapsed 2026-09-01 through 2026-09-29 price and native Binance
+  funding history without waiting for month-end. Funding source ladder is Binance daily
+  archive, official Binance USD-M funding API, then a documented transparent Binance
+  mirror only when the preceding source is unavailable.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+source_ladder:
+  funding:
+    - id: binance_daily_archive
+      authority: "Binance public data vision"
+    - id: binance_official_api
+      authority: "Binance"
+      endpoint: "/fapi/v1/fundingRate"
+    - id: binance_transparent_mirror
+      authority: "documented third-party mirror of Binance endpoint"
+      endpoint: "/fapi/v1/fundingRate"
+      authentication: public
+      mirror_contract: "must preserve Binance response shape and request parameters"
+fallback:
+  only_on_source_unavailability: true
+  no_silent_source_switch: true
+integrity:
+  raw_response_sha256_required: true
+  exact_request_scope_required: true
+  daily_archive_local_sha256_required: true
+  complete_8_symbol_panel_required: true
+  complete_elapsed_date_coverage_required: true
+firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
