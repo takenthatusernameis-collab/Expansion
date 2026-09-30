@@ -126,7 +126,7 @@ jobs:
               curve[-1]=eq
               rr=[curve[i]/curve[i-1]-1 for i in range(1,len(curve))]
               sd=statistics.stdev(rr)
-              sharpe=(statistics.mean(rr)/sd)*math.sqrt(365.25)
+              sharpe=(statistics.mean(rr)/sd)*math.sqrt(365)
               peak=curve[0]; mdd=0.0
               for x in curve:
                   peak=max(peak,x); mdd=min(mdd,x/peak-1)
