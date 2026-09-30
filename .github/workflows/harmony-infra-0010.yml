@@ -1,253 +1,35 @@
-name: Harmony USD-M derivatives data feasibility
+name: Harmony sealed final holdout data materialization
 
 on:
   push:
     paths:
-      - "experiments/HARMONY-INFRA-0010.yaml"
+      - "experiments/HARMONY-HOLDOUT-DATA-001.yaml"
+      - "experiments/run_harmony_holdout_data_001.py"
       - ".github/workflows/harmony-infra-0010.yml"
-  workflow_dispatch:
 
 permissions:
   contents: read
   actions: write
 
 jobs:
-  feasibility:
+  holdout-data:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore verified futures archive cache
+      - name: Restore holdout cache
         uses: actions/cache@v4
         with:
-          path: data/cache/binance/futures_um/monthly/klines_1d
-          key: harmony-binance-um-1d-2021-01-2025-10-v1
+          path: data/cache/binance/futures_um/holdout_2025-11_2026-09
+          key: harmony-binance-um-holdout-2025-11-2026-09-v1
 
-      - name: Restore funding-response cache
-        uses: actions/cache@v4
-        with:
-          path: data/cache/binance/futures_um/fundingRate
-          key: harmony-binance-um-funding-2021-01-2025-10-v1
+      - name: Materialize and fingerprint sealed holdout
+        run: python experiments/run_harmony_holdout_data_001.py
 
-      - name: Run preregistered derivatives feasibility
-        run: |
-          python - <<'PY'
-          import csv, hashlib, io, json, os, time, zipfile
-          from concurrent.futures import ThreadPoolExecutor, as_completed
-          from datetime import datetime, timezone
-          from pathlib import Path
-          from urllib.parse import urlencode
-          from urllib.request import Request, urlopen
-          
-          SYMBOLS=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
-          START="2021-01-01"
-          END="2025-10-31"
-          KLINE_BASE="https://data.binance.vision/data/futures/um/monthly/klines"
-          FUND_BASE="https://fapi.binance.com/fapi/v1/fundingRate"
-          KLINE_CACHE=Path("data/cache/binance/futures_um/monthly/klines_1d")
-          FUND_CACHE=Path("data/cache/binance/futures_um/fundingRate")
-          OUT=Path("artifacts/HARMONY-INFRA-0010")
-          OUT.mkdir(parents=True, exist_ok=True)
-          
-          def sha256(b): return hashlib.sha256(b).hexdigest()
-          def months():
-              out=[]; y,m=2021,1
-              while (y,m)<= (2025,10):
-                  out.append((y,m)); m+=1
-                  if m==13: y,m=y+1,1
-              return out
-          def dt(ms):
-              return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
-          def fetch(url):
-              req=Request(url,headers={"User-Agent":"Harmony/INFRA-0010"})
-              with urlopen(req,timeout=120) as r: return r.read()
-          
-          def load_kline(symbol,year,month):
-              ym=f"{year:04d}-{month:02d}"
-              fn=f"{symbol}-1d-{ym}.zip"
-              p=KLINE_CACHE/symbol/fn
-              p.parent.mkdir(parents=True,exist_ok=True)
-              u=f"{KLINE_BASE}/{symbol}/1d/{fn}"
-              cu=u+".CHECKSUM"
-              c=fetch(cu).decode("utf-8","replace")
-              expected=c.strip().split()[0].lower()
-              if p.exists():
-                  raw=p.read_bytes(); source="cache"
-              else:
-                  raw=fetch(u); p.write_bytes(raw); source="download"
-              actual=sha256(raw)
-              if actual!=expected:
-                  p.unlink(missing_ok=True)
-                  raise RuntimeError(f"checksum mismatch {fn}: {actual} != {expected}")
-              with zipfile.ZipFile(io.BytesIO(raw)) as z:
-                  names=[n for n in z.namelist() if n.lower().endswith(".csv")]
-                  if len(names)!=1: raise RuntimeError(f"{fn}: unexpected members {names}")
-                  rows=list(csv.reader(io.StringIO(z.read(names[0]).decode("utf-8"))))
-              parsed=[]
-              for r in rows:
-                  if r and r[0].isdigit():
-                      if len(r)<6: raise RuntimeError(f"{fn}: malformed row")
-                      parsed.append((int(r[0]),float(r[4])))
-              parsed.sort()
-              ts=[x[0] for x in parsed]
-              if len(ts)!=len(set(ts)): raise RuntimeError(f"{fn}: duplicate timestamps")
-              if ts != sorted(ts): raise RuntimeError(f"{fn}: non-monotonic timestamps")
-              return {
-                  "symbol":symbol,"year":year,"month":month,"filename":fn,
-                  "url":u,"zip_sha256":actual,"expected_sha256":expected,
-                  "source":source,"rows":len(parsed),
-                  "first_date":dt(ts[0]) if ts else None,
-                  "last_date":dt(ts[-1]) if ts else None,
-                  "dates":[dt(x) for x in ts],
-                  "closes":{dt(t):px for t,px in parsed},
-              }
-          
-          def funding_for(symbol):
-              root=FUND_CACHE/symbol
-              root.mkdir(parents=True,exist_ok=True)
-              start_ms=int(datetime(2021,1,1,tzinfo=timezone.utc).timestamp()*1000)
-              end_ms=int(datetime(2025,11,1,tzinfo=timezone.utc).timestamp()*1000)-1
-              all_rows=[]; pages=[]; cursor=start_ms; page=0
-              seen=set()
-              while cursor<=end_ms:
-                  page += 1
-                  url=FUND_BASE+"?"+urlencode({
-                      "symbol":symbol,"startTime":cursor,"endTime":end_ms,"limit":1000
-                  })
-                  p=root/f"page-{page:03d}.json"
-                  meta=p.with_suffix(".meta.json")
-                  if p.exists() and meta.exists():
-                      raw=p.read_bytes(); source="cache"
-                      response_sha=sha256(raw)
-                      rows=json.loads(raw.decode("utf-8"))
-                  else:
-                      raw=fetch(url); source="download"
-                      response_sha=sha256(raw)
-                      rows=json.loads(raw.decode("utf-8"))
-                      p.write_bytes(raw)
-                      meta.write_text(json.dumps({
-                          "url":url,"sha256":response_sha,"source":"download"
-                      },sort_keys=True)+"\n")
-                  if not isinstance(rows,list): raise RuntimeError(f"{symbol} page {page}: non-list response")
-                  pages.append({
-                      "page":page,"url":url,"sha256":response_sha,
-                      "count":len(rows),"source":source
-                  })
-                  if not rows: break
-                  last=max(int(x["fundingTime"]) for x in rows)
-                  for x in rows:
-                      ft=int(x["fundingTime"])
-                      if ft<start_ms or ft>end_ms: continue
-                      if ft in seen: raise RuntimeError(f"{symbol}: duplicate fundingTime {ft}")
-                      seen.add(ft); all_rows.append(x)
-                  if last>=end_ms: break
-                  if last<cursor: raise RuntimeError(f"{symbol}: funding cursor regressed")
-                  cursor=last+1
-                  if len(rows)<1000: break
-              all_rows.sort(key=lambda x:int(x["fundingTime"]))
-              if any(int(all_rows[i]["fundingTime"])>=int(all_rows[i+1]["fundingTime"]) for i in range(len(all_rows)-1)):
-                  raise RuntimeError(f"{symbol}: funding timestamps not strictly increasing")
-              return {
-                  "symbol":symbol,"records":len(all_rows),
-                  "first_funding":dt(int(all_rows[0]["fundingTime"])) if all_rows else None,
-                  "last_funding":dt(int(all_rows[-1]["fundingTime"])) if all_rows else None,
-                  "pages":pages,
-                  "raw_response_manifest_sha256":sha256(json.dumps(pages,sort_keys=True,separators=(",",":")).encode())
-              }
-          
-          jobs=[(s,y,m) for s in SYMBOLS for y,m in months()]
-          k=[]
-          with ThreadPoolExecutor(max_workers=16) as ex:
-              fs=[ex.submit(load_kline,*j) for j in jobs]
-              for f in as_completed(fs): k.append(f.result())
-          
-          by={s:[] for s in SYMBOLS}
-          for r in sorted(k,key=lambda x:(x["symbol"],x["year"],x["month"])): by[r["symbol"]].append(r)
-          common=None
-          for s in SYMBOLS:
-              ds=set()
-              for r in by[s]: ds.update(r["dates"])
-              common=ds if common is None else common & ds
-          common_dates=sorted(common or set())
-          
-          funding=[]
-          with ThreadPoolExecutor(max_workers=8) as ex:
-              fs=[ex.submit(funding_for,s) for s in SYMBOLS]
-              for f in as_completed(fs): funding.append(f.result())
-          funding.sort(key=lambda x:x["symbol"])
-          
-          common_start=common_dates[0] if common_dates else None
-          common_end=common_dates[-1] if common_dates else None
-          coverage={}
-          for f in funding:
-              # Feasibility coverage uses the inclusive common price window's calendar span.
-              first=datetime.fromisoformat(f["first_funding"]).replace(tzinfo=timezone.utc) if f["first_funding"] else None
-              last=datetime.fromisoformat(f["last_funding"]).replace(tzinfo=timezone.utc) if f["last_funding"] else None
-              want0=datetime.fromisoformat(common_start).replace(tzinfo=timezone.utc) if common_start else None
-              want1=datetime.fromisoformat(common_end).replace(tzinfo=timezone.utc) if common_end else None
-              span_days=(want1-want0).days+1 if want0 and want1 else 0
-              observed_days=max(0,(last.date()-first.date()).days+1) if first and last else 0
-              coverage[f["symbol"]]={
-                  "first_funding":f["first_funding"],
-                  "last_funding":f["last_funding"],
-                  "coverage_fraction":min(1.0,observed_days/span_days) if span_days else 0.0,
-                  "records":f["records"],
-              }
-          
-          price_gate=len(common_dates)>=1000 and len(set(d[:7] for d in common_dates))>=36
-          funding_gate=all(x["coverage_fraction"]>=0.90 and x["records"]>0 for x in coverage.values())
-          gate=price_gate and funding_gate
-          
-          panel=OUT/"price-panel.csv"
-          maps={s:{d:px for r in by[s] for d,px in r["closes"].items()} for s in SYMBOLS}
-          with panel.open("w",newline="",encoding="utf-8") as f:
-              w=csv.writer(f); w.writerow(["date"]+[s+"_close" for s in SYMBOLS])
-              for d in common_dates: w.writerow([d]+[f"{maps[s][d]:.17g}" for s in SYMBOLS])
-          panel_sha=sha256(panel.read_bytes())
-          
-          manifest={
-              "experiment_id":"HARMONY-INFRA-0010",
-              "price_source":{"market":"USD-M Futures","archive_family":"monthly klines","interval":"1d","checksum_sidecars_verified":True},
-              "symbols":SYMBOLS,
-              "period":{"start":START,"end":END},
-              "price_common_history":{
-                  "rows":len(common_dates),"months":len(set(d[:7] for d in common_dates)),
-                  "start":common_start,"end":common_end,"missing_common_dates":0
-              },
-              "price_files":[{k:r[k] for k in ("symbol","year","month","filename","url","zip_sha256","expected_sha256","source","rows","first_date","last_date")} for r in k],
-              "funding":funding,
-              "funding_coverage":coverage,
-              "panel_sha256":panel_sha,
-              "gate":{"price_history":price_gate,"funding_coverage":funding_gate,"overall":gate}
-          }
-          (OUT/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-          (OUT/"funding-manifest.json").write_text(json.dumps(funding,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-          prov={
-              "experiment_id":"HARMONY-INFRA-0010",
-              "price_archive_count":len(k),
-              "price_archive_checksum_verified":True,
-              "funding_response_pages":sum(len(x["pages"]) for x in funding),
-              "funding_raw_response_hashes_recorded":True,
-              "native_funding_timestamps_preserved":True,
-              "no_interpolation":True,
-              "no_forward_fill":True,
-              "no_strategy_execution":True,
-              "price_panel_sha256":panel_sha
-          }
-          (OUT/"provenance.json").write_text(json.dumps(prov,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-          print(json.dumps({
-              "price_rows":len(common_dates),
-              "price_start":common_start,"price_end":common_end,
-              "price_months":len(set(d[:7] for d in common_dates)),
-              "funding_coverage":coverage,
-              "gate":manifest["gate"]
-          },indent=2,sort_keys=True))
-          PY
-
-      - name: Upload derivatives feasibility evidence
+      - name: Upload sealed holdout manifest
         uses: actions/upload-artifact@v4
         with:
-          name: harmony-infra-0010
-          path: artifacts/HARMONY-INFRA-0010
+          name: harmony-holdout-data-001
+          path: artifacts/HARMONY-HOLDOUT-DATA-001
           if-no-files-found: error
           retention-days: 90
