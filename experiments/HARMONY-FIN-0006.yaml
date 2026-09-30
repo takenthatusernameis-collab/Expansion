@@ -1,0 +1,37 @@
+experiment_id: HARMONY-FIN-0006
+type: fixed_cross_sectional_reversal_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+strategy:
+  strategy_id: cross_sectional_reversal_1d_top2_bottom2
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  score: "prior completed daily close-to-close return from t-2 to t-1"
+  portfolio_rule_ref: "tracking/convergence/HARMONY-CONVERGENCE-SCOPE-0010.yaml"
+  rebalance: daily_at_close
+  signal_cutoff: t_minus_1_close
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement to the position held immediately before settlement using calc_time and funding_interval_hours"
+  terminal_liquidation: true
+
+data:
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  benchmark_1: "same-universe equal-weight futures portfolio with identical accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+
+integrity:
+  no_post_convergence_optimization: true
+  no_universe_search: true
+  no_new_candidate_search: true
+  do_not_modify_prior_experiments: true
