@@ -25,5 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install test runner
+        run: python -m pip install --disable-pip-version-check --no-input pytest
       - name: Run substrate and campaign tests
-        run: pytest -q tests/test_archive_materializer.py tests/test_data.py tests/test_experiment.py
+        run: python -m pytest -q tests/test_archive_materializer.py tests/test_data.py tests/test_experiment.py
