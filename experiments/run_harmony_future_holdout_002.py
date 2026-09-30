@@ -97,10 +97,11 @@ def target(cid,i):
     for s in SYMBOLS:
         m1=mean_days(s,i,1); m3=mean_days(s,i,3); m7=mean_days(s,i,7); seq=[r for dd in common[max(0,i-30):i] for r in funding[s].get(dd,[])]
         st=statistics.pstdev(seq) if len(seq)>1 else None
-        if cid.endswith("1d_weekly_v1"):score=-m1 if m1 is not None else None
-        elif cid.endswith("3d_weekly_v1"):score=-m3 if m3 is not None else None
-        elif cid.endswith("7d_weekly_v1"):score=-m7 if m7 is not None else None
-        else:score=-(m7/st) if m7 is not None and st not in (None,0) else None
+        if cid=="funding_carry_mean_1d_weekly_v1":score=-m1 if m1 is not None else None
+        elif cid=="funding_carry_mean_3d_weekly_v1":score=-m3 if m3 is not None else None
+        elif cid=="funding_carry_mean_7d_weekly_v1":score=-m7 if m7 is not None else None
+        elif cid=="funding_carry_zscore_7d_weekly_v1":score=-(m7/st) if m7 is not None and st not in (None,0) else None
+        else: raise ValueError(f"UNKNOWN_CANDIDATE:{cid}")
         if score is None:return None
         vals.append((score,s))
     vals.sort(key=lambda x:(-x[0],x[1])); w={s:0. for s in SYMBOLS}
@@ -125,9 +126,32 @@ def sim(cid,mult):
     for x in curve:peak=max(peak,x);mdd=min(mdd,x/peak-1)
     return {"cumulative_return":curve[-1]-1,"sharpe":sh,"max_drawdown":mdd,"one_way_turnover":turn}
 
-summary={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","status":"EXECUTED","start":START.isoformat(),"end":end.isoformat(),"observations":MIN_OBS,"input_manifest_sha256":msha,"candidates":{}}
+def benchmark_equal_weight_long_only():
+    curve=[1.0]
+    for j in range(1,len(holdout)):
+        pd,dd=holdout[j-1],holdout[j]
+        ret=statistics.mean(price[s][dd]/price[s][pd]-1 for s in SYMBOLS)
+        curve.append(curve[-1]*(1+ret))
+    rr=[curve[k]/curve[k-1]-1 for k in range(1,len(curve))];sd=statistics.stdev(rr) if len(rr)>1 else 0
+    sh=(statistics.mean(rr)/sd)*math.sqrt(365.25) if sd else 0
+    peak=curve[0];mdd=0
+    for x in curve:peak=max(peak,x);mdd=min(mdd,x/peak-1)
+    return {"cumulative_return":curve[-1]-1,"sharpe":sh,"max_drawdown":mdd}
+
+def benchmark_btc_buy_hold():
+    curve=[1.0]
+    for j in range(1,len(holdout)):
+        pd,dd=holdout[j-1],holdout[j]; curve.append(curve[-1]*(price["BTCUSDT"][dd]/price["BTCUSDT"][pd]))
+    rr=[curve[k]/curve[k-1]-1 for k in range(1,len(curve))];sd=statistics.stdev(rr) if len(rr)>1 else 0
+    sh=(statistics.mean(rr)/sd)*math.sqrt(365.25) if sd else 0
+    peak=curve[0];mdd=0
+    for x in curve:peak=max(peak,x);mdd=min(mdd,x/peak-1)
+    return {"cumulative_return":curve[-1]-1,"sharpe":sh,"max_drawdown":mdd}
+
+benchmarks={"same_universe_equal_weight_long_only":benchmark_equal_weight_long_only(),"BTCUSDT_buy_and_hold":benchmark_btc_buy_hold()}
+summary={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","status":"EXECUTED","start":START.isoformat(),"end":end.isoformat(),"observations":MIN_OBS,"input_manifest_sha256":msha,"benchmarks":benchmarks,"candidates":{}}
 for cid in CAND:
-    r={"candidate_id":cid,"input_manifest_sha256":msha,"frontier_digest":FRONTIER,"base":sim(cid,1.0),"cost_stress":{f"{m:.1f}x":sim(cid,m) for m in (1,1.5,2)},"holdout_released_to_selection":False}
+    r={"candidate_id":cid,"input_manifest_sha256":msha,"frontier_digest":FRONTIER,"benchmarks":benchmarks,"base":sim(cid,1.0),"cost_stress":{f"{m:.1f}x":sim(cid,m) for m in (1,1.5,2)},"holdout_released_to_selection":False}
     raw=json.dumps(r,sort_keys=True,indent=2).encode()+b"\n"; rsha=sha(raw); (OUT/f"{cid}.json").write_bytes(raw)
     summary["candidates"][cid]={"result_sha256":rsha,"base":r["base"],"cost_stress":r["cost_stress"]}
 (OUT/"summary.json").write_text(json.dumps(summary,sort_keys=True,indent=2)+"\n"); print(json.dumps(summary,sort_keys=True,indent=2))
