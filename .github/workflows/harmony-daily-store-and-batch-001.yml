@@ -58,17 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f "$STORE_PATH" ] && [ -f "$STORE_MANIFEST" ]; then
-            python - <<'PY'
-            import hashlib, json
-            from pathlib import Path
-            store = Path("data/cache/research/daily_8sym_v1.csv.gz")
-            manifest = json.loads(Path("data/cache/research/daily_8sym_v1.csv.gz.manifest.json").read_text())
-            actual = hashlib.sha256(store.read_bytes()).hexdigest()
-            expected = manifest["store_sha256"]
-            if actual != expected:
-                raise SystemExit(f"normalized store SHA mismatch: expected {expected}, got {actual}")
-            print(f"verified cached normalized store: {actual}")
-            PY
+            python -c "import hashlib,json; from pathlib import Path; s=Path('data/cache/research/daily_8sym_v1.csv.gz'); m=json.loads(Path('data/cache/research/daily_8sym_v1.csv.gz.manifest.json').read_text()); a=hashlib.sha256(s.read_bytes()).hexdigest(); e=m['store_sha256']; assert a==e, 'normalized store SHA mismatch'; print('verified cached normalized store:', a)"
           else
             python experiments/materialize_harmony_daily_store_001.py
           fi
