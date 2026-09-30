@@ -1,0 +1,38 @@
+experiment_id: HARMONY-FIN-0015
+type: fixed_taker_flow_imbalance_oos
+status: preregistered_frozen
+strategy_id: taker_flow_imbalance_weekly_v1
+objective: "Test whether persistent buyer- versus seller-initiated trading pressure contains forward cross-sectional return information."
+universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+signal:
+  flow_measure: "daily taker-buy quote volume minus taker-sell quote volume, divided by total quote volume"
+  aggregation: "trailing 7 completed common days, equal-weight average"
+  score: "7-day lagged taker-flow imbalance"
+  portfolio: "long top 3 assets and short bottom 3 assets by score; equal weight within each side; 0.5 gross per side"
+  rebalance: weekly
+  tie_break: "symbol ascending"
+  signal_cutoff: "t-1 completed kline data only"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "recorded native funding events at their timestamps"
+data:
+  source_protocol: HARMONY-DEEP-HISTORY-2019-001
+  required_fields: ["quote_volume","taker_buy_quote_volume","close","funding"]
+  common_panel: "verified eight-symbol daily panel"
+  execution_history_end: "2025-10-31"
+  holdout_access_forbidden: true
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["same-universe equal-weight long-only","BTCUSDT buy-and-hold"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_search: true
+  no_candidate_mutation: true
+  distinct_family_from: ["funding_carry","cross_sectional_momentum","time_series_momentum","liquidity_reversal"]
+execution_gate:
+  implementation_ready_after_deterministic_test: true
+  candidate_definition_frozen: true
