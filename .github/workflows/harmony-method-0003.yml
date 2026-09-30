@@ -47,21 +47,25 @@ jobs:
                   raise ValueError("path escapes repository root")
               return candidate
 
-          def verify_binding(st):
-              p = st["source_manifest_path"]
-              declared = st["source_manifest_sha256"]
-              path = safe_path(p)
+          binding = {"path": str(manifest.relative_to(ROOT)), "sha256": expected}
+
+          def verify_binding(st, scope_binding):
+              if st["source_manifest_path"] != scope_binding["path"]:
+                  raise ValueError("state source_manifest_path mismatch")
+              path = safe_path(scope_binding["path"])
               actual = hashlib.sha256(path.read_bytes()).hexdigest()
-              if actual != declared:
-                  raise ValueError("source_manifest.sha256 mismatch")
+              if actual != scope_binding["sha256"]:
+                  raise ValueError("scope source_manifest.sha256 mismatch")
+              if st["source_manifest_sha256"] != actual:
+                  raise ValueError("state source_manifest_sha256 mismatch")
               return actual
 
-          original = verify_binding(json.loads(state.read_text(encoding="utf-8")))
+          original = verify_binding(json.loads(state.read_text(encoding="utf-8")), binding)
 
           tampered = manifest.read_bytes()
           manifest.write_bytes(b'{"fixture":"TAMPERED","version":1}\n')
           try:
-              verify_binding(json.loads(state.read_text(encoding="utf-8")))
+              verify_binding(json.loads(state.read_text(encoding="utf-8")), binding)
               tampering_rejected = False
           except ValueError:
               tampering_rejected = True
@@ -71,7 +75,7 @@ jobs:
           mismatch_state["source_manifest_path"] = "methodology/fixtures/method-0003/other.json"
           (WORK / "other.json").write_text(manifest.read_text(encoding="utf-8"), encoding="utf-8")
           try:
-              verify_binding(mismatch_state)
+              verify_binding(mismatch_state, binding)
               path_mismatch_rejected = False
           except (ValueError, KeyError, FileNotFoundError):
               path_mismatch_rejected = True
@@ -79,7 +83,7 @@ jobs:
           escape_state = json.loads(state.read_text(encoding="utf-8"))
           escape_state["source_manifest_path"] = "../../../etc/passwd"
           try:
-              verify_binding(escape_state)
+              verify_binding(escape_state, binding)
               path_escape_rejected = False
           except (ValueError, KeyError, FileNotFoundError):
               path_escape_rejected = True
