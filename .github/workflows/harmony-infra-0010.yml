@@ -35,3 +35,5 @@ jobs:
           retention-days: 90
 
 # holdout partial-month archive fallback activation
+
+# partial-month funding API activation
