@@ -3,7 +3,7 @@ import unittest
 
 
 def fixed_weights(close, i, symbols):
-    if i < 20:
+    if i < 21:
         return None
     signs = {}
     for s in symbols:
@@ -39,7 +39,7 @@ class FIN0013PortfolioTests(unittest.TestCase):
             "C": [100 for _ in range(n)],
             "D": [100 + (i % 2) for i in range(n)],
         }
-        w = fixed_weights(close, 20, symbols)
+        w = fixed_weights(close, 21, symbols)
         self.assertGreater(w["A"], 0)
         self.assertLess(w["B"], 0)
         self.assertEqual(w["C"], 0)
@@ -52,7 +52,7 @@ class FIN0013PortfolioTests(unittest.TestCase):
             "A": [100 + i for i in range(25)],
             "B": [100 + i for i in range(25)],
         }
-        w = fixed_weights(close, 20, symbols)
+        w = fixed_weights(close, 21, symbols)
         self.assertTrue(math.isclose(sum(x for x in w.values() if x > 0), 1.0))
         self.assertTrue(all(x >= 0 for x in w.values()))
 
