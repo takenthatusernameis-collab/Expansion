@@ -1,0 +1,81 @@
+experiment_id: HARMONY-FIN-0008
+type: fixed_multi_asset_time_series_momentum_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration:
+  convergence_scope: tracking/convergence/HARMONY-CONVERGENCE-SCOPE-0014.yaml
+  strategy_id: multi_asset_tsmom_20d_long_flat_weekly_v1
+  candidate_digest: 8024eb10df37cdf3ddd1fe363ac3cb86deb24eec9167f9699f62a633c4ebc3cf
+  candidate_frontier_digest: 1d572594085faed62336b1c36798a9129269d7ff90d5e66ba42fd1ac929ac558
+  validation: chronological_70_30_oos_fixed_parameters
+  execution_blocked_until_verified_convergence: true
+
+hypothesis: >
+  A fixed multi-asset time-series momentum rule may retain directional exposure
+  when each asset's own prior 20-day return is positive, without relying on
+  cross-sectional ranking.
+
+strategy:
+  universe:
+    - BTCUSDT
+    - ETHUSDT
+    - LTCUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - BCHUSDT
+    - ADAUSDT
+    - DOGEUSDT
+  score: "close(t-1) / close(t-21) - 1"
+  signal: "long_if_prior_20d_return_positive_else_flat"
+  portfolio_rule: "equal_weight_active_long_positions; zero weight inactive assets"
+  rebalance: "every_7th_daily_observation"
+  signal_cutoff: "t-1 close"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement to the position held immediately before each settlement using calc_time and funding_interval_hours from the archive"
+  terminal_liquidation: true
+
+data:
+  source_cache_key: harmony-binance-um-2021-01-2025-10-v4
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+  reuse_verified_cache_only: true
+  no_new_data_acquisition: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  oos_only_execution: true
+  benchmark_1: "same-universe equal-weight long-only benchmark with identical price, turnover, funding, and transaction-cost accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+  temporal_stability: "evaluate the fixed OOS segment in two equal chronological halves; no parameter changes"
+  predefined_cost_stress:
+    - "1.0x base fees and slippage"
+    - "1.5x base fees and slippage"
+    - "2.0x base fees and slippage"
+
+gates:
+  execution_gate: >
+    Execute only after a reconstructible_v2 convergence certificate for scope
+    HARMONY-CONVERGENCE-SCOPE-0014 exists.
+  research_readout:
+    - "OOS cumulative return and CAGR"
+    - "OOS Sharpe and maximum drawdown"
+    - "OOS trade count and turnover"
+    - "benchmark-relative cumulative return"
+    - "temporal-half stability"
+    - "cost-stress sensitivity"
+    - "deterministic artifact and provenance checks"
+
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_parameter_search: true
+  no_universe_search: true
+  no_post_convergence_optimization: true
+  do_not_modify_prior_experiments: true
