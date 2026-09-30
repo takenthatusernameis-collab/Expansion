@@ -1,4 +1,5 @@
 name: Harmony future holdout accrual and gate
+# deterministic regression trigger: candidate scope, gate, benchmarks, and cache controls are preregistered
 
 on:
   schedule:
