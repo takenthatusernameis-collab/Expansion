@@ -37,7 +37,10 @@ def load_zip_rows(raw, filename):
         return list(csv.reader(io.StringIO(z.read(names[0]).decode("utf-8"))))
 
 def verified_archive(url, path):
-    checksum_text = fetch(url + ".CHECKSUM").decode("utf-8", "replace")
+    try:
+        checksum_text = fetch(url + ".CHECKSUM").decode("utf-8", "replace")
+    except Exception as exc:
+        raise RuntimeError(f"CHECKSUM_FETCH_FAILED: {url}.CHECKSUM :: {exc}") from exc
     expected = checksum_text.strip().split()[0].lower()
     if len(expected) != 64:
         raise RuntimeError(f"{url}: invalid checksum sidecar")
