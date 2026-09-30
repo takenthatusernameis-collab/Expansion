@@ -1,0 +1,63 @@
+substrate_id: HARMONY-RESEARCH-SUBSTRATE-002
+status: proposed_active
+purpose: "Maximize strategy tests per unit of compute by making data work persistent and candidate work batched."
+
+data_reuse:
+  raw_archives:
+    canonical_root: data/cache/binance/futures_um/deep_history_2019
+    reuse_before_download: true
+    verify_sha256_before_reuse: true
+  normalized_daily_store:
+    path: data/cache/research/daily_8sym_v1.csv.gz
+    immutable_after_fingerprint: true
+    shared_by_all_daily_candidate_batches: true
+  feature_store:
+    reuse_existing_verified_features: true
+    recompute_only_when_source_or_feature_revision_changes: true
+
+compute_architecture:
+  one_data_load_per_batch: true
+  one_normalization_pass_per_dataset_revision: true
+  one_feature_materialization_pass_per_feature_revision: true
+  many_candidates_per_process: true
+  shared_date_grid: true
+  shared_asset_returns: true
+  shared_funding_event_lookup: true
+  candidate_definitions_frozen_before_batch: true
+  no_parameter_search_inside_batch: true
+
+batch_principle:
+  expensive:
+    - archive_decompression
+    - CSV_parsing
+    - normalization
+    - feature_construction
+    - repeated_common_panel_alignment
+  amortize_across_candidates:
+    - all_above_expensive_steps
+    - daily_return_calculation
+    - funding-event indexing
+    - common benchmark inputs
+  candidate_specific:
+    - target-weight generation
+    - portfolio accounting
+    - metrics
+
+cache_invalidation:
+  raw_change: invalidate_normalized_store
+  normalized_schema_change: invalidate_dependent_features
+  feature_revision_change: invalidate_that_feature_store_only
+  candidate_change: do_not_invalidate_data_or_features
+  source_manifest_mismatch: reject_and_rematerialize
+
+throughput_rule:
+  default: "Batch all preregistered candidates sharing the same dataset and feature requirements."
+  anti_pattern: "One workflow/process per candidate when the candidates share identical input data."
+  exception: "Separate execution only when resource limits, isolation requirements, or incompatible data contracts materially justify it."
+
+safety:
+  - exact dataset manifests remain authoritative
+  - candidate definitions remain frozen
+  - OOS and holdout boundaries remain unchanged
+  - batching cannot allow candidate results to influence another candidate definition
+  - performance optimization must not change accounting semantics
