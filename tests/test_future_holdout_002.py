@@ -14,3 +14,10 @@ def test_preregistered_benchmarks_are_present():
     text = SCRIPT.read_text()
     assert 'same_universe_equal_weight_long_only' in text
     assert 'BTCUSDT_buy_and_hold' in text
+
+
+def test_candidate_scope_digest_is_bound():
+    text = SCRIPT.read_text()
+    assert "CANDIDATE_SCOPE_DIGEST" in text
+    assert "candidate_scope_digest" in text
+    assert "\"candidate_ids\":CAND" in text
