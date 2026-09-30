@@ -24,7 +24,11 @@ for s in SYMBOLS:
 rows = [row for row in rows if row.date in common]
 store_sha = write_daily_store(STORE, rows)
 
-source_manifest_sha = hashlib.sha256(SOURCE_MANIFEST.read_bytes()).hexdigest() if SOURCE_MANIFEST.exists() else "UNKNOWN_SOURCE_MANIFEST"
+if not SOURCE_MANIFEST.is_file():
+    raise FileNotFoundError(
+        f"{SOURCE_MANIFEST} is required so the normalized store has a verified source identity"
+    )
+source_manifest_sha = hashlib.sha256(SOURCE_MANIFEST.read_bytes()).hexdigest()
 
 manifest = store_manifest(
     source_manifest_sha256=source_manifest_sha,
