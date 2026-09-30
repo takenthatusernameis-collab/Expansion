@@ -1,0 +1,58 @@
+experiment_id: HARMONY-FIN-0010
+type: fixed_cross_sectional_trend_efficiency_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration:
+  strategy_id: cross_sectional_trend_efficiency_20d_weekly_v1
+  candidate_id: cross_sectional_trend_efficiency_20d_weekly_v1
+  objective: "Test whether signed 20-day return divided by cumulative absolute daily return path length provides a distinct trend-efficiency relative-strength signal."
+  candidate_frontier_size: 1
+
+strategy:
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  return_horizon_days: 20
+  path_window_days: 20
+  return_definition: "close(t-1) / close(t-21) - 1"
+  path_length_definition: "sum of absolute completed daily close-to-close returns from t-20 through t-1"
+  score: "prior_20d_return / prior_20d_absolute_return_path_length"
+  tie_break: "lexicographic_symbol_ascending_after_descending_score"
+  portfolio_rule: "long top 2 and short bottom 2; equal weights +0.25/-0.25; zero elsewhere"
+  rebalance: "every_7th_daily_observation"
+  signal_cutoff: "t-1 close"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement rate to the position held immediately before each settlement using calc_time and funding_interval_hours from the archive; never assume an 8h cadence"
+  terminal_liquidation: true
+
+data:
+  source_cache_key: harmony-binance-um-2021-01-2025-10-v4
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+  reuse_verified_cache_only: true
+  no_new_data_acquisition: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  oos_only_execution: true
+  benchmark_1: "same-universe equal-weight long-only benchmark with identical price, turnover, funding, and transaction-cost accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+  temporal_stability: "evaluate the fixed OOS segment in two equal chronological halves; no parameter changes"
+  predefined_cost_stress:
+    - "1.0x base fees and slippage"
+    - "1.5x base fees and slippage"
+    - "2.0x base fees and slippage"
+
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_parameter_search: true
+  no_universe_search: true
+  no_post_convergence_optimization: true
+  prior_experiments_immutable: true
+  distinct_from_prior_frozen_candidates: true
