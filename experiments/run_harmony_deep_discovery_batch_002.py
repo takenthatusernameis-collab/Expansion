@@ -231,14 +231,17 @@ def halves_metrics(dates, equity, start_date):
     }
 
 def simulate_panel(dates, close, funding, weight_fn, rebalance_fn, cost_mult=1.0):
+    # Use only symbols represented in this panel. This permits the same simulator
+    # to handle both the full research universe and single-symbol benchmarks.
+    symbols = list(close.keys())
     eq = 1.0
-    prev = {s: 0.0 for s in SYMBOLS}
+    prev = {s: 0.0 for s in symbols}
     curve = []
     turnover = 0.0
     funding_sum = 0.0
 
     for i, d in enumerate(dates):
-        for s in SYMBOLS:
+        for s in symbols:
             for rate in funding.get(s, {}).get(d, []):
                 pnl = -prev[s] * rate
                 eq *= 1.0 + pnl
@@ -248,16 +251,16 @@ def simulate_panel(dates, close, funding, weight_fn, rebalance_fn, cost_mult=1.0
             pd = dates[i - 1]
             eq *= 1.0 + sum(
                 prev[s] * (close[s][d] / close[s][pd] - 1.0)
-                for s in SYMBOLS
+                for s in symbols
             )
 
         if rebalance_fn(i, d):
             target = weight_fn(i, d)
             if target is not None:
-                delta = sum(abs(target.get(s, 0.0) - prev.get(s, 0.0)) for s in SYMBOLS)
+                delta = sum(abs(target.get(s, 0.0) - prev.get(s, 0.0)) for s in symbols)
                 turnover += delta / 2.0
                 eq *= max(0.0, 1.0 - (FEE + SLIP) * cost_mult * delta)
-                prev = {s: target.get(s, 0.0) for s in SYMBOLS}
+                prev = {s: target.get(s, 0.0) for s in symbols}
         curve.append(eq)
 
     liquidation = sum(abs(v) for v in prev.values())
