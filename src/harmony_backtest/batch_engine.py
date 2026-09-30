@@ -119,18 +119,15 @@ def run_weight_batch(
     *,
     fee_rate: float = 0.0006,
     slippage_rate: float = 0.0005,
-    rebalance_every: int = 7,
     terminal_liquidation: bool = True,
 ) -> dict[str, CandidateRun]:
     """Run many deterministic candidates over one shared market/funding state.
 
     All candidates share the same date loop, return calculations, funding-event lookup,
-    and normalized market data. Each candidate still retains its own exact portfolio
-    accounting and target-weight function.
+    and normalized market data. Each candidate retains its own exact portfolio accounting,
+    target-weight function, and rebalance schedule by returning None on non-rebalance dates.
     """
 
-    if rebalance_every <= 0:
-        raise ValueError("rebalance_every must be positive")
     if fee_rate < 0 or slippage_rate < 0:
         raise ValueError("cost rates must be non-negative")
     if not candidate_weight_functions:
@@ -169,10 +166,10 @@ def run_weight_batch(
                 for symbol in state.symbols
             )
 
-            # 3. Rebalance using information available at the close.
-            if i % rebalance_every == 0:
-                target = candidate_weight_functions[name](date, state)
-                if target is not None:
+            # 3. Candidate decides whether today is its declared rebalance date.
+            # Returning None means no rebalance; returning a mapping means rebalance.
+            target = candidate_weight_functions[name](date, state)
+            if target is not None:
                     missing = set(state.symbols) - set(target)
                     extra = set(target) - set(state.symbols)
                     if missing or extra:
@@ -180,15 +177,15 @@ def run_weight_batch(
                             f"candidate {name} weight universe mismatch: "
                             f"missing={sorted(missing)} extra={sorted(extra)}"
                         )
-                    target = {s: float(target[s]) for s in state.symbols}
-                    delta = sum(abs(target[s] - current[s]) for s in state.symbols)
-                    turnover[name] += delta / 2.0
-                    equity[name] *= max(
-                        0.0,
-                        1.0 - (fee_rate + slippage_rate) * delta,
-                    )
-                    current = target
-                    weights[name] = current
+                target = {s: float(target[s]) for s in state.symbols}
+                delta = sum(abs(target[s] - current[s]) for s in state.symbols)
+                turnover[name] += delta / 2.0
+                equity[name] *= max(
+                    0.0,
+                    1.0 - (fee_rate + slippage_rate) * delta,
+                )
+                current = target
+                weights[name] = current
 
             curves[name].append(equity[name])
 
