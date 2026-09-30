@@ -48,6 +48,7 @@ def test_two_candidates_share_state_and_produce_distinct_results():
     assert set(results) == {"long_a", "long_b"}
     assert results["long_a"].final_equity > results["long_b"].final_equity
     assert results["long_a"].equity_curve == tuple(results["long_a"].equity_curve)
+    assert results["long_a"].rebalance_count == 3
 
 
 def test_batch_engine_applies_funding_before_rebalance():
@@ -70,3 +71,24 @@ def test_batch_engine_applies_funding_before_rebalance():
     # Position is established at the 2025-01-01 close; funding on 2025-01-02 is
     # therefore applied to that position before the 2025-01-02 rebalance.
     assert results["candidate"].funding_pnl_sum < 0.0
+    assert results["candidate"].rebalance_count == 3
+
+
+def test_batch_engine_rejects_non_finite_weights():
+    state = build_shared_state(_rows())
+
+    def bad(_date, _state):
+        return {"A": float("nan"), "B": 0.0}
+
+    try:
+        run_weight_batch(
+            state,
+            {"bad": bad},
+            fee_rate=0.0,
+            slippage_rate=0.0,
+            terminal_liquidation=False,
+        )
+    except ValueError as exc:
+        assert "non-finite" in str(exc)
+    else:
+        raise AssertionError("expected non-finite candidate weights to be rejected")
