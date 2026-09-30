@@ -1,0 +1,33 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-006
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Materialize elapsed September 2026 price and Binance funding history immediately when
+  primary Binance archive/API routes are unavailable from the Expansion runner. Funding
+  fallback is a public Binance-specific historical table with deterministic source-page
+  hashing and complete-date validation. No strategy execution or OOS claim is permitted.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+price_source:
+  authority: "Binance public data vision"
+  family: "futures/um/daily/klines"
+funding_source:
+  provider: "Pandabull Binance funding history pages"
+  role: "historical funding-rate source"
+  source_template: "https://pandabull.io/perpetuals-funding/binance/{symbol}"
+  authentication: public
+  page_identity_hash_required: true
+  rendered_table_schema_required: true
+  exact_date_coverage_required: true
+  no_truncation_accepted: true
+integrity:
+  source_page_sha256_required: true
+  price_local_sha256_required: true
+  normalized_panel_sha256_required: true
+  every_symbol_every_elapsed_date_required: true
+firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
