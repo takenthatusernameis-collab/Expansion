@@ -197,7 +197,8 @@ with ThreadPoolExecutor(max_workers=12) as ex:
     for f in as_completed(jobs):
         meta,payload=f.result()
         if isinstance(meta,list):
-            fund_meta.extend(meta); funding_events.setdefault(payload[0]["symbol"] if payload else "",[]).extend(payload)
+            symbol=next(x["symbol"] for x in meta if x.get("kind")=="funding_partial_summary")
+            fund_meta.extend(meta); funding_events.setdefault(symbol,[]).extend(payload)
         elif meta["kind"]=="price":
             price_meta.append(meta); price_dates.setdefault(meta["symbol"],set()).update(payload)
         else:
@@ -223,7 +224,7 @@ manifest={
  "holdout_start":START,"holdout_end":END,"symbols":SYMBOLS,
  "completed_months":[f"{y:04d}-{m:02d}" for y,m in MONTHS],
  "partial_month_days":{"start":"2026-09-01","end":"2026-09-20","count":20},
- "source_rule":"monthly archives for completed months; daily kline archives and official funding API for partial final month",
+ "source_rule":"monthly archives for completed months; daily kline archives and daily funding archives for partial final month",
  "price_archives":price_meta,"funding_archives":fund_meta,
  "common_panel":{"start":common[0],"end":common[-1],"observations":len(common)},
  "native_funding_intervals_hours":{s:sorted({e["funding_interval_hours"] for e in funding_events[s]}) for s in SYMBOLS},
