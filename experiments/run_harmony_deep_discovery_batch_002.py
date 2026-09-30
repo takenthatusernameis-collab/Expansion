@@ -62,7 +62,12 @@ def materialize_binance_spot_month(symbol: str, year: int, month: int) -> Path:
             path.unlink()
         else:
             return path
-    raw = fetch(url)
+    try:
+        raw = fetch(url)
+    except HTTPError as exc:
+        if exc.code == 404:
+            return None
+        raise
     checksum = fetch(url + ".CHECKSUM").decode("utf-8", "replace").strip().split()[0].lower()
     if sha256_bytes(raw) != checksum:
         raise ValueError(f"spot checksum mismatch: {filename}")
@@ -76,6 +81,8 @@ def load_daily_closes(root: Path, symbol: str, source_kind: str):
             path = root / "klines" / symbol / "1d" / f"{symbol}-1d-{year:04d}-{month:02d}.zip"
         else:
             path = materialize_binance_spot_month(symbol, year, month)
+            if path is None:
+                continue
         if not path.is_file():
             continue
         for row in parse_zip_rows(path):
@@ -285,8 +292,10 @@ def basis_weights(dates, futures, spot, i):
 def build_basis_results(futures, spot, funding):
     common = sorted(set.intersection(*(set(futures[s]) & set(spot[s]) for s in SYMBOLS)))
     common = [d for d in common if d <= END.isoformat()]
-    if len(common) < 500:
-        raise RuntimeError(f"basis common history too short: {len(common)} observations")
+    if len(common) != 1935 or common[0] != "2020-07-10" or common[-1] != END.isoformat():
+        raise RuntimeError(
+            f"basis common panel mismatch: {common[0] if common else None}..{common[-1] if common else None}, rows={len(common)}"
+        )
 
     def rebalance(i, d):
         return i >= 1 and (i - 1) % 7 == 0
