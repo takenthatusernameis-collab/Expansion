@@ -1,0 +1,36 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-002
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Materialize already-elapsed historical daily price and native funding observations
+  immediately from Binance public archives. This protocol exists because monthly funding
+  archives can lag the passage of historical time; it does not authorize candidate
+  execution, selection updates, or OOS claims.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  timeframe: "1d"
+source:
+  authority: "Binance public data vision"
+  archive_family: "futures/um/daily"
+  price_archive: "daily klines"
+  funding_archive: "daily fundingRate"
+  upstream_checksum:
+    price: required_when_supplied
+    funding: optional_if_publisher_does_not_supply_sidecar
+  local_sha256: required
+  zip_integrity: required
+  csv_shape_validation: required
+  missing_or_partial_day: blocked
+  no_api_substitution: true
+integrity:
+  deterministic_manifest_required: true
+  normalized_panel_sha256_required: true
+  source_file_identity_required: true
+  absent_upstream_checksum_must_be_recorded: true
+research_firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
+  purpose_is_data_construction_only: true
