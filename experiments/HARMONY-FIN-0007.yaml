@@ -1,0 +1,60 @@
+experiment_id: HARMONY-FIN-0007
+type: fixed_orthogonal_lower_turnover_oos
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration:
+  convergence_scope: tracking/convergence/HARMONY-CONVERGENCE-SCOPE-0013.yaml
+  convergence_certificate: tracking/convergence/HARMONY-CONVERGENCE-CERT-0013.json
+  strategy_id: cross_sectional_60d_breakout_proximity_weekly
+  validation: chronological_70_30_oos_fixed_parameters
+  no_post_convergence_optimization: true
+  source_cache_key: harmony-binance-um-2021-01-2025-10-v4
+
+strategy:
+  universe:
+    - BTCUSDT
+    - ETHUSDT
+    - LTCUSDT
+    - XRPUSDT
+    - BNBUSDT
+    - BCHUSDT
+    - ADAUSDT
+    - DOGEUSDT
+  score: "close(t-1) / max(close(t-61:t-2)) - 1"
+  lookback_days: 60
+  portfolio_rule: "long top 2 at +0.25 each; short bottom 2 at -0.25 each"
+  rebalance: "every 7th OOS observation; hold weights between scheduled rebalances"
+  signal_cutoff: "t-1 close"
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
+  funding: "apply native funding settlement rate to the position held immediately before each settlement using calc_time and funding_interval_hours"
+  terminal_liquidation: true
+
+data:
+  price_source: "Binance USD-M Futures monthly 1d klines"
+  funding_source: "Binance monthly fundingRate archives"
+  trace: "2021-01-01 through 2025-10-31"
+  fixed_universe_trace_bounded: true
+  no_forward_fill: true
+  reuse_verified_cache_only: true
+
+validation:
+  split: chronological_70_30
+  parameters_fit_on_oos: false
+  gross_edge_gate:
+    cumulative_return_min: 0.25
+    sharpe_min: 0.75
+  turnover_gate:
+    mean_daily_one_way_turnover_max: 0.125
+  benchmark_1: "same-universe equal-weight futures portfolio with identical price, funding, turnover, and transaction-cost accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price, funding, turnover, and transaction-cost accounting"
+
+integrity:
+  no_parameter_grid: true
+  no_universe_search: true
+  no_post_hoc_parameter_search: true
+  do_not_modify_prior_experiments: true
+  no_new_data_acquisition: true
