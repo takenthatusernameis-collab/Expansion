@@ -1,0 +1,45 @@
+protocol_id: HARMONY-DEEP-HISTORY-2019-001
+version: "1.0"
+status: preregistered_deep_history_acquisition
+purpose: >-
+  Acquire the longest defensible USD-M futures price and native funding history for the
+  fixed eight-symbol research basket, with the requested acquisition boundary beginning
+  2019-01-01. Per-instrument availability is recorded explicitly; no observations are
+  invented before an instrument's actual source inception.
+acquisition_window:
+  requested_start: "2019-01-01"
+  requested_end: "2025-10-31"
+universe:
+  policy: fixed_trace_bounded_basket
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+sources:
+  price:
+    primary:
+      authority: "Binance Public Data"
+      family: "futures/um/monthly/klines"
+      interval: "1d"
+      checksum_sidecar_required: true
+  funding:
+    primary:
+      provider: "Primit public historical funding gateway sourcing Binance data"
+      endpoint: "/funding/rates/{symbol}/history"
+      public: true
+      request_scope_required: true
+      raw_response_sha256_required: true
+integrity:
+  reuse_verified_bytes: true
+  sha256_required: true
+  no_forward_fill: true
+  no_interpolation: true
+  no_synthetic_pre_inception_rows: true
+  source_unavailability_must_be_recorded: true
+  common_panel_uses_exact_intersection_only: true
+outputs:
+  manifest: "artifacts/HARMONY-DEEP-HISTORY-2019-001/manifest.json"
+  coverage: "artifacts/HARMONY-DEEP-HISTORY-2019-001/coverage.json"
+  provenance: "artifacts/HARMONY-DEEP-HISTORY-2019-001/provenance.json"
+  normalized_panel: "artifacts/HARMONY-DEEP-HISTORY-2019-001/price-panel.csv"
+firewall:
+  strategy_execution: false
+  candidate_mutation: false
+  oos_claim: false
