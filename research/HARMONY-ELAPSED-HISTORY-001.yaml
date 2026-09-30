@@ -1,0 +1,31 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-001
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Materialize already-elapsed historical observations immediately from complete daily
+  public archives rather than waiting for a monthly archive to close. This protocol is
+  a data-construction layer only and does not authorize candidate selection, tuning, or
+  new OOS claims.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  timeframe: "1d"
+source:
+  authority: "Binance public data vision"
+  archive_family: "futures/um/daily"
+  price_archive: "daily klines"
+  funding_archive: "daily fundingRate"
+  checksum_required: true
+  local_sha256_required: true
+  missing_or_partial_day: blocked
+  no_api_substitution: true
+integrity:
+  deterministic_manifest_required: true
+  normalized_panel_sha256_required: true
+  source_file_identity_required: true
+research_firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
+  purpose_is_data_construction_only: true
