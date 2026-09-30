@@ -1,0 +1,47 @@
+control_id: HARMONY-EXECUTION-STRESS-001
+version: "1.0"
+status: active
+objective: >-
+  Prevent deployment-oriented conclusions from relying only on historical signal returns.
+  Separate deterministic cost robustness from actual liquidity and fill evidence.
+
+non_mutating_role:
+  - does_not_change_candidate_definition
+  - does_not_select_parameters
+  - does_not_use_holdout_for_tuning
+
+deterministic_cost_stress:
+  required_levels:
+    - 1.0x_preregistered_fee_and_slippage
+    - 1.5x_preregistered_fee_and_slippage
+    - 2.0x_preregistered_fee_and_slippage
+  additional_reporting:
+    - turnover_distribution
+    - turnover_concentration_by_period
+    - funding_pnl_share
+    - maximum_gross_exposure
+    - maximum_single_asset_weight
+    - trade_count
+
+liquidity_and_fill_gate:
+  required_for_deployment_orientation: true
+  required_inputs:
+    - executable_volume_or_notional_proxy
+    - spread_or_cost_proxy
+    - position_notional
+    - participation_or_fill_assumption
+  unavailable_input_behavior: BLOCK_DEPLOYMENT_REALISM_CONCLUSION
+  prohibited_substitution:
+    - invented_liquidity
+    - invented_fill_rate
+    - unsupported spread estimate presented as observed fact
+
+capacity_stress:
+  use_fixed_ex_ante_scenarios: true
+  scenario_definition_must_precede_execution: true
+  no_post_result_scenario_selection: true
+
+release_rule:
+  historical_alpha_evidence_and_execution_realism_are_separate_claims: true
+  deployment_readout_requires_both: true
+  missing_execution_data_is_uncertainty_not_positive_evidence: true
