@@ -21,3 +21,5 @@ integrity:
   deterministic_fixture: true
   no_external_data: true
   no_strategy_logic: true
+
+# activation: deterministic remote validation pass 1; no methodology logic change.
