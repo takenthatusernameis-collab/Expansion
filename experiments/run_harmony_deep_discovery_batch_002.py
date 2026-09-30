@@ -254,10 +254,10 @@ def simulate_panel(dates, close, funding, weight_fn, rebalance_fn, cost_mult=1.0
         if rebalance_fn(i, d):
             target = weight_fn(i, d)
             if target is not None:
-                delta = sum(abs(target[s] - prev[s]) for s in SYMBOLS)
+                delta = sum(abs(target.get(s, 0.0) - prev.get(s, 0.0)) for s in SYMBOLS)
                 turnover += delta / 2.0
                 eq *= max(0.0, 1.0 - (FEE + SLIP) * cost_mult * delta)
-                prev = target
+                prev = {s: target.get(s, 0.0) for s in SYMBOLS}
         curve.append(eq)
 
     liquidation = sum(abs(v) for v in prev.values())
