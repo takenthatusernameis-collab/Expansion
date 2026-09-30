@@ -112,20 +112,19 @@ def run_0024(cost_mult=1.0,apply_funding=True):
       for _,s in ranked[:3]: w[s]=1/6
       for _,s in ranked[-3:]: w[s]=-1/6
       return w
-    curve=[]; eq=1; prev={s:0 for s in S}; split=next(i for i,d in enumerate(dates) if d==OOS_START)
-    for i in range(split,len(dates)):
-      d=dates[i]
+    curve=[]; eq=1; prev={s:0 for s in S}
+    for i,d in enumerate(dates):
       if apply_funding:
         for s in S:
           for r in fund[s].get(d,[]): eq*=1-prev[s]*r
-      if i>split:
+      if i>0:
         pd=dates[i-1]; eq*=1+sum(prev[s]*(close[s][d]/close[s][pd]-1) for s in S)
       tgt=wt(i)
       if tgt is not None:
         delta=sum(abs(tgt[s]-prev[s]) for s in S); eq*=1-(FEE+SLIP)*cost_mult*delta; prev=tgt
       curve.append(eq)
     liq=sum(abs(v) for v in prev.values()); eq*=1-(FEE+SLIP)*cost_mult*liq; curve[-1]=eq
-    return {"oos":segment(dates[split:],curve)}
+    return {"oos":segment(dates,curve)}
 
 expected={
  "HARMONY-FIN-0012":{"cumulative_return":0.4169009579470373,"sharpe":0.9706848261971941},
