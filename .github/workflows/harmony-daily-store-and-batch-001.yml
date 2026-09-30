@@ -10,6 +10,7 @@ on:
       - "tests/test_daily_store.py"
       - "tests/test_batch_engine.py"
       - "research/HARMONY-RESEARCH-SUBSTRATE-002.yaml"
+      - "research/HARMONY-CHEAP-SCREEN-001.yaml"
       - ".github/workflows/harmony-daily-store-and-batch-001.yml"
   workflow_dispatch:
 
