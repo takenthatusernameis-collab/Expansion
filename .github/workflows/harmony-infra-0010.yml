@@ -37,3 +37,5 @@ jobs:
 # holdout partial-month archive fallback activation
 
 # partial-month funding API activation
+
+# partial funding archive integrity exception activation
