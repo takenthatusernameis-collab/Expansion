@@ -1,0 +1,34 @@
+experiment_id: HARMONY-FIN-0025
+type: deep_sentiment_beta_cross_section
+status: preregistered_frozen
+strategy_id: weekly_fgi_beta_risk_v1
+market: eight_symbol_binance_usdt_perpetual_cross_section
+signal:
+  source: Alternative.me Crypto Fear & Greed Index daily history
+  beta_window: prior 60 common daily observations
+  factor: daily FGI change
+  asset_return: prior daily close-to-close return
+  rebalance: weekly on the fixed common daily panel cadence
+  ranking: sort rolling beta ascending
+  portfolio: long middle 4; short lowest 2 plus highest 2; equal gross weight; 0.5 gross each side
+  cutoff: beta uses observations strictly before rebalance day
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: native funding cashflows
+data:
+  price_source_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  sentiment_source: https://api.alternative.me/fng/?limit=0
+  end: "2025-10-31"
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_start: "2024-05-22"
+  temporal_stability: two equal chronological OOS halves
+  benchmarks: [BTCUSDT_buy_and_hold, equal_weight_long_only]
+  cost_stress: [1.0x, 1.5x, 2.0x]
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
