@@ -1,0 +1,41 @@
+experiment_id: HARMONY-FIN-0017
+type: deep_perpetual_basis_cross_sectional_oos
+status: preregistered_frozen
+strategy_id: perpetual_basis_cross_sectional_v1
+objective: "Test whether prior-day perpetual-futures premium relative to spot predicts cross-sectional futures returns."
+universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+signal:
+  basis_definition: "futures close(t-1) / spot close(t-1) - 1"
+  ranking: "descending prior-day basis"
+  portfolio: "long top 3 and short bottom 3; equal weight within each side; 0.5 gross per side"
+  rebalance: "first common observation with prior-day basis; then every seventh common observation"
+  tie_break: "symbol ascending"
+  signal_cutoff: "completed futures and spot closes from t-1 only"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "native recorded funding events at their timestamps"
+data:
+  futures_source: HARMONY-DEEP-HISTORY-2019-001
+  spot_source: HARMONY-SPOT-DEEP-HISTORY-001
+  requested_history_start: "2019-01-01"
+  execution_end: "2025-10-31"
+  exact_intersection_only: true
+  no_forward_fill: true
+  holdout_access_forbidden: true
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["same-universe equal-weight long-only","BTCUSDT buy-and-hold"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_search: true
+  no_universe_search: true
+  no_candidate_mutation: true
+  distinct_from: ["funding_carry","cross_sectional_momentum","time_series_momentum","liquidity_reversal","taker_flow","signed_jump"]
+deep_backtest:
+  full_trace_required: true
+  exact_data_inception_required: true
+  use_longest_verified_common_history: true
