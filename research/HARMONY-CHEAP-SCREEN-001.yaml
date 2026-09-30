@@ -1,0 +1,21 @@
+screen_id: HARMONY-CHEAP-SCREEN-001
+status: frozen
+purpose: "Pre-deep-backtest breadth-first falsification screen for preregistered candidates."
+scope: "Apply only to candidates whose definitions are already frozen. This screen selects candidates for deeper testing; it is not an acceptance criterion."
+decision_rule:
+  pass_if:
+    minimum_rebalances: 20
+    minimum_cumulative_return_after_costs: 0.0
+    minimum_sharpe_after_costs: 0.0
+  fail_if: "Any pass_if condition is false."
+integrity:
+  parameters_fixed_before_execution: true
+  candidate_definition_fixed_before_execution: true
+  no_parameter_search: true
+  no_candidate_mutation: true
+  discovery_data_only: true
+  holdout_access_forbidden: true
+  costs_included: true
+interpretation:
+  pass: "Eligible for deeper preregistered validation; not evidence of durable edge."
+  fail: "Do not allocate deep-backtest capacity unless a separately documented scientific reason overrides the screen."
