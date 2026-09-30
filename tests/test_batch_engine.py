@@ -42,7 +42,6 @@ def test_two_candidates_share_state_and_produce_distinct_results():
         {"long_a": long_a, "long_b": long_b},
         fee_rate=0.0,
         slippage_rate=0.0,
-        rebalance_every=1,
         terminal_liquidation=False,
     )
 
