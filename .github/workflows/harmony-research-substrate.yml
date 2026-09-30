@@ -1,0 +1,29 @@
+name: Harmony research substrate validation
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-RESEARCH-SUBSTRATE-001.yaml"
+      - "research/campaigns/**"
+      - "src/harmony_backtest/archive_materializer.py"
+      - "tests/test_archive_materializer.py"
+      - "experiments/HARMONY-CAMPAIGN-001.yaml"
+      - ".github/workflows/harmony-research-substrate.yml"
+  pull_request:
+    paths:
+      - "research/HARMONY-RESEARCH-SUBSTRATE-001.yaml"
+      - "research/campaigns/**"
+      - "src/harmony_backtest/archive_materializer.py"
+      - "tests/test_archive_materializer.py"
+      - "experiments/HARMONY-CAMPAIGN-001.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  substrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run substrate and campaign tests
+        run: pytest -q tests/test_archive_materializer.py tests/test_data.py tests/test_experiment.py
