@@ -43,3 +43,18 @@ release:
   results_enter_selection_state: false
   results_become_historical_evidence_only: true
   holdout_cannot_trigger_candidate_mutation: true
+
+parallel_research_firewall:
+  principle: >-
+    The 180-observation future-holdout gate controls release and execution of this frozen
+    funding-carry holdout only. It is not a global research lock.
+  allowed_while_accruing:
+    - acquire_and_fingerprint_pre_holdout_history
+    - run_independent_historical_discovery_on_data_ending_2025-10-31_or_earlier
+    - preregister_structurally_distinct_candidate_families
+    - validate_methodology_and_research_infrastructure
+  prohibited_while_accruing:
+    - consume_2026-09-01_or_later_holdout_observations_for_selection
+    - mutate_the_frozen_four_candidate_family
+    - treat_unreleased_holdout_results_as_selection_evidence
+  future_holdout_results_remain_firewalled_until_release_reconciliation: true
