@@ -16,7 +16,7 @@ def test_parse_stablecoin_series():
 
 
 def test_parse_alfred_csv():
-    raw = b"observation_date,M2SL\n2024-01-01,21000\n2024-02-01,21100\n"
+    raw = b"observation_date,M2SL_2024-03-01\n2024-01-01,21000\n2024-02-01,21100\n"
     rows = parse_alfred_csv(raw)
     assert rows[-1] == ("2024-02-01", 21100.0)
 
