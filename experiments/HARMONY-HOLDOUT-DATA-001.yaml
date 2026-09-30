@@ -14,7 +14,7 @@ data:
     partial_month: "Binance USD-M daily 1d kline archives for 2026-09-01 through 2026-09-20"
   funding:
     completed_months: "Binance USD-M monthly fundingRate archives for 2025-11 through 2026-08"
-    partial_month: "Binance USD-M daily fundingRate archives for 2026-09-01 through 2026-09-20"
+    partial_month: "official Binance USD-M fundingRate API responses for 2026-09-01 through 2026-09-20"
   source_substitution_preregistered: true
   required_months:
     - "2025-11"
