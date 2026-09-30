@@ -1,0 +1,40 @@
+experiment_id: HARMONY-FIN-0020
+type: deep_macro_liquidity_regime_btc_oos
+status: preregistered_frozen
+strategy_id: m2_latest_available_monthly_growth_btc_v1
+objective: "Test whether a point-in-time U.S. M2 growth regime predicts subsequent BTC returns."
+market: BTCUSDT
+signal:
+  source: "ALFRED M2SL vintage observations"
+  measure: "latest M2SL observation available as of each calendar month-end"
+  signal: "latest_available_M2 / prior_latest_available_M2 - 1"
+  direction: "positive growth -> long BTC; non-positive growth -> flat"
+  schedule: "evaluate at each calendar month-end and apply on the first BTC observation after month-end"
+  release_timing: "use ALFRED vintage dated at month-end so only observations available by that date are eligible"
+  signal_cutoff: "point-in-time ALFRED vintage snapshot"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "native recorded BTCUSDT funding events at their timestamps"
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001
+  macro_source: "https://alfred.stlouisfed.org/series?seid=M2SL"
+  requested_history_start: "2019-01-01"
+  execution_end: "2025-10-31"
+  vintage_policy: "one deterministic ALFRED vintage request per calendar month-end"
+  holdout_access_forbidden: true
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["BTCUSDT buy-and-hold","flat cash"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_search: true
+  no_signal_direction_search: true
+  no_candidate_mutation: true
+  point_in_time_vintage_required: true
+deep_backtest:
+  full_trace_required: true
+  deterministic_vintage_manifest_required: true
