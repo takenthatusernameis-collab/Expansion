@@ -1,0 +1,36 @@
+name: Harmony elapsed historical tail materialization v4
+
+on:
+  schedule:
+    - cron: "57 4 * * *"
+  push:
+    paths:
+      - "research/HARMONY-ELAPSED-HISTORY-004.yaml"
+      - "experiments/run_harmony_elapsed_history_004.py"
+      - ".github/workflows/harmony-elapsed-history-004.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Materialize elapsed price plus Binance funding ladder
+        run: python experiments/run_harmony_elapsed_history_004.py
+      - name: Save elapsed historical cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/binance/futures_um/elapsed_history_2026-09-daily-v4
+          key: harmony-elapsed-history-2026-09-daily-v4-${{ github.run_id }}
+      - name: Upload elapsed historical evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-elapsed-history-004
+          path: artifacts/HARMONY-ELAPSED-HISTORY-004
+          if-no-files-found: error
+          retention-days: 90
