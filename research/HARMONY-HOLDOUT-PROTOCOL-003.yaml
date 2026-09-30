@@ -1,0 +1,45 @@
+protocol_id: HARMONY-HOLDOUT-PROTOCOL-003
+version: "1.0"
+status: preregistered_future_holdout
+purpose: >-
+  Accrue the preregistered funding-carry holdout continuously from already-elapsed daily
+  data. No month-end waiting is permitted; each completed day is materialized immediately.
+selection_boundary:
+  end: "2025-10-31"
+family:
+  campaign: HARMONY-CAMPAIGN-001
+  candidates:
+    - funding_carry_mean_1d_weekly_v1
+    - funding_carry_mean_3d_weekly_v1
+    - funding_carry_mean_7d_weekly_v1
+    - funding_carry_zscore_7d_weekly_v1
+future_tail:
+  start: "2026-09-01"
+  minimum_common_observations_before_release: 180
+  release_rule: >-
+    Freeze the first contiguous common-date segment beginning 2026-09-01 that reaches
+    at least 180 observations, using complete daily price data and native Binance
+    funding-rate history sourced through the preregistered source ladder.
+source_ladder:
+  price:
+    - "Binance futures UM daily klines"
+  funding:
+    - "Primit public historical funding gateway sourcing Binance data"
+integrity:
+  local_sha256_required: true
+  raw_funding_response_sha256_required: true
+  source_request_scope_required: true
+  complete_8_symbol_panel_required: true
+  contiguous_start_required: true
+execution:
+  all_four_candidates_required: true
+  no_parameter_search: true
+  no_universe_search: true
+  automatic_cost_stress: [1.0,1.5,2.0]
+  automatic_benchmarks:
+    - same_universe_equal_weight_long_only
+    - BTCUSDT_buy_and_hold
+release:
+  results_enter_selection_state: false
+  results_become_historical_evidence_only: true
+  holdout_cannot_trigger_candidate_mutation: true
