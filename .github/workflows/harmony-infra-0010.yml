@@ -20,8 +20,8 @@ jobs:
       - name: Restore holdout cache
         uses: actions/cache/restore@v4
         with:
-          path: data/cache/binance/futures_um/holdout_2025-11_2026-09
-          key: harmony-binance-um-holdout-2025-11-2026-09-v1
+          path: data/cache/binance/futures_um/holdout_2025-11_2026-08
+          key: harmony-binance-um-holdout-2025-11-2026-08-v2
 
       - name: Materialize and fingerprint sealed holdout
         run: python experiments/run_harmony_holdout_data_001.py
