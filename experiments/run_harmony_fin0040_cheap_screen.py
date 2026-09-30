@@ -16,6 +16,7 @@ SLIP = 0.0005
 MIN_REBALANCES = 20
 MIN_CUMULATIVE_RETURN = 0.0
 MIN_SHARPE = 0.0
+SCREEN_VERSION = "2026-10-01-fixed-v1"
 
 def parse_zip_rows(path):
     with zipfile.ZipFile(path) as z:
@@ -157,6 +158,7 @@ def main():
     }
     manifest = {
         "screen_id": "HARMONY-CHEAP-SCREEN-FIN-0040-001",
+        "screen_version": SCREEN_VERSION,
         "candidate": "HARMONY-FIN-0040",
         "futures_cache_key": "harmony-binance-um-deep-history-2019-2025-10-v1-36777989764",
         "panel": {"start": dates[0], "end": dates[-1], "rows": len(dates)},
