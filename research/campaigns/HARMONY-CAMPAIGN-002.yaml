@@ -1,0 +1,43 @@
+campaign_id: HARMONY-CAMPAIGN-002
+version: "1.0"
+status: preregistered
+type: temporal_robustness_and_cost_stress
+parent_campaign: HARMONY-CAMPAIGN-001
+candidate_scope:
+  source: HARMONY-CAMPAIGN-001
+  all_candidates_required: true
+  candidates:
+    - funding_carry_mean_1d_weekly_v1
+    - funding_carry_mean_3d_weekly_v1
+    - funding_carry_mean_7d_weekly_v1
+    - funding_carry_zscore_7d_weekly_v1
+data:
+  discovery_window: 2021-01-01 through 2025-10-31
+  observations: 1760
+  input_manifest_sha256: c5c3807d4a244b7c1b788fcc1bf84f444301794ee555af8f3f5d56de77b41f73
+  feature_store_sha256: c28a40c4a4e4603852bb09ef5aa9fc5723688f6c30f219fe0d9e2fae4802ed5e
+  holdout_access_forbidden: true
+temporal_protocol:
+  blocks: 6
+  partition: equal_chronological_observation_blocks
+  candidate_definition_mutation: false
+  per_block_metrics:
+    - cumulative_return
+    - sharpe
+    - max_drawdown
+    - one_way_turnover
+cost_stress:
+  multipliers: [1.0,1.5,2.0]
+benchmarks:
+  - same_universe_equal_weight_long_only
+  - BTCUSDT_buy_and_hold
+acceptance:
+  finite_scope: true
+  no_parameter_search: true
+  no_universe_search: true
+  no_post_hoc_candidate_narrowing: true
+  independent_result_hashes: true
+  Contraction_reconciliation_required: true
+interpretation:
+  purpose: "descriptive robustness only; not independent OOS evidence"
+next_execution: "run the entire frozen four-candidate family as one batch"
