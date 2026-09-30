@@ -76,7 +76,7 @@ def normalized_panel_sha(prices, dates) -> str:
 
 
 def weights(prices, dates, i):
-    if i < 20:
+    if i < 21:
         return None
     d = dates[i]
     scores = {}
@@ -147,7 +147,7 @@ def simulate(prices, dates, funding, mode="strategy", cost_mult=1.0):
             pd = dates[i - 1]
             eq *= 1.0 + sum(prev[s] * (prices[s][d] / prices[s][pd] - 1.0) for s in SYMBOLS)
 
-        rebalance = i >= 20 and ((i - 20) % 7 == 0)
+        rebalance = i >= 21 and ((i - 21) % 7 == 0)
         if rebalance:
             if mode == "strategy":
                 tgt = weights(prices, dates, i)
