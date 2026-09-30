@@ -6,11 +6,13 @@ The expensive data work happens once per batch:
 - precompute asset daily returns once;
 - load funding events once.
 
-Candidate-specific work is then limited to target-weight generation and portfolio accounting.
+Candidate-specific work is limited to target-weight generation and portfolio accounting.
 """
 
 from __future__ import annotations
 
+import math
+import statistics
 from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence
 
@@ -37,18 +39,21 @@ class SharedDailyState:
 class CandidateRun:
     final_equity: float
     cumulative_return: float
+    cagr: float
+    sharpe: float
+    max_drawdown: float
     turnover: float
     funding_pnl_sum: float
+    equity_curve: tuple[float, ...]
 
 
-def build_shared_state(
-    rows: Sequence,
-    funding_events: Sequence[FundingEvent] = (),
-) -> SharedDailyState:
+def build_shared_state(rows: Sequence, funding_events: Sequence[FundingEvent] = ()) -> SharedDailyState:
     symbols = tuple(sorted({row.symbol for row in rows}))
     dates = tuple(sorted({row.date for row in rows}))
     by_key = {(row.symbol, row.date): row for row in rows}
 
+    if not symbols or not dates:
+        raise ValueError("shared state requires non-empty rows")
     if any((symbol, date) not in by_key for symbol in symbols for date in dates):
         raise ValueError("shared state requires an exact common symbol/date panel")
 
@@ -61,17 +66,15 @@ def build_shared_state(
     daily_return: dict[tuple[str, str], float] = {}
     for s in symbols:
         for i, d in enumerate(dates):
-            if i == 0:
-                daily_return[(s, d)] = 0.0
-            else:
-                previous = dates[i - 1]
-                daily_return[(s, d)] = close[(s, d)] / close[(s, previous)] - 1.0
+            daily_return[(s, d)] = 0.0 if i == 0 else (
+                close[(s, d)] / close[(s, dates[i - 1])] - 1.0
+            )
 
     funding: dict[tuple[str, str], list[float]] = {}
     for event in funding_events:
         if event.symbol not in symbols or event.date not in dates:
             continue
-        funding.setdefault((event.symbol, event.date), []).append(event.rate)
+        funding.setdefault((event.symbol, event.date), []).append(float(event.rate))
 
     return SharedDailyState(
         symbols=symbols,
@@ -87,6 +90,29 @@ def build_shared_state(
 WeightFunction = Callable[[str, SharedDailyState], Mapping[str, float] | None]
 
 
+def _metrics(curve: Sequence[float]) -> tuple[float, float, float]:
+    if not curve or curve[0] <= 0:
+        raise ValueError("invalid equity curve")
+    returns = [
+        curve[i] / curve[i - 1] - 1.0
+        for i in range(1, len(curve))
+    ]
+    if len(returns) > 1 and statistics.stdev(returns) > 0:
+        sharpe = statistics.mean(returns) / statistics.stdev(returns) * math.sqrt(365.25)
+    else:
+        sharpe = 0.0
+
+    peak = curve[0]
+    mdd = 0.0
+    for value in curve:
+        peak = max(peak, value)
+        mdd = min(mdd, value / peak - 1.0)
+
+    years = max((len(curve) - 1) / 365.25, 1e-12)
+    cagr = curve[-1] ** (1.0 / years) - 1.0
+    return cagr, sharpe, mdd
+
+
 def run_weight_batch(
     state: SharedDailyState,
     candidate_weight_functions: Mapping[str, WeightFunction],
@@ -94,27 +120,33 @@ def run_weight_batch(
     fee_rate: float = 0.0006,
     slippage_rate: float = 0.0005,
     rebalance_every: int = 7,
+    terminal_liquidation: bool = True,
 ) -> dict[str, CandidateRun]:
-    """Run many candidates over one shared market/funding state.
+    """Run many deterministic candidates over one shared market/funding state.
 
-    All candidates share the date loop, daily return lookups, and funding event lookups.
-    This is deterministic and deliberately avoids candidate-specific data reloads.
+    All candidates share the same date loop, return calculations, funding-event lookup,
+    and normalized market data. Each candidate still retains its own exact portfolio
+    accounting and target-weight function.
     """
 
     if rebalance_every <= 0:
         raise ValueError("rebalance_every must be positive")
+    if fee_rate < 0 or slippage_rate < 0:
+        raise ValueError("cost rates must be non-negative")
+    if not candidate_weight_functions:
+        raise ValueError("at least one candidate is required")
 
     names = tuple(candidate_weight_functions)
-    equity = {name: 1.0 for name in names}
-    previous = {
+    weights = {
         name: {s: 0.0 for s in state.symbols}
         for name in names
     }
+    equity = {name: 1.0 for name in names}
     turnover = {name: 0.0 for name in names}
     funding_pnl = {name: 0.0 for name in names}
+    curves = {name: [] for name in names}
 
     for i, date in enumerate(state.dates):
-        # Shared market/funding observations are fetched once per date and reused.
         returns = {s: state.daily_return[(s, date)] for s in state.symbols}
         funding_today = {
             s: state.funding_by_day.get((s, date), ())
@@ -122,42 +154,65 @@ def run_weight_batch(
         }
 
         for name in names:
-            weights = previous[name]
+            current = weights[name]
+
+            # 1. Funding on the position held immediately before the decision-date rebalance.
             for symbol in state.symbols:
                 for rate in funding_today[symbol]:
-                    pnl = -weights[symbol] * rate
+                    pnl = -current[symbol] * rate
                     equity[name] *= 1.0 + pnl
                     funding_pnl[name] += pnl
 
+            # 2. Price return of the position held during the current day.
             equity[name] *= 1.0 + sum(
-                weights[symbol] * returns[symbol] for symbol in state.symbols
+                current[symbol] * returns[symbol]
+                for symbol in state.symbols
             )
 
+            # 3. Rebalance using information available at the close.
             if i % rebalance_every == 0:
                 target = candidate_weight_functions[name](date, state)
                 if target is not None:
                     missing = set(state.symbols) - set(target)
-                    if missing:
+                    extra = set(target) - set(state.symbols)
+                    if missing or extra:
                         raise ValueError(
-                            f"candidate {name} omitted weights for {sorted(missing)}"
+                            f"candidate {name} weight universe mismatch: "
+                            f"missing={sorted(missing)} extra={sorted(extra)}"
                         )
-                    weights = {s: float(target[s]) for s in state.symbols}
-                previous[name] = weights
+                    target = {s: float(target[s]) for s in state.symbols}
+                    delta = sum(abs(target[s] - current[s]) for s in state.symbols)
+                    turnover[name] += delta / 2.0
+                    equity[name] *= max(
+                        0.0,
+                        1.0 - (fee_rate + slippage_rate) * delta,
+                    )
+                    current = target
+                    weights[name] = current
 
-            delta = sum(
-                abs(weights[symbol] - previous[name][symbol])
-                for symbol in state.symbols
+            curves[name].append(equity[name])
+
+    for name in names:
+        if terminal_liquidation:
+            liquidation = sum(abs(v) for v in weights[name].values())
+            equity[name] *= max(
+                0.0,
+                1.0 - (fee_rate + slippage_rate) * liquidation,
             )
-            # previous[name] still refers to the old allocation only when a rebalance
-            # occurred; capture turnover before updating the stored allocation.
-            # To avoid ambiguity, recompute from the last stored allocation below.
-            # This branch is replaced by the explicit portfolio transition in the
-            # reference implementation used by callers.
+            curves[name][-1] = equity[name]
 
-        # Candidate transitions are intentionally kept explicit in this dependency-free
-        # reference engine; callers should validate their own exact accounting fixtures.
-
-    raise RuntimeError(
-        "run_weight_batch is an architecture contract only; use run_weight_batch_v2 "
-        "after candidate accounting fixtures are bound."
-    )
+    results: dict[str, CandidateRun] = {}
+    for name in names:
+        curve = tuple(curves[name])
+        cagr, sharpe, mdd = _metrics(curve)
+        results[name] = CandidateRun(
+            final_equity=equity[name],
+            cumulative_return=equity[name] - 1.0,
+            cagr=cagr,
+            sharpe=sharpe,
+            max_drawdown=mdd,
+            turnover=turnover[name],
+            funding_pnl_sum=funding_pnl[name],
+            equity_curve=curve,
+        )
+    return results
