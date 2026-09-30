@@ -1,0 +1,26 @@
+validation_id: HARMONY-PROMOTED-VALIDATION-001
+status: preregistered_frozen
+purpose: "Fixed-definition robustness validation of guarded candidates FIN-0012 and FIN-0024."
+candidates:
+  - HARMONY-FIN-0012
+  - HARMONY-FIN-0024
+controls:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_signal_mutation: true
+  holdout_access: false
+  baseline_reproduction_required: true
+stress_cases:
+  - id: three_times_transaction_cost
+    definition: "Same frozen signals; fee+slippage multiplied by 3.0x; native funding retained."
+  - id: funding_neutral
+    definition: "Same frozen signals and 1.0x fee+slippage; funding PnL set to zero only as accounting sensitivity."
+acceptance:
+  "Baseline metrics must reproduce persisted frozen OOS metrics within 1e-12 on key values."
+  "Stress results are diagnostic robustness evidence, not promotion overrides."
+data:
+  FIN-0012_cache_key: harmony-binance-um-2021-01-2025-10-v4
+  FIN-0024_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+oos_start: "2024-05-22"
+selection_end: "2025-10-31"
