@@ -1,0 +1,36 @@
+experiment_id: HARMONY-FIN-0028
+type: deep_btc_network_activity_growth_oos
+status: preregistered_frozen
+strategy_id: weekly_unique_address_growth_long_btc_v1
+market: BTCUSDT_binance_usdt_perpetual
+signal:
+  source: Blockchain.com n-unique-addresses daily chart API
+  recent_window: 30 completed observations
+  prior_window: 30 completed observations immediately preceding recent_window
+  rule: "long BTC if recent_mean > prior_mean; otherwise flat"
+  rebalance: "every seventh common daily observation"
+  cutoff: "signal uses only indicator observations strictly before held return interval"
+portfolio:
+  gross_exposure: 1.0
+  position: [1.0, 0.0]
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: native Binance funding events at their recorded timestamps
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001 BTCUSDT futures daily close
+  network_source: Blockchain.com Charts API
+  network_endpoint: "https://api.blockchain.info/charts/n-unique-addresses?timespan=all&format=json&sampled=false"
+  execution_end: "2025-10-31"
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_start: "2024-05-22"
+  temporal_stability: two equal chronological OOS halves
+  benchmark: BTCUSDT buy_and_hold with identical funding and transaction-cost accounting
+  cost_stress: [1.0x, 1.5x, 2.0x]
+integrity:
+  no_parameter_search: true
+  no_direction_search: true
+  no_universe_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
