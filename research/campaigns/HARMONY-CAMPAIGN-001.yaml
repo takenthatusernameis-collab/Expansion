@@ -1,0 +1,62 @@
+campaign_id: HARMONY-CAMPAIGN-001
+version: "1.0"
+status: preregistered_design
+purpose: >-
+  Open the next structurally distinct family after the completed holdout phase while
+  reusing already verified USD-M price and native funding histories.
+
+family:
+  family_id: funding_carry_cross_sectional_v1
+  economic_mechanism: "perpetual-futures funding carry / cross-sectional funding pressure"
+  structural_difference_from_frozen_frontier: >-
+    Candidate signal is derived from native funding settlements rather than price
+    momentum, reversal, or BTC-residualized price return.
+  universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+  rebalance: every_7th_daily_observation
+  portfolio: "long lowest funding pressure / short highest funding pressure; +0.25/-0.25"
+  signal_cutoff: "all funding observations with calc_time strictly earlier than decision timestamp"
+
+candidate_scope:
+  finite: true
+  candidates:
+    - candidate_id: funding_carry_mean_1d_weekly_v1
+      lookback_days: 1
+      score: "negative mean native funding rate over prior 1 calendar day"
+    - candidate_id: funding_carry_mean_3d_weekly_v1
+      lookback_days: 3
+      score: "negative mean native funding rate over prior 3 calendar days"
+    - candidate_id: funding_carry_mean_7d_weekly_v1
+      lookback_days: 7
+      score: "negative mean native funding rate over prior 7 calendar days"
+    - candidate_id: funding_carry_zscore_7d_weekly_v1
+      lookback_days: 7
+      score: "negative prior-7d mean funding divided by prior-30d funding population standard deviation"
+
+execution:
+  price_source: "existing verified Binance USD-M daily kline cache"
+  funding_source: "existing verified Binance USD-M funding archive cache"
+  selection_data_end: "2025-10-31"
+  discovery_window: "2021-01-01 through 2025-10-31"
+  final_holdout: "2025-11-01 through 2026-08-31; forbidden during selection"
+  costs:
+    fee_rate: 0.0006
+    slippage_rate: 0.0005
+    stress_multipliers: [1.0,1.5,2.0]
+  benchmarks:
+    - same_universe_equal_weight_long_only
+    - BTCUSDT_buy_and_hold
+  artifacts:
+    input_manifest_required: true
+    candidate_digest_required: true
+    result_hash_required: true
+    independent_reconciliation_required: true
+
+gates:
+  no_parameter_search: true
+  no_universe_search: true
+  no_post_holdout_tuning: true
+  finite_scope_only: true
+  holdout_results_not_released_to_selection: true
+  batch_execution_preferred: true
+
+next_execution: "first build shared feature table, then execute all four candidates as one batch"
