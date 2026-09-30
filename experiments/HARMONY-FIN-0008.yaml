@@ -7,8 +7,8 @@ tracking_repository: takenthatusernameis-collab/Contraction
 preregistration:
   convergence_scope: tracking/convergence/HARMONY-CONVERGENCE-SCOPE-0014.yaml
   strategy_id: multi_asset_tsmom_20d_long_flat_weekly_v1
-  candidate_digest: 8024eb10df37cdf3ddd1fe363ac3cb86deb24eec9167f9699f62a633c4ebc3cf
-  candidate_frontier_digest: 1d572594085faed62336b1c36798a9129269d7ff90d5e66ba42fd1ac929ac558
+  candidate_digest: 95c4ac4d8129352a25b2e8ce96deb8e406610f0decc5598dc54c24f82cea8658
+  candidate_frontier_digest: 14ca0ee077f9fbb0aa00475a18f738b67d40f09f870c2d39758ca7b23bb72fee
   validation: chronological_70_30_oos_fixed_parameters
   execution_blocked_until_verified_convergence: true
 
