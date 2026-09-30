@@ -85,7 +85,7 @@ def load_monthly_klines(
                         date=date,
                         close=float(row[4]),
                         quote_volume=float(row[7]),
-                        taker_buy_quote_volume=float(row[11]),
+                        taker_buy_quote_volume=float(row[10]),
                     )
                 )
 
