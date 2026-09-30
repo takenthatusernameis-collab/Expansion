@@ -80,9 +80,19 @@ for s in SYMBOLS:
         for r in rr[1:]:
             if r: funding[s].setdefault(day(int(r[h["calc_time"]])),[]).append(float(r[h["last_funding_rate"]]))
 
-common=sorted(set.intersection(*(set(price[s]) for s in SYMBOLS))); common=[d for d in common if d>=START]
+price_common=sorted(set.intersection(*(set(price[s]) for s in SYMBOLS)))
+price_common=[d for d in price_common if d>=START]
+complete_common=[d for d in price_common if all(funding[s].get(d) for s in SYMBOLS)]
+contiguous=[]
+for d in complete_common:
+    if not contiguous:
+        if d==START: contiguous=[d]
+        continue
+    if (d-contiguous[-1]).days==1: contiguous.append(d)
+    else: break
+common=contiguous
 if len(common)<MIN_OBS:
-    status={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","status":"WAITING_FOR_180_COMMON_OBSERVATIONS","latest_complete_month":latest.isoformat(),"common_start":common[0].isoformat() if common else None,"common_end":common[-1].isoformat() if common else None,"observations":len(common),"minimum_required":MIN_OBS}
+    status={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","status":"WAITING_FOR_180_CONTIGUOUS_COMPLETE_OBSERVATIONS","latest_complete_month":latest.isoformat(),"required_start":START.isoformat(),"common_start":common[0].isoformat() if common else None,"common_end":common[-1].isoformat() if common else None,"complete_contiguous_observations":len(common),"minimum_required":MIN_OBS,"funding_complete_across_all_symbols":bool(common)}
     (OUT/"gate-status.json").write_text(json.dumps(status,sort_keys=True,indent=2)+"\n"); print(json.dumps(status)); raise SystemExit(0)
 
 holdout=common[:MIN_OBS]; end=holdout[-1]
