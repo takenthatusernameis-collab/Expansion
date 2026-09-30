@@ -1,0 +1,26 @@
+experiment_id: HARMONY-FIN-0041
+type: deep_bitcoin_option_asset_manager_positioning_oos
+status: preregistered_data_contract_gate
+strategy_id: weekly_cme_option_asset_manager_nonmomentum_v1
+market: CME Bitcoin futures
+signal:
+  source: CFTC Traders in Financial Futures futures-only and futures-and-options combined weekly reports
+  alignment: "use report values only after their public release; no report-date look-ahead"
+  option_only_asset_manager_net: "combined Asset Manager net position minus futures-only Asset Manager net position"
+  non_momentum_component: "weekly change in option-only Asset Manager net position residualized against the immediately preceding weekly Bitcoin-futures return"
+  published_direction: "negative coefficient on the non-momentum component; exact operational long/short mapping requires reconstruction before deep execution"
+  horizon: "second-week-ahead weekly futures return"
+data:
+  sample_evidence_period: "2020-01-21 through 2025-03-04 in source study; exact usable point-in-time period to be established from CFTC files"
+validation:
+  primary_gate: "reconstruct CFTC variables and publication timing independently"
+  secondary_gate: "replicate sign/direction from source paper before any deep backtest"
+  benchmarks: [BTC_buy_and_hold, naive_futures_position_baseline]
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_post_hoc_direction_search: true
+  holdout_access_forbidden: true
+external_evidence:
+  - "Shen, Li & Luo, Option positions, non-momentum trading, and Bitcoin futures returns, Finance Research Letters 2026, DOI 10.1016/j.frl.2026.110300"
+  - "CFTC Historical Compressed futures-and-options combined reports"
