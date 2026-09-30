@@ -127,42 +127,58 @@ def load_funding_monthly(symbol, stamp):
         "native_intervals_hours":sorted({x["funding_interval_hours"] for x in events})
     }, events
 
-def load_funding_api(symbol):
-    start_ms=int(datetime(2026,9,1,tzinfo=timezone.utc).timestamp()*1000)
-    end_ms=int(datetime(2026,9,21,tzinfo=timezone.utc).timestamp()*1000)-1
-    url=("https://fapi.binance.com/fapi/v1/fundingRate"
-         f"?symbol={symbol}&startTime={start_ms}&endTime={end_ms}&limit=1000")
-    raw=fetch(url)
-    out_path=FUND_ROOT/"api"/f"{symbol}-2026-09-01_2026-09-20.json"
-    out_path.parent.mkdir(parents=True,exist_ok=True)
-    out_path.write_bytes(raw)
-    response_sha=sha256(raw)
-    rows=json.loads(raw.decode("utf-8"))
-    if not isinstance(rows,list) or not rows:
-        raise RuntimeError(f"{symbol}: empty funding API response")
+def load_funding_partial_archive(symbol):
     events=[]
-    for r in rows:
-        ts=int(r["fundingTime"])
-        events.append({
-            "calc_time":ts,"date":parse_day(ts),
-            "funding_interval_hours":None,
-            "last_funding_rate":float(r["fundingRate"])
+    archive_meta=[]
+    for d in PARTIAL_DAYS:
+        ds=d.isoformat()
+        name=f"{symbol}-fundingRate-{ds}.zip"
+        url=f"{BASE}/daily/fundingRate/{symbol}/{name}"
+        path=FUND_ROOT/"daily"/symbol/name
+        if path.exists():
+            raw=path.read_bytes(); source="cache"
+        else:
+            raw=fetch(url)
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_bytes(raw); source="download"
+        local_sha=sha256(raw)
+        rows=load_zip_rows(raw,name)
+        if not rows:
+            raise RuntimeError(f"{name}: empty archive")
+        h={k.strip():i for i,k in enumerate(rows[0])}
+        if "calc_time" not in h:
+            raise RuntimeError(f"{name}: missing calc_time")
+        rate_col="last_funding_rate" if "last_funding_rate" in h else ("fundingRate" if "fundingRate" in h else None)
+        if rate_col is None:
+            raise RuntimeError(f"{name}: missing funding rate column")
+        for r in rows[1:]:
+            if not r: continue
+            ts=int(r[h["calc_time"]])
+            events.append({
+                "calc_time":ts,"date":parse_day(ts),
+                "funding_interval_hours":None,
+                "last_funding_rate":float(r[h[rate_col]])
+            })
+        archive_meta.append({
+            "kind":"funding","archive_frequency":"daily","symbol":symbol,"period":ds,
+            "filename":name,"url":url,"source":source,
+            "upstream_checksum_status":"unavailable_404",
+            "sha256":local_sha,"row_count":len(rows)-1
         })
     events.sort(key=lambda x:x["calc_time"])
     for i in range(1,len(events)):
         delta=events[i]["calc_time"]-events[i-1]["calc_time"]
-        if delta <= 0:
+        if delta<=0:
             raise RuntimeError(f"{symbol}: non-increasing fundingTime")
         events[i]["funding_interval_hours"]=delta/3600000.0
-    intervals=sorted({x["funding_interval_hours"] for x in events[1:] if x["funding_interval_hours"] is not None})
-    return {
-        "kind":"funding","archive_frequency":"api","symbol":symbol,
-        "period":"2026-09-01_to_2026-09-20","url":url,"source":"official_fapi_v1_fundingRate",
-        "response_sha256":response_sha,"row_count":len(events),
-        "first_date":events[0]["date"],"last_date":events[-1]["date"],
-        "native_intervals_hours":intervals,
-        "request":{"symbol":symbol,"startTime":start_ms,"endTime":end_ms,"limit":1000}
-    }, events
+    archive_meta.append({
+        "kind":"funding_partial_summary","archive_frequency":"daily",
+        "symbol":symbol,"period":"2026-09-01_to_2026-09-20",
+        "source":"official Binance Vision daily funding archives",
+        "upstream_checksum_status":"unavailable_for_partial_daily_files",
+        "native_intervals_hours":sorted({x["funding_interval_hours"] for x in events[1:] if x["funding_interval_hours"] is not None})
+    })
+    return archive_meta, events
 
 price_meta=[]
 fund_meta=[]
@@ -177,10 +193,12 @@ with ThreadPoolExecutor(max_workers=12) as ex:
             jobs.append(ex.submit(load_funding_monthly,s,ym))
         for d in PARTIAL_DAYS:
             jobs.append(ex.submit(load_price,s,"daily",d))
-        jobs.append(ex.submit(load_funding_api,s))
+        jobs.append(ex.submit(load_funding_partial_archive,s))
     for f in as_completed(jobs):
         meta,payload=f.result()
-        if meta["kind"]=="price":
+        if isinstance(meta,list):
+            fund_meta.extend(meta); funding_events.setdefault(payload[0]["symbol"] if payload else "",[]).extend(payload)
+        elif meta["kind"]=="price":
             price_meta.append(meta); price_dates.setdefault(meta["symbol"],set()).update(payload)
         else:
             fund_meta.append(meta); funding_events.setdefault(meta["symbol"],[]).extend(payload)
