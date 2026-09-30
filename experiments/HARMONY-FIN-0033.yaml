@@ -1,0 +1,42 @@
+experiment_id: HARMONY-FIN-0033
+type: deep_wikipedia_attention_growth_cross_sectional_oos
+status: preregistered_frozen
+strategy_id: monthly_wikipedia_attention_growth_v1
+market: eight_symbol_binance_usdt_perpetual_cross_section
+signal:
+  source: Wikimedia English Wikipedia pageviews
+  agent_filter: user
+  feature: "latest completed monthly pageviews divided by the mean of the preceding 3 completed monthly pageviews"
+  signal_timing: "feature computed from a completed prior month; position begins on the first common trading day of the next month"
+  ranking: descending attention-growth ratio
+  portfolio: long highest 3; short lowest 3; equal gross weight; 0.5 gross per side
+  rebalance: monthly
+page_map:
+  BTCUSDT: Bitcoin
+  ETHUSDT: Ethereum
+  LTCUSDT: Litecoin
+  XRPUSDT: XRP
+  BNBUSDT: BNB
+  BCHUSDT: Bitcoin_Cash
+  ADAUSDT: Cardano
+  DOGEUSDT: Dogecoin
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: native Binance funding events at recorded timestamps
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001
+  attention_source: Wikimedia Analytics API
+  execution_end: "2025-10-31"
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_start: "2024-05-22"
+  temporal_stability: two equal chronological OOS halves
+  benchmarks: [BTCUSDT_buy_and_hold, same_universe_equal_weight_long_only]
+  cost_stress: [1.0x, 1.5x, 2.0x]
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
