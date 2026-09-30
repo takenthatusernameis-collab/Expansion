@@ -97,15 +97,24 @@ def alfred_vintage_url(vintage_date: str) -> str:
 
 
 def parse_alfred_csv(raw: bytes):
-    rows = []
-    for row in csv.DictReader(io.StringIO(raw.decode("utf-8"))):
-        obs = row.get("observation_date")
-        value = row.get("M2SL")
+    reader = csv.reader(io.StringIO(raw.decode("utf-8-sig")))
+    rows = list(reader)
+    if not rows:
+        return []
+    header = rows[0]
+    if not header or header[0] != "observation_date" or len(header) < 2:
+        raise ValueError(f"unexpected ALFRED header: {header}")
+    rows_out = []
+    for row in rows[1:]:
+        if len(row) < 2:
+            continue
+        obs = row[0]
+        value = row[1]
         if not obs or value in (None, "", "."):
             continue
-        rows.append((obs, float(value)))
-    rows.sort()
-    return rows
+        rows_out.append((obs, float(value)))
+    rows_out.sort()
+    return rows_out
 
 
 def month_ends(start: date, end: date):
