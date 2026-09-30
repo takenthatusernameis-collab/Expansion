@@ -40,7 +40,7 @@ def load_price_and_funding():
         d = datetime.fromtimestamp(int(row["fundingTime"]) / 1000.0, timezone.utc).date().isoformat()
         funding.setdefault(d, []).append(float(row["fundingRate"]))
     dates = sorted(d for d in px if d <= END)
-    if not dates or dates[0] != "2020-07-10" or dates[-1] != END:
+    if not dates or dates[0] != "2020-01-01" or dates[-1] != END:
         raise RuntimeError(f"unexpected BTC panel: {dates[:1]}..{dates[-1:]}")
     return dates, px, funding
 
