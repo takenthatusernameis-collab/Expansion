@@ -49,9 +49,23 @@ class CandidateRun:
 
 
 def build_shared_state(rows: Sequence, funding_events: Sequence[FundingEvent] = ()) -> SharedDailyState:
+    rows = list(rows)
     symbols = tuple(sorted({row.symbol for row in rows}))
     dates = tuple(sorted({row.date for row in rows}))
-    by_key = {(row.symbol, row.date): row for row in rows}
+    by_key = {}
+    for row in rows:
+        key = (row.symbol, row.date)
+        if key in by_key:
+            raise ValueError(f"duplicate shared-state row: {key}")
+        if not all(math.isfinite(float(v)) for v in (
+            row.close,
+            row.quote_volume,
+            row.taker_buy_quote_volume,
+        )):
+            raise ValueError(f"non-finite market row: {key}")
+        if float(row.close) <= 0.0:
+            raise ValueError(f"non-positive close: {key}")
+        by_key[key] = row
 
     if not symbols or not dates:
         raise ValueError("shared state requires non-empty rows")
