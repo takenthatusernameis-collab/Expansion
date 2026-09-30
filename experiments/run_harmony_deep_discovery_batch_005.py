@@ -86,7 +86,10 @@ def build_signal_map(dates, indicator, smooth_window=1, recent_window=30, rebala
             continue
         recent = sum(smoothed[usable[k]] for k in range(j - recent_window, j)) / recent_window
         prior = sum(smoothed[usable[k]] for k in range(j - 2 * recent_window, j - recent_window)) / recent_window
-        signals[usable[j]] = 1.0 if recent > prior else 0.0
+        # Activate on the next available price day so the indicator observation
+        # itself is strictly prior to the held-return interval.
+        if j + 1 < len(usable):
+            signals[usable[j + 1]] = 1.0 if recent > prior else 0.0
     return signals
 
 def metrics(curve):
