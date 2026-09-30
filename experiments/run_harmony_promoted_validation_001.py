@@ -15,6 +15,39 @@ def rows(path):
         if len(n)!=1: raise RuntimeError(f"unexpected archive: {path}")
         return list(csv.reader(io.StringIO(z.read(n[0]).decode("utf-8"))))
 
+def benchmark_curve(dates, close, funding, start_index, kind, cost_mult=1.0):
+    eq=1.0
+    prev={s:0.0 for s in S}
+    curve=[]
+    for i in range(start_index, len(dates)):
+      d=dates[i]
+      for s in S:
+        for r in funding[s].get(d, []):
+          eq*=1.0-prev[s]*r
+      if i>start_index:
+        pd=dates[i-1]
+        eq*=1.0+sum(prev[s]*(close[s][d]/close[s][pd]-1.0) for s in S)
+      if (i-start_index)%7==0:
+        if kind=="equal":
+          tgt={s:1.0/len(S) for s in S}
+        elif kind=="btc":
+          tgt={s:(1.0 if s=="BTCUSDT" else 0.0) for s in S}
+        else:
+          raise ValueError(kind)
+        delta=sum(abs(tgt[s]-prev[s]) for s in S)
+        eq*=1.0-(FEE+SLIP)*cost_mult*delta
+        prev=tgt
+      curve.append(eq)
+    liq=sum(abs(v) for v in prev.values())
+    eq*=1.0-(FEE+SLIP)*cost_mult*liq
+    curve[-1]=eq
+    return curve
+
+def normalized_segment_curve(dates, equity, start_date):
+    idx=[i for i,d in enumerate(dates) if d>=start_date]
+    base=1.0 if idx[0]==0 else equity[idx[0]-1]
+    return dates[idx[0]:], [equity[i]/base for i in idx]
+
 def metrics(c):
     rr=[c[i]/c[i-1]-1 for i in range(1,len(c))]
     sd=statistics.stdev(rr) if len(rr)>1 else 0
@@ -32,7 +65,7 @@ def segment(dates,eq):
     return x
 
 # --- FIN-0012 exact frozen signal on the exact frozen monthly cache ---
-def run_0012(cost_mult=1.0,apply_funding=True):
+def run_0012(cost_mult=1.0,apply_funding=True,include_curve=False):
     px={s:{} for s in S}; funding={s:{} for s in S}; hashes=[]
     for s in S:
       y,m=2021,1
@@ -86,10 +119,18 @@ def run_0012(cost_mult=1.0,apply_funding=True):
         eq*=1-(FEE+SLIP)*cost_mult*delta; prev=tgt
       curve.append(eq)
     liq=sum(abs(v) for v in prev.values()); eq*=1-(FEE+SLIP)*cost_mult*liq; curve[-1]=eq
-    return {"oos":segment(oos,curve),"cache_files":len(hashes)}
+    out={"oos":segment(oos,curve),"cache_files":len(hashes)}
+    if include_curve:
+      out["equity_curve"]={
+        "dates":oos,
+        "strategy":curve,
+        "BTCUSDT_buy_and_hold":benchmark_curve(dates,px,funding,split,"btc",cost_mult),
+        "equal_weight_long_only":benchmark_curve(dates,px,funding,split,"equal",cost_mult),
+      }
+    return out
 
 # --- FIN-0024 exact funding-crowding signal on deep history ---
-def run_0024(cost_mult=1.0,apply_funding=True):
+def run_0024(cost_mult=1.0,apply_funding=True,include_curve=False):
     close={s:{} for s in S}; fund={s:{} for s in S}
     for s in S:
       for p in sorted((ROOT24/"klines"/s/"1d").glob(f"{s}-1d-*.zip")):
@@ -124,7 +165,17 @@ def run_0024(cost_mult=1.0,apply_funding=True):
         delta=sum(abs(tgt[s]-prev[s]) for s in S); eq*=1-(FEE+SLIP)*cost_mult*delta; prev=tgt
       curve.append(eq)
     liq=sum(abs(v) for v in prev.values()); eq*=1-(FEE+SLIP)*cost_mult*liq; curve[-1]=eq
-    return {"oos":segment(dates,curve)}
+    out={"oos":segment(dates,curve)}
+    if include_curve:
+      oos_dates, oos_strategy = normalized_segment_curve(dates,curve,OOS_START)
+      oos_start_index=next(i for i,d in enumerate(dates) if d==OOS_START)
+      out["equity_curve"]={
+        "dates":oos_dates,
+        "strategy":oos_strategy,
+        "BTCUSDT_buy_and_hold":benchmark_curve(dates,close,fund,oos_start_index,"btc",cost_mult),
+        "equal_weight_long_only":benchmark_curve(dates,close,fund,oos_start_index,"equal",cost_mult),
+      }
+    return out
 
 expected={
  "HARMONY-FIN-0012":{"cumulative_return":0.4169009579470373,"sharpe":0.9706848261971941},
@@ -132,7 +183,7 @@ expected={
 }
 
 def main():
-    base12=run_0012(1,True); base24=run_0024(1,True)
+    base12=run_0012(1,True,True); base24=run_0024(1,True,True)
     baseline_diagnostics={}
     for k,b in [("HARMONY-FIN-0012",base12),("HARMONY-FIN-0024",base24)]:
         baseline_diagnostics[k]={
@@ -155,7 +206,20 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     raw=json.dumps(result,sort_keys=True,indent=2).encode()+b"\n"
     (OUT/"HARMONY-PROMOTED-VALIDATION-001-RESULT.json").write_bytes(raw)
-    print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest()},indent=2))
+
+    c12=base12["equity_curve"]; c24=base24["equity_curve"]
+    if c12["dates"]!=c24["dates"]:
+        raise RuntimeError("OOS date axes differ between FIN-0012 and FIN-0024")
+    with (OUT/"equity_curves_oos.csv").open("w",newline="",encoding="utf-8") as fh:
+      w=csv.writer(fh)
+      w.writerow(["date","FIN-0012","FIN-0024","BTCUSDT_buy_and_hold","equal_weight_long_only"])
+      for i,d in enumerate(c12["dates"]):
+        w.writerow([d,c12["strategy"][i],c24["strategy"][i],
+                    c12["BTCUSDT_buy_and_hold"][i],c12["equal_weight_long_only"][i]])
+
+    print(json.dumps({"result_sha256":hashlib.sha256(raw).hexdigest(),
+                      "equity_curve_file":"equity_curves_oos.csv",
+                      "equity_curve_rows":len(c12["dates"])},indent=2))
 
 if __name__=="__main__":
     main()
