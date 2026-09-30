@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Restore holdout cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: data/cache/binance/futures_um/holdout_2025-11_2026-09
           key: harmony-binance-um-holdout-2025-11-2026-09-v1
@@ -26,10 +26,11 @@ jobs:
       - name: Materialize and fingerprint sealed holdout
         run: python experiments/run_harmony_holdout_data_001.py
 
-      - name: Upload sealed holdout manifest
+      - name: Upload sealed holdout audit
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: harmony-holdout-data-001
+          name: harmony-holdout-data-001-audit
           path: artifacts/HARMONY-HOLDOUT-DATA-001
           if-no-files-found: error
           retention-days: 90
