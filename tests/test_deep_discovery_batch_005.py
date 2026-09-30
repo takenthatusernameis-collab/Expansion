@@ -21,3 +21,14 @@ def test_metrics_deterministic():
     result = metrics([1.0, 1.01, 1.0, 1.02])
     assert result["observations"] == 4
     assert "sharpe" in result
+
+
+def test_signal_activates_after_indicator_observation():
+    dates = [f"2024-01-{i:02d}" for i in range(1, 15)]
+    ind = {d: float(i) for i, d in enumerate(dates)}
+    signals = build_signal_map(
+        dates, ind, smooth_window=1, recent_window=5, rebalance_every=7
+    )
+    assert all(d != dates[0] for d in signals)
+    signal_dates = sorted(signals)
+    assert all(dates.index(d) > 9 for d in signal_dates)
