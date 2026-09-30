@@ -69,13 +69,17 @@ dataset_layers:
     provenance: experiment_input_manifest_plus_candidate_digest_plus_code_revision
 
 deep_history:
+  acquisition_start_default: "2019-01-01"
   default_behavior: >-
-    Prefer the longest defensible history already available for the chosen instrument
-    family and data source. Expand the history only when the extension materially improves
-    regime coverage or answers a declared research question.
+    Acquire the longest defensible history beginning from the 2019-01-01 requested boundary
+    when the chosen source family can provide it. Per-instrument source inception remains a
+    hard availability boundary; never synthesize observations before an instrument exists.
+    Expand later only when the extension materially improves regime coverage or answers a
+    declared research question.
   repeated_scope_rule: >-
     Once a dataset scope is materialized and fingerprinted, later experiments reference
-    the existing manifest instead of reacquiring the same bytes.
+    the existing manifest instead of reacquiring the same bytes. A 2019-start scope is the
+    default deep-history acquisition base for new research families.
   selection_holdout_separation: >-
     Deep-history research may use pre-holdout history for discovery/selection. A sealed
     holdout remains immutable and cannot be consumed by discovery campaigns.
