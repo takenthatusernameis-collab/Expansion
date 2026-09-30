@@ -16,20 +16,23 @@ strategy:
   return_definition: "close(t-1) / close(t-21) - 1"
   signal: "sign(prior_20d_return)"
   portfolio_rule: "equal-weight all assets with positive signal long and negative signal short; zero only for exactly zero signal; normalize long and short books independently to 0.5 gross each when both sides exist; otherwise use the single available side at 1.0 gross"
-  rebalance: "every_7th_daily_observation"
+  rebalance_schedule: "first rebalance on the first common date with 20 prior common observations; subsequent rebalances every 7th common observation"
   signal_cutoff: "t-1 close"
   fee_rate: 0.0006
   slippage_rate: 0.0005
   turnover_cost: "(fee + slippage) * sum(abs(target_weight - prior_weight))"
-  funding: "apply native funding settlement rate to the position held immediately before each settlement using calc_time and funding_interval_hours from the archive; never assume an 8h cadence"
+  funding: "apply each recorded native funding rate at its fundingTime to the position held immediately before that settlement; use the recorded event timestamp/rate directly and do not infer an assumed settlement interval"
   terminal_liquidation: true
 
 data:
   source_protocol: "HARMONY-DEEP-HISTORY-2019-001"
   requested_history_start: "2019-01-01"
+  common_price_start_expected: "2020-07-10"
   execution_trace_end: "2025-10-31"
+  discovery_data_boundary: "pre-OOS history ending 2024-05-21"
+  oos_boundary: "2024-05-22"
+  final_holdout_start: "2025-11-01"
   universe_trace_bounded: true
-  discovery_data_boundary: "pre-holdout only; dates ending 2025-10-31 or earlier"
   manifest_required: true
   exact_intersection_only: true
   no_forward_fill: true
@@ -38,11 +41,12 @@ data:
   holdout_access_forbidden: true
 
 validation:
-  split: "chronological discovery/OOS protocol defined before execution"
+  split: "discovery history through 2024-05-21; fixed OOS segment 2024-05-22 through 2025-10-31"
   parameters_fit_on_oos: false
   candidate_definition_fixed: true
+  report_oos_primary_metrics: true
   benchmark_1: "same-universe equal-weight long-only benchmark with identical price, turnover, funding, and transaction-cost accounting"
-  benchmark_2: "BTCUSDT buy-and-hold with identical price and turnover accounting"
+  benchmark_2: "BTCUSDT buy-and-hold with identical price, turnover, funding, and transaction-cost accounting"
   temporal_stability: "evaluate the fixed OOS segment in two equal chronological halves; no parameter changes"
   predefined_cost_stress:
     - "1.0x base fees and slippage"
@@ -63,5 +67,5 @@ execution_gate:
   requires_candidate_digest: true
   requires_deterministic_implementation: true
   requires_reconciliation_artifact: true
-  strategy_execution_authorized: false
-  reason: "Preregistration is complete; execution begins only after the deep-history manifest and deterministic batch execution path are bound and verified."
+  strategy_execution_authorized: true
+  authorization_basis: "User-requested Harmony execution with all persisted FIN-0013 prerequisites resolved before execution; no holdout access and no parameter search."
