@@ -1,0 +1,186 @@
+name: Harmony INFRA-0014 frozen cross sectional cost decomposition
+
+on:
+  push:
+    paths:
+      - ".github/workflows/harmony-infra-0014.yml"
+      - "experiments/HARMONY-FIN-0004.yaml"
+      - "experiments/HARMONY-FIN-0005.yaml"
+      - "experiments/HARMONY-FIN-0006.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified USD-M price and funding archives
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Run frozen gross-versus-cost diagnostic
+        run: |
+          python - <<'PY'
+          import csv,io,json,math,statistics,zipfile
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+          ROOT=Path("data/cache/binance/futures_um/monthly")
+          BASE_COST=.0011
+
+          def day(ms):
+              return datetime.fromtimestamp(ms/1000,timezone.utc).date().isoformat()
+
+          def months():
+              out=[]; y,m=2021,1
+              while (y,m)<=(2025,10):
+                  out.append((y,m)); m+=1
+                  if m==13:y,m=y+1,1
+              return out
+
+          def rows(path):
+              with zipfile.ZipFile(path) as z:
+                  n=[x for x in z.namelist() if x.lower().endswith(".csv")]
+                  if len(n)!=1: raise RuntimeError(path)
+                  return list(csv.reader(io.StringIO(z.read(n[0]).decode("utf-8"))))
+
+          px={s:{} for s in S}
+          fd={s:[] for s in S}
+          for s in S:
+              for y,m in months():
+                  kp=ROOT/"klines"/s/"1d"/f"{s}-1d-{y:04d}-{m:02d}.zip"
+                  fp=ROOT/"fundingRate"/s/f"{s}-fundingRate-{y:04d}-{m:02d}.zip"
+                  for r in rows(kp):
+                      if r and r[0].isdigit(): px[s][day(int(r[0]))]=float(r[4])
+                  rr=rows(fp); h={k.strip():i for i,k in enumerate(rr[0])}
+                  for r in rr[1:]:
+                      if r:
+                          fd[s].append((int(r[h["calc_time"]]),float(r[h["last_funding_rate"]])))
+
+          dates=sorted(set.intersection(*(set(px[s]) for s in S)))
+          assert len(dates)==1760 and dates[0]=="2021-01-01" and dates[-1]=="2025-10-31"
+          split=math.floor(len(dates)*.70)
+          oos=dates[split:]
+          byday={s:{} for s in S}
+          for s in S:
+              for ts,rate in fd[s]:
+                  byday[s].setdefault(day(ts),[]).append(rate)
+
+          def target(kind,i):
+              if kind=="FIN0004":
+                  if i<61:return {s:0. for s in S}
+                  p=dates[i-1]; a=dates[i-21]
+                  btc20=px["BTCUSDT"][p]/px["BTCUSDT"][a]-1
+                  br=[px["BTCUSDT"][dates[j]]/px["BTCUSDT"][dates[j-1]]-1 for j in range(i-60,i)]
+                  mx=sum(br)/len(br)
+                  den=sum((x-mx)**2 for x in br)
+                  scores=[]
+                  for s in S:
+                      ar=[px[s][dates[j]]/px[s][dates[j-1]]-1 for j in range(i-60,i)]
+                      my=sum(ar)/len(ar)
+                      b=sum((x-mx)*(y-my) for x,y in zip(br,ar))/den if den else 0.
+                      r20=px[s][p]/px[s][a]-1
+                      scores.append((r20-b*btc20,s))
+                  scores.sort(key=lambda z:(-z[0],z[1]))
+                  w={s:0. for s in S}
+                  for _,s in scores[:2]:w[s]=.25
+                  for _,s in scores[-2:]:w[s]=-.25
+                  return w
+
+              if kind=="FIN0005":
+                  if i<1:return {s:0. for s in S}
+                  d=dates[i-1]
+                  scores=sorted((statistics.mean(byday[s][d]),s) for s in S)
+                  w={s:0. for s in S}
+                  for _,s in scores[:2]:w[s]=.25
+                  for _,s in scores[-2:]:w[s]=-.25
+                  return w
+
+              if kind=="FIN0006":
+                  if i<2:return {s:0. for s in S}
+                  d1,d0=dates[i-1],dates[i-2]
+                  scores=sorted((px[s][d1]/px[s][d0]-1,s) for s in S)
+                  w={s:0. for s in S}
+                  for _,s in scores[:2]:w[s]=.25
+                  for _,s in scores[-2:]:w[s]=-.25
+                  return w
+
+              raise ValueError(kind)
+
+          def simulate(kind,cost_mult,use_funding=True):
+              eq=1.; prior={s:0. for s in S}; curve=[]
+              fund_sum=0.; fund_events=0.; cost_sum=0.; turn=0.
+              for i in range(split,len(dates)):
+                  d=dates[i]
+                  if use_funding:
+                      for s in S:
+                          for rate in byday[s].get(d,[]):
+                              eq*=1-prior[s]*rate
+                              fund_sum += -prior[s]*rate
+                              fund_events += 1
+                  if i>split:
+                      pd=dates[i-1]
+                      eq*=1+sum(prior[s]*(px[s][d]/px[s][pd]-1) for s in S)
+                  tgt=target(kind,i)
+                  delta=sum(abs(tgt[s]-prior[s]) for s in S)
+                  eq*=1-BASE_COST*cost_mult*delta
+                  turn += delta/2
+                  cost_sum += BASE_COST*cost_mult*delta
+                  curve.append(eq)
+                  prior=tgt
+              liquidation=sum(abs(v) for v in prior.values())
+              eq*=1-BASE_COST*cost_mult*liquidation
+              curve[-1]=eq
+              cost_sum += BASE_COST*cost_mult*liquidation
+              rr=[curve[i]/curve[i-1]-1 for i in range(1,len(curve))]
+              sd=statistics.stdev(rr) if len(rr)>1 else 0
+              sharpe=(statistics.mean(rr)/sd)*math.sqrt(365) if sd else 0
+              peak=curve[0]; mdd=0
+              for x in curve:
+                  peak=max(peak,x); mdd=min(mdd,x/peak-1)
+              return {
+                  "final_equity":eq,
+                  "cumulative_return":eq-1,
+                  "sharpe":sharpe,
+                  "max_drawdown":mdd,
+                  "turnover_one_way":turn,
+                  "transaction_cost_fraction":cost_sum,
+                  "funding_pnl_sum":fund_sum,
+                  "funding_events":fund_events
+              }
+
+          result={"experiment_id":"HARMONY-INFRA-0014","oos_period":[oos[0],oos[-1]],"rows":len(oos),"diagnostics":{}}
+          for kind in ("FIN0004","FIN0005","FIN0006"):
+              base=simulate(kind,1.0,True)
+              zero=simulate(kind,0.0,True)
+              nofund=simulate(kind,1.0,False)
+              result["diagnostics"][kind]={
+                  "preregistered_cost":base,
+                  "zero_transaction_cost":zero,
+                  "no_funding":nofund,
+                  "cost_effect_on_cumulative_return":zero["cumulative_return"]-base["cumulative_return"],
+                  "funding_effect_on_cumulative_return":base["cumulative_return"]-nofund["cumulative_return"],
+                  "fixed_definition_preserved":True
+              }
+
+          out=Path("artifacts/HARMONY-INFRA-0014"); out.mkdir(parents=True,exist_ok=True)
+          (out/"diagnostic.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload INFRA-0014 diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-infra-0014
+          path: artifacts/HARMONY-INFRA-0014
+          if-no-files-found: error
+          retention-days: 90
