@@ -1,0 +1,40 @@
+name: Harmony deep-history acquisition from 2019
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-DEEP-HISTORY-2019-001.yaml"
+      - "experiments/run_harmony_deep_history_2019_001.py"
+      - ".github/workflows/harmony-deep-history-2019-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore compatible USD-M cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1
+          restore-keys: |
+            harmony-binance-um-
+      - name: Acquire and fingerprint 2019-start history
+        run: python experiments/run_harmony_deep_history_2019_001.py
+      - name: Save deep-history cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-${{ github.run_id }}
+      - name: Upload immutable acquisition evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-deep-history-2019-001
+          path: artifacts/HARMONY-DEEP-HISTORY-2019-001
+          if-no-files-found: error
+          retention-days: 90
