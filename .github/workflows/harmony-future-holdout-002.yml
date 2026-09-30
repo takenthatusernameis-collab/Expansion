@@ -1,0 +1,43 @@
+name: Harmony future holdout accrual and gate
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  push:
+    paths:
+      - "research/HARMONY-FUTURE-HOLDOUT-002.yaml"
+      - "experiments/run_harmony_future_holdout_002.py"
+      - ".github/workflows/harmony-future-holdout-002.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  future-holdout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore future-holdout cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/future_holdout_2026-09-forward
+          key: harmony-future-holdout-2026-09-forward-v1
+          restore-keys: |
+            harmony-future-holdout-2026-09-forward-
+      - name: Accrue verified complete-month data and run gate
+        run: python experiments/run_harmony_future_holdout_002.py
+      - name: Save verified future-holdout cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/binance/futures_um/future_holdout_2026-09-forward
+          key: harmony-future-holdout-2026-09-forward-v1-\${{ github.run_id }}
+      - name: Upload accrual/gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-future-holdout-002
+          path: artifacts/HARMONY-FUTURE-HOLDOUT-002
+          if-no-files-found: error
+          retention-days: 90
