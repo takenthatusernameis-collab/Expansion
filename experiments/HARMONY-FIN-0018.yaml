@@ -1,0 +1,41 @@
+experiment_id: HARMONY-FIN-0018
+type: deep_cftc_speculative_positioning_time_series_oos
+status: preregistered_frozen
+strategy_id: cftc_speculative_net_short_change_btc_v1
+objective: "Test whether weekly changes in speculative net-short positioning in CME Bitcoin futures predict subsequent BTC returns."
+market: BTCUSDT
+signal:
+  source: "CFTC legacy Commitments of Traders futures-only Bitcoin report"
+  net_short_share: "(noncommercial_short - noncommercial_long) / open_interest"
+  signal: "current_report_net_short_share - prior_report_net_short_share"
+  direction: "positive change -> long BTC; negative change -> short BTC; zero -> flat"
+  activation: "apply each Tuesday report's signal no earlier than the following Saturday UTC, providing a conservative release-timing lag"
+  holding: "until the next report-activation date; rebalance only when a new report signal becomes available"
+  signal_cutoff: "CFTC report data are lagged to the first Saturday after the report date"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "native recorded funding events at their timestamps"
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001
+  positioning_source: CFTC_COT_LEGACY_FUTURES_ONLY_ANNUAL
+  requested_cot_start: "2017-01-01"
+  execution_end: "2025-10-31"
+  holdout_access_forbidden: true
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["BTCUSDT buy-and-hold","flat cash"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_search: true
+  no_signal_direction_search: true
+  no_release_timing_search: true
+  no_candidate_mutation: true
+  distinct_from: ["funding_carry","cross_sectional_momentum","time_series_momentum","liquidity_reversal","taker_flow","signed_jump","perpetual_basis"]
+deep_backtest:
+  full_trace_required: true
+  use_longest_verified_price_and_positioning_history: true
+  exact_source_release_lag_required: true
