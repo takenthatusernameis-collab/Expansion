@@ -263,8 +263,8 @@ def main():
     sentiment_result=candidate_result(common,close,funding,build_sentiment_beta_weights(common,close,fgi))
 
     bh=simulate(common, {SYMBOLS[0]:close[SYMBOLS[0]], **{s:close[s] for s in SYMBOLS[1:]}}, {s:funding[s] for s in SYMBOLS},
-                 lambda i,d: ({SYMBOLS[0]:1.0} if i==1 else None), 1.0)
-    equal=simulate(common,close,funding,lambda i,d: ({s:1.0/len(SYMBOLS) for s in SYMBOLS} if i>0 and (i-1)%7==0 else None),1.0)
+                 lambda i,d: ({SYMBOLS[0]:1.0} if i==0 else None), 1.0)
+    equal=simulate(common,close,funding,lambda i,d: ({s:1.0/len(SYMBOLS) for s in SYMBOLS} if i==0 or (i>0 and (i-1)%7==0) else None),1.0)
 
     manifest={"batch_id":"HARMONY-DEEP-DISCOVERY-BATCH-004",
               "futures_cache_key":"harmony-binance-um-deep-history-2019-2025-10-v1-36777989764",
