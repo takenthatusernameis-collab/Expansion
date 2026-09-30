@@ -26,6 +26,10 @@ jobs:
           key: harmony-future-holdout-2026-09-forward-v1
           restore-keys: |
             harmony-future-holdout-2026-09-forward-
+      - name: Run future-holdout regression tests
+        run: |
+          python -m pip install pytest
+          PYTHONPATH=src pytest -q tests/test_future_holdout_002.py
       - name: Accrue verified complete-month data and run gate
         run: python experiments/run_harmony_future_holdout_002.py
       - name: Save verified future-holdout cache
