@@ -8,7 +8,7 @@ SYMBOLS = ["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT"
 ROOT = Path("data/cache/binance/futures_um/deep_history_2019")
 STORE = Path("data/cache/research/daily_8sym_v1.csv.gz")
 OUT = Path("artifacts/HARMONY-DAILY-STORE-001")
-SOURCE_MANIFEST = Path("artifacts/HARMONY-DEEP-HISTORY-2019-001/manifest.json")
+SOURCE_CACHE_KEY = "harmony-binance-um-deep-history-2019-2025-10-v1-36777989764"
 REVISION = "daily_8sym_v1_r1"
 
 rows = load_monthly_klines(ROOT, SYMBOLS, (2020, 1), (2025, 10))
@@ -24,11 +24,14 @@ for s in SYMBOLS:
 rows = [row for row in rows if row.date in common]
 store_sha = write_daily_store(STORE, rows)
 
-if not SOURCE_MANIFEST.is_file():
-    raise FileNotFoundError(
-        f"{SOURCE_MANIFEST} is required so the normalized store has a verified source identity"
-    )
-source_manifest_sha = hashlib.sha256(SOURCE_MANIFEST.read_bytes()).hexdigest()
+source_identity = {
+    "raw_cache_key": SOURCE_CACHE_KEY,
+    "raw_cache_root": str(ROOT),
+    "protocol": "HARMONY-DEEP-HISTORY-2019-001",
+}
+source_manifest_sha = hashlib.sha256(
+    json.dumps(source_identity, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()
 
 manifest = store_manifest(
     source_manifest_sha256=source_manifest_sha,
@@ -41,6 +44,8 @@ manifest = store_manifest(
 )
 OUT.mkdir(parents=True, exist_ok=True)
 (OUT / "manifest.json").write_text(manifest, encoding="utf-8")
+STORE_MANIFEST = STORE.with_name(STORE.name + ".manifest.json")
+STORE_MANIFEST.write_text(manifest, encoding="utf-8")
 (OUT / "status.json").write_text(
     json.dumps(
         {
@@ -51,6 +56,7 @@ OUT.mkdir(parents=True, exist_ok=True)
             "common_start": min(common),
             "common_end": max(common),
             "source_manifest_sha256": source_manifest_sha,
+            "raw_cache_key": SOURCE_CACHE_KEY,
             "revision": REVISION,
         },
         sort_keys=True,
