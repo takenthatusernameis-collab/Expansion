@@ -308,3 +308,5 @@ jobs:
           retention-days: 90
 
 # reproducibility activation: corrected cache-manifest binding unchanged.
+
+# FIN-0012 validation replication 2026-10-01; no strategy or specification change.
