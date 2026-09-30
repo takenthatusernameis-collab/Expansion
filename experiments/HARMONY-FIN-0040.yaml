@@ -1,0 +1,38 @@
+experiment_id: HARMONY-FIN-0040
+type: deep_cross_sectional_skewness_risk_oos
+status: preregistered_frozen
+strategy_id: monthly_skewness_risk_63d_v1
+market: eight_symbol_binance_usdt_perpetual_cross_section
+signal:
+  source: Binance USD-M futures daily closes
+  formation_window_days: 63
+  feature: "adjusted Fisher-Pearson sample skewness of the prior 63 completed daily close-to-close returns"
+  formation_cutoff: "last common daily observation of the prior calendar month"
+  rebalance: "first common daily observation of each calendar month"
+  ranking: ascending skewness
+  portfolio: long lowest 3; short highest 3; equal gross weight; 0.5 gross per side
+  holding: until next monthly rebalance
+  cutoff: "all signal inputs strictly before the first held return interval"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: native Binance funding events at recorded timestamps
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001
+  futures_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  execution_end: "2025-10-31"
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_start: "2024-05-22"
+  temporal_stability: two equal chronological OOS halves
+  benchmarks: [BTCUSDT_buy_and_hold, same_universe_equal_weight_long_only]
+  cost_stress: [1.0x, 1.5x, 2.0x]
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+external_evidence:
+  - "Liu & Chen, Skewness risk and the cross-section of cryptocurrency returns, IRFA 2024, DOI 10.1016/j.irfa.2024.103626"
+  - "Karagiorgis, Time-Varying Skewness–Kurtosis Dynamics in Bitcoin Markets, Journal of Futures Markets 2026, DOI 10.1002/fut.70117"
