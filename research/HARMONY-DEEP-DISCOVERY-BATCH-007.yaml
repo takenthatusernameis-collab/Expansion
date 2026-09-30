@@ -1,0 +1,18 @@
+batch_id: HARMONY-DEEP-DISCOVERY-BATCH-007
+status: preregistered_frozen
+purpose: "Execute only HARMONY-FIN-0036, the sole selected mechanism from slate 007, on the longest verified eight-symbol daily futures history."
+candidates:
+  - HARMONY-FIN-0036
+shared_controls:
+  holdout_access: false
+  selection_end: "2025-10-31"
+  no_parameter_search: true
+  no_direction_search: true
+  no_universe_search: true
+  no_candidate_mutation: true
+  fixed_oos_boundary: "2024-05-22"
+  benchmarks_required: true
+  temporal_halves_required: true
+  cost_stress_required: true
+data:
+  futures_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
