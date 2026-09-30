@@ -38,9 +38,18 @@ def read_zip_rows(path):
         if len(names)!=1: raise RuntimeError(f"unexpected archive members: {path}")
         return list(csv.reader(io.StringIO(z.read(names[0]).decode("utf-8"))))
 
+def archive_path(root, rel):
+    p1=root/rel
+    p2=root/"monthly"/rel
+    if p1.is_file():
+        return p1
+    if p2.is_file():
+        return p2
+    raise FileNotFoundError(f"verified cache archive missing in expected layouts: {p1} OR {p2}")
+
 def read_price(symbol, year, month, root):
     name=f"{symbol}-1d-{year:04d}-{month:02d}.zip"
-    path=root/"klines"/symbol/"1d"/name
+    path=archive_path(root,Path("klines")/symbol/"1d"/name)
     rows=read_zip_rows(path)
     px={}
     for r in rows:
@@ -51,7 +60,7 @@ def read_price(symbol, year, month, root):
 
 def read_funding(symbol, year, month, root):
     name=f"{symbol}-fundingRate-{year:04d}-{month:02d}.zip"
-    path=root/"fundingRate"/symbol/name
+    path=archive_path(root,Path("fundingRate")/symbol/name)
     rows=read_zip_rows(path)
     h={k.strip():i for i,k in enumerate(rows[0])}
     required={"calc_time","funding_interval_hours","last_funding_rate"}
@@ -184,7 +193,7 @@ for root,label,months in [
     for s in S:
         for y,m in months:
             for kind,rel in [("price",Path("klines")/s/"1d"/f"{s}-1d-{y:04d}-{m:02d}.zip"),("funding",Path("fundingRate")/s/f"{s}-fundingRate-{y:04d}-{m:02d}.zip")]:
-                p=root/rel
+                p=archive_path(root,rel)
                 b=p.read_bytes()
                 manifest_entries.append({"cache":label,"kind":kind,"path":str(p),"sha256":hashlib.sha256(b).hexdigest(),"bytes":len(b)})
 manifest_entries.sort(key=lambda x:x["path"])
