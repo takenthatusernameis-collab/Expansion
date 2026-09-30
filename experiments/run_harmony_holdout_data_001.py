@@ -235,7 +235,7 @@ if not common or common[0]!=START or common[-1]!=END:
     raise RuntimeError(f"common holdout panel mismatch: start/end={common[0] if common else None},{common[-1] if common else None}")
 
 for s in SYMBOLS:
-    ev=sorted(e for e in funding_events[s] if START <= e["date"] <= END)
+    ev=sorted((e for e in funding_events[s] if START <= e["date"] <= END), key=lambda x:x["calc_time"])
     if not ev:
         raise RuntimeError(f"{s}: no funding coverage inside holdout")
     funding_events[s]=ev
