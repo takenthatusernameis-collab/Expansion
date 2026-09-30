@@ -149,38 +149,31 @@ def point_in_time_m2_signals(fetcher=fetch):
 
 def signal_map_from_stablecoin(series, btc_dates):
     by_date = dict(series)
-    out = {}
+    eligible = []
     for d in btc_dates:
         current = date.fromisoformat(d) - timedelta(days=1)
         prior = current - timedelta(days=7)
-        if current.isoformat() not in by_date or prior.isoformat() not in by_date:
-            continue
+        if current.isoformat() in by_date and prior.isoformat() in by_date:
+            eligible.append(d)
+    out = {}
+    for d in eligible[::7]:
+        current = date.fromisoformat(d) - timedelta(days=1)
+        prior = current - timedelta(days=7)
         change = by_date[current.isoformat()] / by_date[prior.isoformat()] - 1.0
         out[d] = 1.0 if change > 0 else -1.0 if change < 0 else 0.0
     return out
 
 
 def signal_map_from_m2(signals, btc_dates):
-    by_vintage = {row["vintage_date"]: row["growth"] for row in signals}
     out = {}
-    for d in btc_dates:
-        dt = date.fromisoformat(d)
-        month_end = date(dt.year, dt.month, monthrange(dt.year, dt.month)[1])
-        if dt <= month_end:
-            previous_month = month_end
-            if dt <= month_end:
-                # Only activate once the calendar month-end itself has passed.
-                continue
-        # Find the most recent completed month-end before d.
-        y, m = dt.year, dt.month
-        m -= 1
-        if m == 0:
-            y, m = y - 1, 12
-        latest_end = date(y, m, monthrange(y, m)[1]).isoformat()
-        if latest_end not in by_vintage:
+    ordered_dates = [date.fromisoformat(d) for d in btc_dates]
+    for row in signals:
+        vintage = date.fromisoformat(row["vintage_date"])
+        activation_index = next((i for i, d in enumerate(ordered_dates) if d > vintage), None)
+        if activation_index is None:
             continue
-        growth = by_vintage[latest_end]
-        out[d] = 1.0 if growth > 0 else 0.0
+        activation_date = ordered_dates[activation_index].isoformat()
+        out[activation_date] = 1.0 if row["growth"] > 0 else 0.0
     return out
 
 
