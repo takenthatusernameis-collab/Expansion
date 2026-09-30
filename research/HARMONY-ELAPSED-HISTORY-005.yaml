@@ -1,0 +1,35 @@
+protocol_id: HARMONY-ELAPSED-HISTORY-005
+version: "1.0"
+status: preregistered_data_only
+purpose: >-
+  Materialize elapsed historical price and native Binance funding-rate observations from
+  2026-09-01 through 2026-09-29 without calendar waiting. Funding uses the documented
+  public historical-funding gateway only after Binance archive and official API sources
+  have failed in the Expansion execution environment.
+scope:
+  start: "2026-09-01"
+  end: "2026-09-29"
+  symbols: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+source:
+  price:
+    authority: "Binance public data vision"
+    family: "futures/um/daily/klines"
+  funding:
+    provider: "Primit documented market-data gateway"
+    endpoint: "/funding/rates/{symbol}/history"
+    authentication: public
+    parameter_names: [start_time,end_time,limit]
+    response_role: "historical funding-rate source"
+provenance:
+  third_party_source: true
+  raw_response_sha256_required: true
+  exact_request_scope_required: true
+  source_identity_must_be_persisted: true
+integrity:
+  local_sha256_required: true
+  complete_8_symbol_panel_required: true
+  complete_elapsed_date_coverage_required: true
+firewall:
+  candidate_execution_authorized: false
+  selection_state_update_authorized: false
+  oos_claim_authorized: false
