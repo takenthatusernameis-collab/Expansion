@@ -1,0 +1,54 @@
+control_id: HARMONY-REGIME-COVERAGE-001
+version: "1.0"
+status: active
+objective: >-
+  Prevent aggregate OOS performance from being treated as regime-portable evidence.
+  Apply fixed chronological slices and stress definitions without parameter tuning.
+
+scope:
+  applies_to:
+    - new strategy candidates
+    - surviving frozen candidates before any deployment-oriented conclusion
+  does_not_mutate:
+    - candidate parameters
+    - universe definition
+    - sealed holdout data
+
+required_temporal_views:
+  - full_oos
+  - first_equal_chronological_oos_half
+  - second_equal_chronological_oos_half
+  - final_unseen_holdout_when_available
+
+required_reporting:
+  - cumulative_return
+  - annualized_return_when_valid
+  - Sharpe
+  - Sortino
+  - maximum_drawdown
+  - turnover
+  - total_transaction_cost
+  - total_funding_pnl
+  - benchmark_comparison
+  - positive_and_negative_period_counts
+  - observation_count_per_slice
+
+regime_rules:
+  - Slice boundaries are determined ex ante from the available evidence window.
+  - No slice is selected because it improves the result.
+  - No parameter, universe, cost assumption, or signal definition may be changed after slice inspection.
+  - A deterioration between chronological slices is evidence to report, not a tuning trigger.
+  - Holdout slices remain outside selection.
+
+data_sufficiency:
+  minimum_observations_per_reported_slice: 60
+  below_minimum_behavior: report_insufficient_sample_and_do_not_overinterpret
+  missing_data_behavior: block_only_the_affected_view; do_not_impute
+
+interpretation_gate:
+  aggregate_positive_result_is_not_sufficient_for_portability: true
+  deployment_readout_requires:
+    - full_oos_readout
+    - chronological_stability_readout
+    - unseen_holdout_readout_when_gate_is_met
+    - execution_realism_readout
