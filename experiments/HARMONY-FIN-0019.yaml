@@ -1,0 +1,40 @@
+experiment_id: HARMONY-FIN-0019
+type: deep_stablecoin_supply_impulse_btc_oos
+status: preregistered_frozen
+strategy_id: stablecoin_supply_7d_impulse_btc_v1
+objective: "Test whether changes in aggregate stablecoin circulating supply predict subsequent BTC returns."
+market: BTCUSDT
+signal:
+  source: "DeFiLlama stablecoincharts/all historical aggregate supply"
+  measure: "totalCirculatingUSD.peggedUSD"
+  horizon: "prior 7 calendar days"
+  signal: "current weekly supply change versus seven calendar days earlier, using only completed observations"
+  direction: "positive change -> long BTC; negative change -> short BTC; zero -> flat"
+  schedule: "first common BTC observation after a completed seven-day signal, then every seventh common observation"
+  signal_cutoff: "t-1 completed stablecoin and BTC observations only"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "native recorded BTCUSDT funding events at their timestamps"
+data:
+  price_source: HARMONY-DEEP-HISTORY-2019-001
+  stablecoin_source: "https://stablecoins.llama.fi/stablecoincharts/all"
+  requested_history_start: "2019-01-01"
+  execution_end: "2025-10-31"
+  provider_snapshot: "historical provider snapshot retrieved at execution time; raw bytes fingerprinted"
+  holdout_access_forbidden: true
+validation:
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["BTCUSDT buy-and-hold","flat cash"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_search: true
+  no_signal_direction_search: true
+  no_candidate_mutation: true
+  stablecoin_series_schema_fixed: true
+deep_backtest:
+  full_trace_required: true
+  deterministic_provider_snapshot_required: true
