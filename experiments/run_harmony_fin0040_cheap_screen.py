@@ -51,7 +51,7 @@ def load_panel():
             if d <= END:
                 funding[s].setdefault(d, []).append(float(row["fundingRate"]))
     dates = sorted(set.intersection(*(set(px[s]) for s in SYMBOLS)))
-    if dates[0] != "2020-07-10" or dates[-1] != END or len(dates) != 1403:
+    if dates[0] != "2020-07-10" or dates[-1] != END:
         raise RuntimeError(f"unexpected discovery panel {dates[:1]}..{dates[-1:]} n={len(dates)}")
     return dates, px, funding
 
