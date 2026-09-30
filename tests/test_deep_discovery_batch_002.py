@@ -31,6 +31,16 @@ def test_oos_halves_are_explicit_and_contiguous():
     assert result["first_half"]["end"] == result["split"]["first_half_end"]
     assert result["second_half"]["start"] == result["split"]["second_half_start"]
 
+def test_mixed_binance_timestamp_units_are_supported():
+    from datetime import datetime, timezone
+    microseconds = int(datetime(2025, 1, 1, tzinfo=timezone.utc).timestamp() * 1_000_000)
+    milliseconds = int(datetime(2024, 1, 1, tzinfo=timezone.utc).timestamp() * 1_000)
+    def normalize(raw):
+        seconds = raw / 1_000_000.0 if raw >= 100_000_000_000_000 else raw / 1_000.0
+        return datetime.fromtimestamp(seconds, timezone.utc).date().isoformat()
+    assert normalize(microseconds) == "2025-01-01"
+    assert normalize(milliseconds) == "2024-01-01"
+
 def test_zip_fixture_shape():
     payload = b"Market and Exchange Names,As of Date in Form YYYY-MM-DD\nBITCOIN - CHICAGO MERCANTILE EXCHANGE,2025-01-07\n"
     buffer = io.BytesIO()
