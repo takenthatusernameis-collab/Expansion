@@ -44,6 +44,7 @@ class CandidateRun:
     max_drawdown: float
     turnover: float
     funding_pnl_sum: float
+    rebalance_count: int
     equity_curve: tuple[float, ...]
 
 
@@ -141,6 +142,7 @@ def run_weight_batch(
     equity = {name: 1.0 for name in names}
     turnover = {name: 0.0 for name in names}
     funding_pnl = {name: 0.0 for name in names}
+    rebalance_count = {name: 0 for name in names}
     curves = {name: [] for name in names}
 
     for i, date in enumerate(state.dates):
@@ -178,6 +180,9 @@ def run_weight_batch(
                         f"missing={sorted(missing)} extra={sorted(extra)}"
                     )
                 target = {s: float(target[s]) for s in state.symbols}
+                if any(not math.isfinite(v) for v in target.values()):
+                    raise ValueError(f"candidate {name} produced non-finite target weights")
+                rebalance_count[name] += 1
                 delta = sum(abs(target[s] - current[s]) for s in state.symbols)
                 turnover[name] += delta / 2.0
                 equity[name] *= max(
@@ -210,6 +215,7 @@ def run_weight_batch(
             max_drawdown=mdd,
             turnover=turnover[name],
             funding_pnl_sum=funding_pnl[name],
+            rebalance_count=rebalance_count[name],
             equity_curve=curve,
         )
     return results
