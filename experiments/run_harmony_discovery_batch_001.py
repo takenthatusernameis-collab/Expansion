@@ -32,7 +32,7 @@ def _prior_index(state, date):
 
 def _reversal_weights(date, state):
     i = _prior_index(state, date)
-    if i < 21:
+    if i < 21 or (i - 21) % 7 != 0:
         return None
     prior = state.dates[i - 1]
     prior2 = state.dates[i - 2]
@@ -67,7 +67,7 @@ def _reversal_weights(date, state):
 
 def _flow_weights(date, state):
     i = _prior_index(state, date)
-    if i < 8:
+    if i < 8 or (i - 8) % 7 != 0:
         return None
     scores = []
     for symbol in state.symbols:
@@ -110,7 +110,6 @@ def main():
         functions,
         fee_rate=0.0006,
         slippage_rate=0.0005,
-        rebalance_every=7,
         terminal_liquidation=True,
     )
 
