@@ -1,0 +1,42 @@
+experiment_id: HARMONY-HOLDOUT-DATA-001
+type: final_holdout_data_materialization
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+protocol: HARMONY-HOLDOUT-PROTOCOL-001
+selection_data_end: "2025-10-31"
+holdout_start: "2025-11-01"
+holdout_end: "2026-09-20"
+universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
+data:
+  price: Binance USD-M monthly 1d klines
+  funding: Binance USD-M monthly fundingRate archives
+  required_months:
+    - "2025-11"
+    - "2025-12"
+    - "2026-01"
+    - "2026-02"
+    - "2026-03"
+    - "2026-04"
+    - "2026-05"
+    - "2026-06"
+    - "2026-07"
+    - "2026-08"
+    - "2026-09"
+  common_date_intersection_required: true
+  no_forward_fill: true
+  upstream_checksum_required: true
+  local_sha256_required: true
+  cache_reuse: false
+integrity:
+  candidate_frontier_digest: bfdbd2a4e3bd5fd393479ae93f821d13d8f23d455e6763a574ed664da80e4966
+  selection_outcome_access: forbidden
+  holdout_result_release: sealed_until_separate_readout
+  parameter_search: forbidden
+  universe_search: forbidden
+  candidate_definition_changes: forbidden
+acceptance:
+  materialization_requires_all_universe_files: true
+  fingerprint_manifest_required: true
+  common_panel_boundary_must_be_recorded: true
+  missing_or_partial_data_is_unknown_not_pass: true
