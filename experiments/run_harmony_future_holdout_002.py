@@ -10,6 +10,7 @@ ROOT=Path("data/cache/binance/futures_um/future_holdout_2026-09-forward/monthly"
 OUT=Path("artifacts/HARMONY-FUTURE-HOLDOUT-002"); OUT.mkdir(parents=True,exist_ok=True)
 FEE=.0006; SLIP=.0005; REBALANCE=7
 CAND=["funding_carry_mean_1d_weekly_v1","funding_carry_mean_3d_weekly_v1","funding_carry_mean_7d_weekly_v1","funding_carry_zscore_7d_weekly_v1"]
+CANDIDATE_SCOPE_DIGEST=hashlib.sha256(json.dumps(CAND,separators=(",",":"),ensure_ascii=True).encode()).hexdigest()
 FRONTIER="53adf24b8cdd4d055b9adfb4153ce6d26b8ee520074591943eecf373d4ea25c7"
 
 def last_complete_month():
@@ -86,7 +87,7 @@ if len(common)<MIN_OBS:
 
 holdout=common[:MIN_OBS]; end=holdout[-1]
 files.sort(key=lambda x:(x["symbol"],x["year"],x["month"],x["kind"]))
-manifest={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","start":START.isoformat(),"end":end.isoformat(),"observations":MIN_OBS,"symbols":SYMBOLS,"files":files,"frontier_digest":FRONTIER}
+manifest={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","start":START.isoformat(),"end":end.isoformat(),"observations":MIN_OBS,"symbols":SYMBOLS,"files":files,"frontier_digest":FRONTIER,"candidate_ids":CAND,"candidate_scope_digest":CANDIDATE_SCOPE_DIGEST}
 mb=json.dumps(manifest,sort_keys=True,indent=2).encode()+b"\n"; msha=sha(mb); (OUT/"input-manifest.json").write_bytes(mb)
 
 def mean_days(s,i,n): 
@@ -151,7 +152,7 @@ def benchmark_btc_buy_hold():
 benchmarks={"same_universe_equal_weight_long_only":benchmark_equal_weight_long_only(),"BTCUSDT_buy_and_hold":benchmark_btc_buy_hold()}
 summary={"protocol":"HARMONY-HOLDOUT-PROTOCOL-002","status":"EXECUTED","start":START.isoformat(),"end":end.isoformat(),"observations":MIN_OBS,"input_manifest_sha256":msha,"benchmarks":benchmarks,"candidates":{}}
 for cid in CAND:
-    r={"candidate_id":cid,"input_manifest_sha256":msha,"frontier_digest":FRONTIER,"benchmarks":benchmarks,"base":sim(cid,1.0),"cost_stress":{f"{m:.1f}x":sim(cid,m) for m in (1,1.5,2)},"holdout_released_to_selection":False}
+    r={"candidate_id":cid,"input_manifest_sha256":msha,"frontier_digest":FRONTIER,"candidate_scope_digest":CANDIDATE_SCOPE_DIGEST,"benchmarks":benchmarks,"base":sim(cid,1.0),"cost_stress":{f"{m:.1f}x":sim(cid,m) for m in (1,1.5,2)},"holdout_released_to_selection":False}
     raw=json.dumps(r,sort_keys=True,indent=2).encode()+b"\n"; rsha=sha(raw); (OUT/f"{cid}.json").write_bytes(raw)
     summary["candidates"][cid]={"result_sha256":rsha,"base":r["base"],"cost_stress":r["cost_stress"]}
 (OUT/"summary.json").write_text(json.dumps(summary,sort_keys=True,indent=2)+"\n"); print(json.dumps(summary,sort_keys=True,indent=2))
