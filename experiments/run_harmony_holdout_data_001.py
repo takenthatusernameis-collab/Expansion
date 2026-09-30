@@ -10,7 +10,7 @@ END = "2026-08-31"
 MONTHS = [(2025,m) for m in range(11,13)] + [(2026,m) for m in range(1,9)]
 PARTIAL_DAYS = []
 
-ROOT = Path("data/cache/binance/futures_um/holdout_2025-11_2026-09")
+ROOT = Path("data/cache/binance/futures_um/holdout_2025-11_2026-08")
 KLINE_ROOT = ROOT / "klines"
 FUND_ROOT = ROOT / "fundingRate"
 OUT = Path("artifacts/HARMONY-HOLDOUT-DATA-001")
