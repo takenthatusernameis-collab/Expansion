@@ -19,6 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run elapsed-history regression tests
+        run: |
+          python -m pip install pytest
+          pytest -q tests/test_elapsed_history_001.py
       - name: Materialize complete daily archives
         run: python experiments/run_harmony_elapsed_history_001.py
       - name: Save daily historical cache
