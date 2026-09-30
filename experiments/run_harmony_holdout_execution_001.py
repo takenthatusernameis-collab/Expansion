@@ -22,6 +22,45 @@ CANDIDATES = sorted(CANDIDATE_BLOBS)
 OUT = Path("artifacts/HARMONY-HOLDOUT-EXECUTION-001")
 OUT.mkdir(parents=True, exist_ok=True)
 
+
+BASE_URL="https://data.binance.vision/data/futures/um/monthly"
+
+def fetch_bytes(url):
+    from urllib.request import Request, urlopen
+    req=Request(url,headers={"User-Agent":"Harmony/HOLDOUT-EXECUTION-001"})
+    with urlopen(req,timeout=120) as r:
+        return r.read()
+
+def ensure_holdout_archive(symbol,year,month,kind):
+    if kind=="price":
+        name=f"{symbol}-1d-{year:04d}-{month:02d}.zip"
+        rel=Path("klines")/symbol/"1d"/name
+    else:
+        name=f"{symbol}-fundingRate-{year:04d}-{month:02d}.zip"
+        rel=Path("fundingRate")/symbol/name
+    path=HOLDOUT_ROOT/rel
+    if path.is_file():
+        return path
+    if kind=="price":
+        url=f"{BASE_URL}/klines/{symbol}/1d/{name}"
+    else:
+        url=f"{BASE_URL}/fundingRate/{symbol}/{name}"
+    checksum=fetch_bytes(url+".CHECKSUM").decode("utf-8","replace").strip().split()[0].lower()
+    if len(checksum)!=64:
+        raise RuntimeError(f"invalid upstream checksum: {url}")
+    raw=fetch_bytes(url)
+    actual=hashlib.sha256(raw).hexdigest()
+    if actual!=checksum:
+        raise RuntimeError(f"checksum mismatch: {url} {actual} != {checksum}")
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_bytes(raw)
+    return path
+
+for s0 in S:
+    for y0,m0 in [(2025,11),(2025,12)]+[(2026,m) for m in range(1,9)]:
+        ensure_holdout_archive(s0,y0,m0,"price")
+        ensure_holdout_archive(s0,y0,m0,"funding")
+
 def day(ms):
     return datetime.fromtimestamp(ms / 1000, timezone.utc).date().isoformat()
 
