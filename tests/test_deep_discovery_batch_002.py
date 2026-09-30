@@ -47,3 +47,17 @@ def test_zip_fixture_shape():
     with zipfile.ZipFile(buffer, "w") as archive:
         archive.writestr("annual.txt", payload)
     assert buffer.getvalue()[:2] == b"PK"
+
+
+def test_sparse_target_weights_are_treated_as_zero():
+    from experiments.run_harmony_deep_discovery_batch_002 import simulate_panel
+    dates = ["2024-05-21", "2024-05-22", "2024-05-23"]
+    close = {
+        "BTCUSDT": {"2024-05-21": 100.0, "2024-05-22": 101.0, "2024-05-23": 102.0},
+        "ETHUSDT": {"2024-05-21": 100.0, "2024-05-22": 100.0, "2024-05-23": 100.0},
+    }
+    funding = {"BTCUSDT": {}, "ETHUSDT": {}}
+    def weights(_i, _d):
+        return {"BTCUSDT": 1.0}
+    result = simulate_panel(dates, close, funding, weights, lambda i, _d: i == 1)
+    assert result["metrics"]["observations"] == 3
