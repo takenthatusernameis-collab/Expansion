@@ -4,7 +4,7 @@ from pathlib import Path
 
 S = ["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
 HIST_ROOT = Path("data/cache/binance/futures_um/monthly")
-HOLDOUT_ROOT = Path("data/cache/binance/futures_um/holdout_2025-11_2026-08/monthly")
+HOLDOUT_ROOT = Path("data/cache/binance/futures_um/holdout_2025-11_2026-08")
 SELECTION_END = "2025-10-31"
 HOLDOUT_START = "2025-11-01"
 HOLDOUT_END = "2026-08-31"
