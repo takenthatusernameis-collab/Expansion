@@ -151,7 +151,7 @@ def equal_targets(months):
     return {m:{s:1.0/len(SYMBOLS) for s in SYMBOLS} for m in months}
 
 def btc_targets(months):
-    return {m:{"BTCUSDT":1.0} for m in months}
+    return {m:{s:(1.0 if s=="BTCUSDT" else 0.0) for s in SYMBOLS} for m in months}
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
