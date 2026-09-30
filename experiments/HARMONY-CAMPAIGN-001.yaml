@@ -1,0 +1,24 @@
+campaign_id: HARMONY-CAMPAIGN-001
+type: strategy_research_campaign
+status: preregistered
+scope_ref: research/campaigns/HARMONY-CAMPAIGN-001.yaml
+family_id: funding_carry_cross_sectional_v1
+data:
+  source_manifest_required: true
+  discovery_end: "2025-10-31"
+  holdout_start: "2025-11-01"
+  holdout_end: "2026-08-31"
+  price_dataset: "reuse_verified_usdm_daily_klines"
+  funding_dataset: "reuse_verified_usdm_native_funding"
+execution:
+  batch_all_candidates: true
+  isolated_result_per_candidate: true
+  shared_feature_cache: true
+  shared_input_manifest: true
+  automatic_benchmarks: true
+  automatic_cost_stress: true
+completion:
+  persist_summary: true
+  persist_candidate_hashes: true
+  persist_result_hashes: true
+  reconcile_against_scope_before_release: true
