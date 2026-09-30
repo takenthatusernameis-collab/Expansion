@@ -1,0 +1,23 @@
+experiment_id: HARMONY-METHOD-0003
+type: deterministic_source_manifest_binding_validation
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+objective: "Validate that a declared source-manifest path and SHA-256 are bound to persisted bytes and reject tampering, path escape, and state/path mismatch."
+
+fixture:
+  manifest_path: methodology/fixtures/method-0003/source_manifest.json
+  state_path: methodology/fixtures/method-0003/state.json
+  original_manifest_sha256: generated_during_run
+
+checks:
+  - original_manifest_binding_passes
+  - manifest_tampering_fails
+  - state_path_mismatch_fails
+  - repository_path_escape_fails
+
+integrity:
+  deterministic_fixture: true
+  no_external_data: true
+  no_strategy_logic: true
