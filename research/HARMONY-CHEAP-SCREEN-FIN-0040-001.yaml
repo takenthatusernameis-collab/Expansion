@@ -1,0 +1,25 @@
+screen_id: HARMONY-CHEAP-SCREEN-FIN-0040-001
+status: preregistered_frozen
+candidate: HARMONY-FIN-0040
+purpose: "Cheap discovery-data falsification before any deep FIN-0040 OOS execution."
+data:
+  futures_cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  discovery_end: "2024-05-21"
+rules:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  cost_model:
+    fee_rate: 0.0006
+    slippage_rate: 0.0005
+    funding: native recorded Binance funding events
+integrity:
+  fixed_candidate_definition: true
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+decision:
+  pass: "Eligible for separately executed deep OOS validation; not evidence of durable edge."
+  fail: "Do not allocate deep-backtest capacity unless separately documented scientific reason overrides."
