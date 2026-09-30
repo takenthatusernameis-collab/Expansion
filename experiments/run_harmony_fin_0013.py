@@ -181,11 +181,43 @@ def simulate(prices, dates, funding, mode="strategy", cost_mult=1.0):
         "funding_pnl_sum": funding_pnl,
         "funding_events": funding_events,
         "first_rebalance": first_rebalance,
+        "equity_by_date": list(zip(dates, curve)),
     }
 
 
-def oos_slice(equity_by_date, start):
-    return [v for d, v in equity_by_date if d >= start]
+def normalized_segment_metrics(equity_by_date, start, end):
+    selected = [(d, v) for d, v in equity_by_date if start <= d <= end]
+    if not selected:
+        raise RuntimeError(f"empty segment: {start}..{end}")
+
+    rows = list(equity_by_date)
+    start_index = next(i for i, (d, _v) in enumerate(rows) if d == selected[0][0])
+    base = 1.0 if start_index == 0 else rows[start_index - 1][1]
+    curve = [1.0] + [value / base for _date, value in selected]
+
+    result = metrics(curve)
+    result["start"] = selected[0][0]
+    result["end"] = selected[-1][0]
+    result["observations"] = len(selected)
+    return result
+
+
+def oos_report(equity_by_date):
+    oos_dates = [d for d, _v in equity_by_date if OOS_START <= d <= END]
+    if len(oos_dates) < 2:
+        raise RuntimeError("insufficient OOS observations")
+    midpoint = len(oos_dates) // 2
+    first_end = oos_dates[midpoint - 1]
+    second_start = oos_dates[midpoint]
+    return {
+        "full_oos": normalized_segment_metrics(equity_by_date, OOS_START, END),
+        "first_half": normalized_segment_metrics(equity_by_date, OOS_START, first_end),
+        "second_half": normalized_segment_metrics(equity_by_date, second_start, END),
+        "split": {
+            "first_half_end": first_end,
+            "second_half_start": second_start,
+        },
+    }
 
 
 def main():
@@ -217,8 +249,21 @@ def main():
     bench_equal = simulate(prices, dates, funding, "equal", 1.0)
     bench_btc = simulate(prices, dates, funding, "btc", 1.0)
 
+    # Fixed preregistered OOS reporting; no parameter changes.
+    oos = oos_report(base["equity_by_date"])
+    benchmark_oos = {
+        "same_universe_equal_weight_long_only": oos_report(bench_equal["equity_by_date"]),
+        "BTCUSDT_buy_and_hold": oos_report(bench_btc["equity_by_date"]),
+    }
+
     # Re-run at predefined cost stress levels; no parameter changes.
-    stress = {f"{m:.1f}x": simulate(prices, dates, funding, "strategy", m)["metrics"] for m in (1.0, 1.5, 2.0)}
+    stress = {}
+    for m in (1.0, 1.5, 2.0):
+        stressed = simulate(prices, dates, funding, "strategy", m)
+        stress[f"{m:.1f}x"] = {
+            "full_trace": stressed["metrics"],
+            "oos": oos_report(stressed["equity_by_date"]),
+        }
 
     result = {
         "experiment_id": "HARMONY-FIN-0013",
@@ -233,10 +278,12 @@ def main():
         "full_trace": {"start": dates[0], "end": dates[-1], "observations": len(dates)},
         "oos_boundary": OOS_START,
         "strategy": base,
+        "oos": oos,
         "benchmarks": {
             "same_universe_equal_weight_long_only": bench_equal,
             "BTCUSDT_buy_and_hold": bench_btc,
         },
+        "oos_benchmarks": benchmark_oos,
         "predefined_cost_stress": stress,
         "integrity": {
             "holdout_start": "2025-11-01",
@@ -261,10 +308,12 @@ def main():
         "first_rebalance": base["first_rebalance"],
         "oos_boundary": OOS_START,
         "strategy": base["metrics"],
+        "oos": oos,
         "benchmarks": {
             "same_universe_equal_weight_long_only": bench_equal["metrics"],
             "BTCUSDT_buy_and_hold": bench_btc["metrics"],
         },
+        "oos_benchmarks": benchmark_oos,
         "predefined_cost_stress": stress,
         "holdout_access": False,
     }
