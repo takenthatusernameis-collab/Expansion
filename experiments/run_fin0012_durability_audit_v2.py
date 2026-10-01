@@ -426,6 +426,22 @@ def point_returns(curve):
 strategy_returns = point_returns(trace_base["curve"])
 btc_returns = point_returns(trace_btc["curve"])
 ew_returns = point_returns(trace_ew["curve"])
+
+diagnostic_global = diagnostic_metrics(strategy_returns)
+diagnostic_gate = {
+    "cumulative_return": (diagnostic_global["cumulative_return"], ACCEPTED["cumulative_return"]),
+    "cagr": (diagnostic_global["cagr"], ACCEPTED["cagr"]),
+    "sharpe": (diagnostic_global["sharpe"], ACCEPTED["sharpe"]),
+    "max_drawdown": (diagnostic_global["max_drawdown"], ACCEPTED["max_drawdown"]),
+}
+diagnostic_mismatches = {
+    k: {"observed": observed, "accepted": accepted}
+    for k, (observed, accepted) in diagnostic_gate.items()
+    if accepted is not None and abs(observed - accepted) > 1e-9
+}
+if diagnostic_mismatches:
+    raise RuntimeError("DIAGNOSTIC GLOBAL METRIC GATE FAILED: " + json.dumps(diagnostic_mismatches, sort_keys=True))
+
 oos_dates = dates[split + 1:]
 
 def factor_residual(strategy, btc, ew, window=60):
