@@ -1,0 +1,23 @@
+gateway_id: HARMONY-DATA-GATEWAY-001
+status: preregistered_frozen
+purpose: "Turn external-data acquisition into a reusable, hashed, point-in-time substrate."
+fixed_universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+sources:
+  coinmetrics:
+    community_endpoint: "https://community-api.coinmetrics.io/v4"
+    metrics: [AdrActCnt, CapMrktCurUSD, CapMVRVCur]
+    market_metrics: [liquidations_reported_future_buy_units_1d, liquidations_reported_future_sell_units_1d]
+  wikimedia:
+    endpoint: "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
+    pages: [Bitcoin, Ethereum, Litecoin, XRP, BNB, Bitcoin_Cash, Cardano, Dogecoin]
+  binance_vision:
+    endpoint: "https://data.binance.vision/data/futures/um/monthly/klines"
+    interval: 1h
+    period: "2020-01 through 2025-10"
+integrity:
+  no_universe_adaptation: true
+  current_value_backfill_forbidden: true
+  point_in_time_only: true
+  raw_payload_hashing: true
+cache:
+  key: "harmony-data-gateway-001-v1"
