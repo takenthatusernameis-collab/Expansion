@@ -1,0 +1,26 @@
+{
+  "audit_id": "HARMONY-FIN-0024-DURABILITY-001",
+  "baseline": {
+    "cagr": 0.2807380656152483,
+    "cumulative_return": 0.43002307869081013,
+    "end": "2025-10-31",
+    "final_equity": 1.4300230786908101,
+    "max_drawdown": -0.17352243925223987,
+    "observations": 528,
+    "sharpe": 1.3589824243083648,
+    "start": "2024-05-22"
+  },
+  "cost_sharpe": {
+    "1.0x": 1.3589824243083648,
+    "2.0x": 1.1354827990960263,
+    "3.0x": 0.9120483923007182,
+    "4.0x": 0.689343970960127,
+    "5.0x": 0.46801353879188234
+  },
+  "first_half_sharpe": 1.3426851986153692,
+  "residual_persistent": false,
+  "residual_sharpe": -6.760958657985457e-17,
+  "result_sha256": "6c324b76160baae6c3e1d7cdb51145d90bd22efa09809e2983e4f9a4204ab59a",
+  "second_half_sharpe": 1.3759326533862408,
+  "status": "DURABILITY_MIXED"
+}
