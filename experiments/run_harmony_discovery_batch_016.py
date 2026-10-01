@@ -4,7 +4,7 @@ from pathlib import Path
 
 S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
 A=["btc","eth","ltc","xrp","bnb","bch","ada","doge"]
-CMROOT=Path("data/cache/harmony_gateway_v2")
+CMROOT=Path("data/cache/harmony_gateway_v3")
 FROOT=Path("data/cache/binance/futures_um/deep_history_2019")
 OUT=Path("artifacts/HARMONY-DISCOVERY-BATCH-016")
 DISCOVERY_END="2024-05-21"; OOS_START="2024-05-22"; END="2025-10-31"
