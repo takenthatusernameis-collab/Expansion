@@ -1,0 +1,51 @@
+name: Harmony discovery batch 021
+
+on:
+  push:
+    branches:
+      - "research/grind-2026-10-01-batch021"
+    paths:
+      - "research/HARMONY-DISCOVERY-BATCH-021.yaml"
+      - "experiments/run_harmony_discovery_batch_021.py"
+      - "tests/test_harmony_discovery_batch_021.py"
+      - ".github/workflows/harmony-discovery-batch-021.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/grind-2026-10-01-batch021
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+          fail-on-cache-miss: true
+      - name: Install runtime
+        run: python -m pip install --disable-pip-version-check --no-input pytest
+      - name: Validate frozen batch
+        run: python -m pytest -q tests/test_harmony_discovery_batch_021.py
+      - name: Execute cheap screen and conditional deep gate
+        run: python experiments/run_harmony_discovery_batch_021.py
+      - name: Upload batch evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-discovery-batch-021
+          path: artifacts/HARMONY-DISCOVERY-BATCH-021
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish compact execution proof
+        run: |
+          mkdir -p research/execution_results
+          cp artifacts/HARMONY-DISCOVERY-BATCH-021/SUMMARY.json research/execution_results/HARMONY-DISCOVERY-BATCH-021.json
+          git config user.name "harmony-actions"
+          git config user.email "harmony-actions@users.noreply.github.com"
+          git add research/execution_results/HARMONY-DISCOVERY-BATCH-021.json
+          git diff --cached --quiet || (git commit -m "Publish batch 021 proof" && git push)
