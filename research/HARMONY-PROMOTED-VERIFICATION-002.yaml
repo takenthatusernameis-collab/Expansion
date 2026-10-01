@@ -1,5 +1,6 @@
 verification_id: HARMONY-PROMOTED-VERIFICATION-002
 status: preregistered_frozen
+# Execution repair: runner import path is fixed; definition and baselines remain frozen.
 purpose: "Independent re-execution of the current fixed promoted-validation engine before further durability work."
 source_runner: experiments/run_harmony_promoted_validation_001.py
 definitions: [HARMONY-FIN-0012, HARMONY-FIN-0024]
