@@ -213,6 +213,12 @@ def half_metrics(dates, curve, start):
 
 def segment(dates,curve,start):
     idx=[i for i,d in enumerate(dates) if d>=start]
+    if len(curve) < len(dates):
+        # Discovery traces are truncated at DISCOVERY_END; index the prefix directly.
+        n = len(curve)
+        m = metrics(curve)
+        m.update(start=dates[0], end=dates[n-1], observations=n)
+        return m
     base=curve[idx[0]-1] if idx[0]>0 else 1.0
     return metrics([1.0]+[curve[i]/base for i in idx])
 
