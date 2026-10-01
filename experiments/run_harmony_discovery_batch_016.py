@@ -106,8 +106,12 @@ def rank_weights(scores,ascending=True):
 def build_targets(cid,dates,cm):
     out={}; attempts=usable=0
     for d in dates:
-        wd=datetime.fromisoformat(d).date().weekday()
-        if (cid=="FIN-0087" and wd!=0) or (cid!="FIN-0087" and wd!=0): continue
+        day=datetime.fromisoformat(d).date()
+        if cid=="FIN-0087":
+            # Fixed monthly cadence: first Monday of each calendar month only.
+            if day.weekday()!=0 or day.day>7: continue
+        else:
+            if day.weekday()!=0: continue
         attempts+=1; z=score(cid,d,dates,cm)
         if z is not None:
             asc = cid in ("FIN-0086","FIN-0088")
