@@ -1,0 +1,7 @@
+experiment_id: HARMONY-FIN-0065
+strategy_id: monthly_cro_30d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-012
+definition: "Monthly long highest/short lowest correlation between the prior 30 daily returns and time-to-window-end."
+external_evidence:
+  - "Mohrschladt, Journal of Banking & Finance (2021), DOI 10.1016/j.jbankfin.2021.106064"
