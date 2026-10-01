@@ -426,7 +426,6 @@ def segment_rows():
             "start":oos_dates[a],
             "end":oos_dates[b-1],
             "observations":b-a,
-            **metrics([1.0]+[math.prod([1.0+r for r in rr[:j]])-1 for j in []]) if False else {},
             "cumulative_return": metrics([1.0]+rr)["cumulative_return"],
             "cagr": metrics([1.0]+rr)["cagr"],
             "sharpe": (metrics([1.0]+rr)["sharpe"]),
