@@ -1,0 +1,29 @@
+{
+  "batch_id": "HARMONY-TECH-4H-027-CORRECTED",
+  "source_indicator_artifact": {"artifact_id": 11180765126, "sha256": "d223a5e709a42e9e7a33a040fe8ceed5c3f2ae304b9281f39d40497d832c7407"},
+  "universe": ["JTOUSDT","PYTHUSDT","WIFUSDT","SEIUSDT","TIAUSDT","ENAUSDT","ORDIUSDT","JUPUSDT"],
+  "timeframe": "4h",
+  "discovery_start": "2024-01-01",
+  "discovery_end": "2025-02-28",
+  "oos_start": "2025-03-01",
+  "end": "2025-10-31",
+  "costs_bps": [11,16.5,22],
+  "cheap_gate": {"minimum_trades": 100, "sharpe_11bp_min": 0.50, "sharpe_22bp_min": 0.25, "positive_return_both_costs": true},
+  "strategy_results": {
+    "TC01": {"trades":730,"dev_11_sharpe":-1.472,"dev_11_return":-0.936,"dev_22_sharpe":-2.209,"dev_22_return":-0.976,"oos_11_sharpe":-2.158,"oos_11_return":-0.913},
+    "TC02": {"trades":599,"dev_11_sharpe":-1.421,"dev_11_return":-0.932,"dev_22_sharpe":-2.019,"dev_22_return":-0.969,"oos_11_sharpe":-2.656,"oos_11_return":-0.915},
+    "TC03": {"trades":409,"dev_11_sharpe":0.023,"dev_11_return":-0.320,"dev_22_sharpe":-0.588,"dev_22_return":-0.623,"oos_11_sharpe":0.654,"oos_11_return":0.157},
+    "TC04": {"trades":182,"dev_11_sharpe":-1.327,"dev_11_return":-0.667,"dev_22_sharpe":-1.694,"dev_22_return":-0.742,"oos_11_sharpe":0.034,"oos_11_return":-0.181},
+    "TC05": {"trades":686,"dev_11_sharpe":-0.333,"dev_11_return":-0.665,"dev_22_sharpe":-1.107,"dev_22_return":-0.871,"oos_11_sharpe":-1.198,"oos_11_return":-0.795},
+    "TC06": {"trades":1704,"dev_11_sharpe":-1.788,"dev_11_return":-0.976,"dev_22_sharpe":-3.339,"dev_22_return":-0.998,"oos_11_sharpe":-2.950,"oos_11_return":-0.972},
+    "TC07": {"trades":382,"dev_11_sharpe":-1.392,"dev_11_return":-0.861,"dev_22_sharpe":-1.875,"dev_22_return":-0.917,"oos_11_sharpe":-0.121,"oos_11_return":-0.386},
+    "TC08": {"trades":1978,"dev_11_sharpe":-3.529,"dev_11_return":-0.992,"dev_22_sharpe":-5.773,"dev_22_return":-0.999,"oos_11_sharpe":-1.772,"oos_11_return":-0.812},
+    "TC09": {"trades":2301,"dev_11_sharpe":-1.446,"dev_11_return":-0.941,"dev_22_sharpe":-3.681,"dev_22_return":-0.997,"oos_11_sharpe":-3.532,"oos_11_return":-0.954},
+    "TC10": {"trades":257,"dev_11_sharpe":-0.390,"dev_11_return":-0.553,"dev_22_sharpe":-0.815,"dev_22_return":-0.705,"oos_11_sharpe":0.529,"oos_11_return":0.096}
+  },
+  "passed_cheap": [],
+  "selected_for_deep": [],
+  "promoted_guarded": [],
+  "integrity": {"parameter_search":false,"universe_search":false,"direction_search":false,"candidate_mutation":false,"holdout_access":false},
+  "implementation_note": "Corrected the impossible two-bar pullback condition. This is an implementation repair, not a post-result strategy change."
+}
