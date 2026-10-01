@@ -153,35 +153,37 @@ def signal(cid,df,i):
     raise KeyError(cid)
 
 def backtest(cid,assets_data,cost_bps,start,end,hold_bars=6):
-    # Event-driven, close-t signal, next-open entry, fixed max hold, equal-risk among active positions.
-    timeline=sorted(set().union(*[set(df["timestamp"]) for df in assets_data.values()]))
-    positions=[];equity=1.;curve=[];trades=[];cost=cost_bps/10000
+    # Event-driven, close-t signal -> next-open entry. Timestamp indexes are precomputed to avoid quadratic lookups.
+    timelines={a:list(df["timestamp"]) for a,df in assets_data.items()}
+    ts_maps={a:{ts:i for i,ts in enumerate(timeline)} for a,timeline in timelines.items()}
+    timeline=sorted(set().union(*[set(timeline) for timeline in timelines.values()]))
+    equity=1.0;curve=[];trades=[];cost=cost_bps/10000
     active={}
     for ts in timeline:
-        # close positions at current open when holding period elapsed.
+        # Exit due to time limit.
         for pos_id,pos in list(active.items()):
-            if pos["exit_ts"] is not None and ts>=pos["exit_ts"]:
-                df=assets_data[pos["asset"]];row=df[df["timestamp"]==ts]
-                if len(row):
-                    px=float(row["open"].iloc[0]);ret=(px/pos["entry_px"]-1)*pos["side"]
-                    equity*=1+ret/len(active)
-                    equity*=max(0,1-cost);trades.append({"asset":pos["asset"],"side":pos["side"],"entry":pos["entry_ts"].isoformat(),"exit":ts.isoformat(),"ret":ret})
+            if ts>=pos["exit_ts"]:
+                df=assets_data[pos["asset"]];mp=ts_maps[pos["asset"]].get(ts)
+                if mp is not None:
+                    px=float(df["open"].iloc[mp]);ret=(px/pos["entry_px"]-1)*pos["side"]
+                    equity*=1+ret/max(1,len(active));equity*=max(0,1-cost)
+                    trades.append({"asset":pos["asset"],"side":pos["side"],"entry":pos["entry_ts"].isoformat(),"exit":ts.isoformat(),"ret":ret})
                 del active[pos_id]
-        # Signals from previous completed bar are stored in an order list.
+        # Generate signals from the previous completed bar for each asset.
         for asset,df in assets_data.items():
-            row_idx=df.index[df["timestamp"]==ts]
-            if not len(row_idx):continue
-            j=int(row_idx[0])
-            if j<61:continue
-            sig=signal(cid,df,j-1)
-            if sig==0 or asset in [p["asset"] for p in active.values()]:continue
-            px=float(df["open"].iloc[j])
+            mp=ts_maps[asset].get(ts)
+            if mp is None or mp<61:continue
+            if any(p["asset"]==asset for p in active.values()):continue
+            sig=signal(cid,df,mp-1)
+            if sig==0:continue
+            px=float(df["open"].iloc[mp])
             equity*=max(0,1-cost)
-            active[f"{asset}-{ts}"]={"asset":asset,"side":sig,"entry_px":px,"entry_ts":ts,"exit_ts":df["timestamp"].iloc[min(j+hold_bars,len(df)-1)]}
+            exit_idx=min(mp+hold_bars,len(df)-1)
+            active[f"{asset}-{ts}"]={"asset":asset,"side":sig,"entry_px":px,"entry_ts":ts,"exit_ts":df["timestamp"].iloc[exit_idx]}
         curve.append((ts,equity))
-    # Force-close remaining positions at last close.
     for pos in list(active.values()):
-        df=assets_data[pos["asset"]];px=float(df["close"].iloc[-1]);ret=(px/pos["entry_px"]-1)*pos["side"];equity*=1+ret/max(1,len(active));equity*=max(0,1-cost)
+        df=assets_data[pos["asset"]];px=float(df["close"].iloc[-1])
+        ret=(px/pos["entry_px"]-1)*pos["side"];equity*=1+ret/max(1,len(active));equity*=max(0,1-cost)
         trades.append({"asset":pos["asset"],"side":pos["side"],"entry":pos["entry_ts"].isoformat(),"exit":"forced","ret":ret})
     return curve,trades
 
