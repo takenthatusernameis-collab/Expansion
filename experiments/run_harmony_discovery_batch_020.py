@@ -7,7 +7,7 @@ S=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUS
 DISCOVERY_END="2024-05-21"; OOS_START="2024-05-22"; END="2025-10-31"
 FEE=.0006; SLIP=.0005; CAP=2
 FROOT=Path("data/cache/binance/futures_um/deep_history_2019")
-VROOT=Path("data/cache/harmony_gateway_v5/realized_2h")
+VROOT=Path("data/cache/harmony_gateway_v5/realized_4h")
 OUT=Path("artifacts/HARMONY-DISCOVERY-BATCH-020")
 
 def parse_zip(p):
@@ -115,16 +115,15 @@ def schedule(d,cid):
         return d.weekday()==0 and (d[5:7]!=next_day(d)[5:7] if False else True)
     return d.weekday()==0
 
-def monthly_mondays(dates):
-    out=[]; by={}
+def month_end_dates(dates):
+    by={}
     for d in dates:
-        if d.weekday()==0: by.setdefault(d[:7],[]).append(d)
-    for v in by.values(): out.append(v[-1])
-    return set(out)
+        by[d[:7]]=d
+    return set(by.values())
 
 def simulate(cid,dates,px,funding,features,mult):
     targets={}
-    formation=monthly_mondays(dates) if cid=="FIN-0097" else {d for d in dates if datetime.fromisoformat(d).date().weekday()==0}
+    formation=month_end_dates(dates) if cid=="FIN-0097" else {d for d in dates if datetime.fromisoformat(d).date().weekday()==0}
     attempts=usable=0
     for d in sorted(formation):
         if d<="2020-07-10" or d>END: continue
