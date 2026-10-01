@@ -26,8 +26,8 @@ jobs:
           ref: research/grind-2026-10-01-batch020
       - uses: actions/cache/restore@v4
         with:
-          path: data/cache/harmony_gateway_v5/realized_2h
-          key: harmony-data-gateway-005-v1
+          path: data/cache/harmony_gateway_v5/realized_4h
+          key: harmony-data-gateway-005-v2
           fail-on-cache-miss: true
       - uses: actions/cache/restore@v4
         with:
