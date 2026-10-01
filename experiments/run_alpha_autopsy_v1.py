@@ -43,7 +43,7 @@ def load_monthly_close(symbol):
     px={}
     for y,m in months(2021,1,2025,10):
         p=MONTHLY_ROOT/"klines"/symbol/"1d"/f"{symbol}-1d-{y:04d}-{m:02d}.zip"
-        if not p.is_file(): raise FileNotFoundError(str(p))
+        if not p.is_file(): continue
         for r in read_zip(p):
             if r and r[0].isdigit():
                 px[day(int(r[0]))]=float(r[4])
