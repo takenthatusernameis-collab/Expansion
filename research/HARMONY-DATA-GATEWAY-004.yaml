@@ -1,0 +1,14 @@
+gateway_id: HARMONY-DATA-GATEWAY-004
+status: preregistered
+purpose: "Narrow point-in-time spot daily history needed only for futures-basis and other spot/futures relative-price mechanisms."
+source: Binance public historical spot klines
+symbols: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+period:
+  start: "2020-07-01"
+  end: "2025-10-31"
+granularity: 1d
+integrity:
+  fixed_symbol_set: true
+  raw_file_sha256_required: true
+  no_holdout_access: false
+  no_proxy_field_substitution: true
