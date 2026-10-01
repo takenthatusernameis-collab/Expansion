@@ -1,0 +1,30 @@
+gateway_id: HARMONY-DATA-GATEWAY-006
+status: preregistered_frozen
+purpose: "Reusable Tier-C 4h Binance USD-M taker-flow feature store for order-flow persistence, shocks, price-flow alignment/divergence, and flow-risk interactions."
+source:
+  venue: Binance USD-M Futures
+  archive: "https://data.binance.vision/data/futures/um/monthly/klines"
+  interval: 4h
+  archive_partition: monthly
+  note: "USD-M kline files expose volume and taker-buy base/quote volumes; each monthly archive is SHA256 recorded before normalization."
+assets: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+history:
+  start: "2020-07-10"
+  end: "2025-10-31"
+features:
+  - flow_imbalance_1d
+  - quote_flow_imbalance_1d
+  - flow_imbalance_21d
+  - flow_imbalance_63d
+  - flow_z_21d
+  - flow_acceleration
+  - flow_return_product
+  - flow_abs_vol_interaction
+  - realized_volatility_21d
+  - quote_volume_1d
+integrity:
+  current_value_backfill: false
+  interpolation: false
+  silent_universe_drop: false
+  request_sha256_manifest: required
+  normalized_feature_sha256: required
