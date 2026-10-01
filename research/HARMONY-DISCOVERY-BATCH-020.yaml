@@ -8,7 +8,7 @@ dataset:
   discovery_end: "2024-05-21"
   oos_start: "2024-05-22"
   end: "2025-10-31"
-  feature_interval: 2h
+  feature_interval: 4h
 costs:
   fee_rate: 0.0006
   slippage_rate: 0.0005
@@ -21,7 +21,7 @@ cheap_gate:
 candidates:
   FIN-0097:
     mechanism: cross_sectional_low_realized_volatility
-    fixed_definition: "Monthly long lowest 3 / short highest 3 by prior 63-day realized volatility built from completed 2h returns."
+    fixed_definition: "Monthly long lowest 3 / short highest 3 by prior 63-day realized volatility built from completed 4h returns."
     direction: long_low_risk_short_high_risk
     external_evidence:
       - "Revisiting the low-volatility anomaly in cryptocurrency markets, Finance Research Letters 2026, DOI 10.1016/j.frl.2026.109851"
@@ -34,7 +34,7 @@ candidates:
       - "Good volatility, bad volatility, and the cross section of cryptocurrency returns, International Review of Financial Analysis 2023, DOI 10.1016/j.irfa.2023.102712"
   FIN-0099:
     mechanism: jump_concentration
-    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day average maximum-single-2h-bar variance share."
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day average maximum-single-4h-bar variance share."
     direction: long_low_jump_concentration_short_high_jump_concentration
     external_evidence:
       - "Good volatility, bad volatility, and the cross section of cryptocurrency returns, International Review of Financial Analysis 2023, DOI 10.1016/j.irfa.2023.102712"
