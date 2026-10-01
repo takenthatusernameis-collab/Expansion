@@ -534,7 +534,7 @@ half1 = segments[0]
 half2 = segments[1]
 residual_full = [x for x in residual[WINDOW:] if x is not None]
 residual_full_metrics = safe_metrics(residual_full) if residual_full else {}
-two_x_sharpe = cost_stress["2.0x"]["sharpe"]
+two_x_sharpe = cost_stress["2.0x"]["raw"]["sharpe"]
 all_residual_quarter_positive = all(x["sharpe"] > 0 for x in factor_quarters if x.get("sharpe") is not None)
 if half1["sharpe"] > 0 and half2["sharpe"] > 0 and all_residual_quarter_positive and two_x_sharpe > 0:
     durability_status = "DURABILITY_SUPPORTED"
