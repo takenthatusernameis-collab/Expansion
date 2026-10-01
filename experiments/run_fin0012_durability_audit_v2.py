@@ -574,7 +574,15 @@ payload={
         "universe_search":False,
     },
 }
-payload["serialization"] = {"complex_values_sanitized": sum(1 for _ in [1] if False)}\ncomplex_counter = {"complex": 0}\nsafe_payload = json_sanitize(payload, complex_counter)\nsafe_payload["serialization"] = {"complex_values_sanitized": complex_counter["complex"], "undefined_residual_cagr_encoded_as_null": True}\n(DUR_OUT/"durability_audit.json").write_text(json.dumps(safe_payload,sort_keys=True,indent=2)+"\\n")
+complex_counter = {"complex": 0}
+safe_payload = json_sanitize(payload, complex_counter)
+safe_payload["serialization"] = {
+    "complex_values_sanitized": complex_counter["complex"],
+    "undefined_residual_cagr_encoded_as_null": True,
+}
+(DUR_OUT/"durability_audit.json").write_text(
+    json.dumps(safe_payload, sort_keys=True, indent=2) + "\n"
+)
 
 with (DUR_OUT/"oos_segments.csv").open("w",newline="") as f:
     w=csv.DictWriter(f,fieldnames=list(segments[0])); w.writeheader(); w.writerows(segments)
