@@ -512,6 +512,20 @@ for s in S:
         ):
             raw=p.read_bytes()
             manifest_files.append({"path":str(p),"bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest()})
+def json_sanitize(value, counter=None):
+    if counter is None:
+        counter = {"complex": 0}
+    if isinstance(value, complex):
+        counter["complex"] += 1
+        return None
+    if isinstance(value, dict):
+        return {k: json_sanitize(v, counter) for k, v in value.items()}
+    if isinstance(value, list):
+        return [json_sanitize(v, counter) for v in value]
+    if isinstance(value, tuple):
+        return [json_sanitize(v, counter) for v in value]
+    return value
+
 manifest = {
     "engine_source_commit":"8388dc680571bf3fa849d349b60de99e38ebf8ea",
     "cache_key":"harmony-binance-um-2021-01-2025-10-v4",
@@ -560,7 +574,7 @@ payload={
         "universe_search":False,
     },
 }
-(DUR_OUT/"durability_audit.json").write_text(json.dumps(payload,sort_keys=True,indent=2)+"\\n")
+payload["serialization"] = {"complex_values_sanitized": sum(1 for _ in [1] if False)}\ncomplex_counter = {"complex": 0}\nsafe_payload = json_sanitize(payload, complex_counter)\nsafe_payload["serialization"] = {"complex_values_sanitized": complex_counter["complex"], "undefined_residual_cagr_encoded_as_null": True}\n(DUR_OUT/"durability_audit.json").write_text(json.dumps(safe_payload,sort_keys=True,indent=2)+"\\n")
 
 with (DUR_OUT/"oos_segments.csv").open("w",newline="") as f:
     w=csv.DictWriter(f,fieldnames=list(segments[0])); w.writeheader(); w.writerows(segments)
