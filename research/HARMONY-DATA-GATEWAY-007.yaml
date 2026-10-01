@@ -1,17 +1,13 @@
 gateway_id: HARMONY-DATA-GATEWAY-007
 status: preregistered_exploratory
-purpose: "External financial-uncertainty feature store for cross-sectional crypto uncertainty-beta research."
-sources:
+purpose: "Frozen public FRED financial-uncertainty snapshot for exploratory cross-sectional crypto uncertainty-beta research."
+source:
   financial_uncertainty:
     provider: "FRED / Ludvigson-Ma-Ng"
     series: "LMNUF12M"
     frequency: monthly
     public_data_page: "https://fred.stlouisfed.org/data/LMNUF12M"
-  policy_uncertainty:
-    provider: "FRED / Baker-Bloom-Davis"
-    series: "USEPUINDXD"
-    frequency: daily
-    public_data_page: "https://fred.stlouisfed.org/series/USEPUINDXD"
+    snapshot: "2019-12 through 2025-10 frozen from FRED table output on 2026-10-01"
 assets: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
 history:
   crypto_start: "2020-07-10"
@@ -19,7 +15,6 @@ history:
   uncertainty_end_required: "2025-10-31"
 construction:
   financial_uncertainty_shock: "month-over-month log change in LMNUF12M"
-  policy_uncertainty_monthly: "calendar-month mean of daily USEPUINDXD"
   crypto_returns: "calendar-month close-to-close return from the verified daily Binance futures cache"
   beta_window_months: 24
   minimum_beta_observations: 18
@@ -28,5 +23,6 @@ integrity:
   normalized_source_sha256_required: true
   current_public_revision_risk: true
   vintage_proof_required_before_guarded_promotion: true
+  source_snapshot_sha256_required: true
   interpolation: false
   current_value_backfill: false
