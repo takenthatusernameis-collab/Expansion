@@ -1,0 +1,56 @@
+batch_id: HARMONY-DISCOVERY-BATCH-024
+status: preregistered_frozen
+purpose: "Bounded liquidity-commonality and liquidity-interaction mechanism wave using the verified daily Binance futures cache."
+dataset:
+  crypto_cache: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+schedule: weekly
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+deep_gate:
+  oos_1x_sharpe_minimum: 0.90
+  oos_2x_sharpe_minimum: 0.50
+  oos_3x_sharpe_minimum: 0.50
+  both_oos_halves_positive: true
+candidates:
+  FIN-0121:
+    mechanism: liquidity_commonality_beta
+    fixed_definition: "63-day beta of asset Amihud-like illiquidity to equal-weight market illiquidity; weekly long lowest 3 beta / short highest 3."
+    external_evidence: "Liquidity commonality in cryptocurrencies, Finance Research Letters 2025, DOI 10.1016/j.frl.2025.108187"
+  FIN-0122:
+    mechanism: liquidity_shock_beta
+    fixed_definition: "63-day beta of daily change in asset illiquidity to daily change in market illiquidity; weekly long lowest 3 / short highest 3."
+    external_evidence: "Liquidity commonality in cryptocurrencies, Finance Research Letters 2025, DOI 10.1016/j.frl.2025.108187"
+  FIN-0123:
+    mechanism: residual_illiquidity
+    fixed_definition: "63-day residual standard deviation of asset illiquidity after removing market-illiquidity beta; weekly long lowest 3 / short highest 3."
+    external_evidence: "Liquidity commonality in cryptocurrencies, Finance Research Letters 2025, DOI 10.1016/j.frl.2025.108187"
+  FIN-0124:
+    mechanism: liquidity_beta_instability
+    fixed_definition: "Absolute difference between 21-day and 63-day liquidity-commonality beta; weekly long lowest 3 / short highest 3."
+    external_evidence: "Liquidity commonality in cryptocurrencies, Finance Research Letters 2025, DOI 10.1016/j.frl.2025.108187"
+  FIN-0125:
+    mechanism: illiquidity_momentum_interaction
+    fixed_definition: "126-day momentum multiplied by cross-sectional percentile of 21-day illiquidity; weekly long highest 3 / short lowest 3."
+    external_evidence: "Cross-sectional interactions in cryptocurrency returns, International Review of Financial Analysis 2025, DOI 10.1016/j.irfa.2024.103809"
+  FIN-0126:
+    mechanism: illiquidity_downside_risk_interaction
+    fixed_definition: "Cross-sectional percentile of 21-day illiquidity multiplied by percentile of 63-day downside semivariance; weekly long highest 3 / short lowest 3."
+    external_evidence: "Cross-sectional interactions in cryptocurrency returns, International Review of Financial Analysis 2025, DOI 10.1016/j.irfa.2024.103809"
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+  benchmark_relative_diagnostics_required: true
