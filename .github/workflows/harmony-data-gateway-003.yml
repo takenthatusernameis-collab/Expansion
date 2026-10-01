@@ -1,0 +1,40 @@
+name: Harmony external data gateway 003
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-DATA-GATEWAY-003.yaml"
+      - "data_sources/harmony_data_gateway_003.py"
+      - "tests/test_harmony_data_gateway_003.py"
+      - "experiments/run_harmony_data_gateway_003.py"
+      - ".github/workflows/harmony-data-gateway-003.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime
+        run: python -m pip install --disable-pip-version-check --no-input requests pytest
+      - name: Validate gateway
+        run: python -m pytest -q tests/test_harmony_data_gateway_003.py
+      - name: Execute gateway 003
+        run: python experiments/run_harmony_data_gateway_003.py
+      - name: Cache public archive
+        uses: actions/cache/save@v4
+        with:
+          path: data/cache/harmony_gateway_v3
+          key: harmony-data-gateway-003-v1
+      - name: Upload gateway evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-data-gateway-003
+          path: data/cache/harmony_gateway_v3
+          if-no-files-found: error
+          retention-days: 90
