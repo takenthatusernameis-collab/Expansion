@@ -113,7 +113,7 @@ def main():
         a=k*q; b=(k+1)*q if k<3 else n
         residual_quarters.append({"quarter":k+1,**residual_stats(srr[a:b],brr[a:b],err[a:b])})
 
-    stress={k:{"oos":runs[k]["oos"]["metrics"],"turnover":runs[k]["turnover"],"funding_pnl_sum":runs[k]["funding_pnl_sum"]} for k in runs}
+    stress={k:{"oos":runs[k]["oos"],"turnover":runs[k]["turnover"],"funding_pnl_sum":runs[k]["funding_pnl_sum"]} for k in runs}
 
     halves_positive = all(x["cumulative_return"]>0 and x["sharpe"]>0 for x in temporal[:2])
     quarters_positive = sum(x["cumulative_return"]>0 for x in temporal[2:])>=3
