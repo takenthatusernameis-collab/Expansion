@@ -214,8 +214,8 @@ def main():
     for cid in names:
         costs={}
         for bps in (11,16.5,22):
-            curve,trades=backtest(cid,assets_data,bps,"2023-01-01","2025-10-31")
-            costs[str(bps)]={"discovery":metrics(curve,"2023-01-01",DISCOVERY_END),"oos":metrics(curve,OOS_START,END),"trades":len(trades)}
+            curve,trades=backtest(cid,assets_data,bps,START,END)
+            costs[str(bps)]={"discovery":metrics(curve,START,DISCOVERY_END),"oos":metrics(curve,OOS_START,END),"trades":len(trades)}
         g=costs["11"]["discovery"];g22=costs["22"]["discovery"]
         ok=costs["11"]["trades"]>=100 and g["return"]>0 and g22["return"]>0 and g["sharpe"]>=.50 and g22["sharpe"]>=.25
         results[cid]={"status":"CHEAP_PASS" if ok else "CHEAP_FAIL","costs":costs}
@@ -229,18 +229,18 @@ def main():
         for bps in (11,16.5,22,27.5,33):
             curve,trades=backtest(cid,assets_data,bps,"2023-01-01","2025-10-31")
             extra[str(bps)]={"oos":metrics(curve,OOS_START,END),"trades":len(trades)}
-        base_curve,_=backtest(cid,assets_data,11,"2023-01-01","2025-10-31")
+        base_curve,_=backtest(cid,assets_data,11,START,END)
         oos=[(ts,v) for ts,v in base_curve if ts.date().isoformat()>=OOS_START]
         mid=len(oos)//2
         first=[(ts,v) for ts,v in oos[:mid]];second=[(ts,v) for ts,v in oos[mid:]]
         deep[cid]={"stress":extra,"oos_halves":{"first":metrics(first,OOS_START,OOS_START),"second":metrics(second,OOS_START,END)}}
         r11=extra["11"]["oos"];r22=extra["22"]["oos"];h=deep[cid]["oos_halves"]
         if r11["sharpe"]>=.90 and r22["sharpe"]>=.50 and h["first"]["sharpe"]>0 and h["second"]["sharpe"]>0:promoted.append(cid)
-    result={"batch_id":"HARMONY-TECH-4H-025","manifest_sha256":sha((OUT/"INDICATOR-WAREHOUSE-MANIFEST.json").read_bytes()),
+    result={"batch_id":"HARMONY-TECH-4H-027","manifest_sha256":sha((OUT/"INDICATOR-WAREHOUSE-MANIFEST.json").read_bytes()),
             "results":results,"passed_cheap":passed,"selected_for_deep":selected,"promoted_guarded":promoted,
             "integrity":{"parameter_search":False,"universe_search":False,"direction_search":False,"candidate_mutation":False,"holdout_access":False}}
     raw=json.dumps(result,sort_keys=True,indent=2).encode()
-    (OUT/"HARMONY-TECH-4H-025-RESULT.json").write_bytes(raw)
+    (OUT/"HARMONY-TECH-4H-027-RESULT.json").write_bytes(raw)
     (OUT/"SUMMARY.json").write_text(json.dumps({"batch_id":result["batch_id"],"passed_cheap":passed,"selected_for_deep":selected,
         "promoted_guarded":promoted,"manifest_sha256":result["manifest_sha256"],"result_sha256":sha(OUT/"HARMONY-TECH-4H-025-RESULT.json")},sort_keys=True,indent=2)+"\n")
     print(json.dumps({"passed_cheap":passed,"selected_for_deep":selected,"promoted_guarded":promoted,"assets":len(ASSETS)},indent=2))
