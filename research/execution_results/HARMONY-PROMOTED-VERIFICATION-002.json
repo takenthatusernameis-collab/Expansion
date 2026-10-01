@@ -1,0 +1,15 @@
+{
+  "all_archived_baselines_reproduced": true,
+  "deltas": {
+    "HARMONY-FIN-0012": {
+      "cumulative_return": 0.0,
+      "sharpe": 0.0
+    },
+    "HARMONY-FIN-0024": {
+      "cumulative_return": 0.0,
+      "sharpe": 0.0
+    }
+  },
+  "result_sha256": "8c151cf8e3ffe82c6036896bb86b0a8a8ad4e6a75e6676f4d3bdd0d570a06533",
+  "verification_id": "HARMONY-PROMOTED-VERIFICATION-002"
+}
