@@ -1,0 +1,5 @@
+experiment_id: HARMONY-FIN-0044
+strategy_id: daily_abnormal_volume_disagreement_30d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-008
+definition: "Daily long lowest/short highest prior-day abnormal quote-volume surprise, standardized using a trailing 30-observation surprise distribution."

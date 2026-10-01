@@ -1,0 +1,5 @@
+experiment_id: HARMONY-FIN-0050
+strategy_id: monthly_downside_beta_btc_60d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-008
+definition: "Monthly long highest/short lowest prior-60-observation downside beta to BTC using BTC-negative observations only."
