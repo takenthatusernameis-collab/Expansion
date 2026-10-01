@@ -1,0 +1,16 @@
+{
+  "batch_id": "HARMONY-DISCOVERY-BATCH-024",
+  "passed_cheap": [
+    "FIN-0123",
+    "FIN-0122",
+    "FIN-0121",
+    "FIN-0125",
+    "FIN-0126"
+  ],
+  "promoted_guarded": [],
+  "result_sha256": "cbad5a4425ecfcd70b32430c11601c619398db29f36b091ebc20c57b61926369",
+  "selected_for_deep": [
+    "FIN-0123",
+    "FIN-0122"
+  ]
+}
