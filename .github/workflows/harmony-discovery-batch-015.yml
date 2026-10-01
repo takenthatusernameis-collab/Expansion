@@ -1,4 +1,5 @@
 name: Harmony discovery batch 015
+# Re-execution trigger after the fixed gateway-004 spot cache was verified.
 
 on:
   push:
