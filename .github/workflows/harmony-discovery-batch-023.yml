@@ -1,5 +1,7 @@
 name: Harmony discovery batch 023
 
+# gateway-007 snapshot persisted; execute frozen FINU-only batch
+
 on:
   push:
     branches:
