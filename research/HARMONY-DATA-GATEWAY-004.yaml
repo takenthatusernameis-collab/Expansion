@@ -10,5 +10,5 @@ granularity: 1d
 integrity:
   fixed_symbol_set: true
   raw_file_sha256_required: true
-  no_holdout_access: false
+  no_holdout_access: true
   no_proxy_field_substitution: true
