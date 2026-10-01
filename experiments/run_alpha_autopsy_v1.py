@@ -354,8 +354,8 @@ def main():
     deep={s:load_deep_close(s) for s in SYMBOLS}
     deep_f={s:load_deep_funding(s) for s in SYMBOLS}
 
-    r12,c12,p12=process("FIN-0012",monthly,monthly_f,fin12_weights)
-    r24,c24,p24=process("FIN-0024",deep,deep_f,fin24_weights)
+    r12,c12,p12=process("FIN-0012",monthly,monthly_f,fin12_weights,2,2,0.25)
+    r24,c24,p24=process("FIN-0024",deep,deep_f,fin24_weights,3,3,1.0/6.0)
 
     manifest_files=[]
     for root in [MONTHLY_ROOT,DEEP_ROOT]:
