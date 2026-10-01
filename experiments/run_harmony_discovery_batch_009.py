@@ -101,6 +101,31 @@ def simulate(dates,px,funding,tar,mult=1.0,end_date=None):
     return curve,turn,rebs,fpnl
 
 
+def metrics(curve):
+    rr=[curve[i]/curve[i-1]-1 for i in range(1,len(curve))]
+    sd=statistics.stdev(rr) if len(rr)>1 else 0
+    sharpe=statistics.mean(rr)/sd*math.sqrt(365.25) if sd else 0
+    peak=curve[0]; mdd=0
+    for x in curve: peak=max(peak,x); mdd=min(mdd,x/peak-1)
+    yrs=max((len(curve)-1)/365.25,1e-12)
+    return {"final_equity":curve[-1],"cumulative_return":curve[-1]-1,"cagr":curve[-1]**(1/yrs)-1,"sharpe":sharpe,"max_drawdown":mdd,"observations":len(curve)}
+
+def seg(dates,curve,start,end=None):
+    idx=[i for i,d in enumerate(dates) if d>=start and (end is None or d<=end)]
+    base=curve[idx[0]-1] if idx[0]>0 else 1
+    m=metrics([1]+[curve[i]/base for i in idx])
+    m.update(start=dates[idx[0]],end=dates[idx[-1]])
+    return m
+
+def halves(dates,curve,start):
+    idx=[i for i,d in enumerate(dates) if d>=start]; mid=len(idx)//2
+    def part(xs):
+        base=curve[xs[0]-1] if xs[0]>0 else 1
+        m=metrics([1]+[curve[i]/base for i in xs])
+        m.update(start=dates[xs[0]],end=dates[xs[-1]])
+        return m
+    return {"first_half":part(idx[:mid]),"second_half":part(idx[mid:])}
+
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     dates,px,funding=load(); r=rets(dates,px)
