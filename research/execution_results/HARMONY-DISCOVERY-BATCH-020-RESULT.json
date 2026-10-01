@@ -1,0 +1,306 @@
+{
+  "batch_id": "HARMONY-DISCOVERY-BATCH-020",
+  "deep": {
+    "FIN-0101": {
+      "benchmark_oos": {
+        "btc": {
+          "cumulative_return": 0.5827611165126387,
+          "max_drawdown": -0.2809851622539804,
+          "observations": 529,
+          "sharpe": 0.9313558814685209
+        },
+        "equal_weight": {
+          "cumulative_return": 0.7120139642145795,
+          "max_drawdown": -0.46602130566615607,
+          "observations": 528,
+          "sharpe": 0.9040801517205919
+        }
+      },
+      "oos_halves": {
+        "first": {
+          "cumulative_return": 0.14945580032990158,
+          "max_drawdown": -0.10090668620017085,
+          "observations": 265,
+          "sharpe": 1.0306825992452482
+        },
+        "second": {
+          "cumulative_return": 0.013127316278735979,
+          "max_drawdown": -0.136638761098008,
+          "observations": 265,
+          "sharpe": 0.19121563284365375
+        }
+      },
+      "residual_sharpe": -6.993976695334578e-16,
+      "runs": {
+        "1.0x": {
+          "oos": {
+            "cumulative_return": 0.16454507016925968,
+            "max_drawdown": -0.136638761098008,
+            "observations": 529,
+            "sharpe": 0.6554960040443362
+          },
+          "rebalances": 276,
+          "turnover": 18.166666666666668
+        },
+        "2.0x": {
+          "oos": {
+            "cumulative_return": 0.15815274378999344,
+            "max_drawdown": -0.1372720087473085,
+            "observations": 529,
+            "sharpe": 0.6352445156719099
+          },
+          "rebalances": 276,
+          "turnover": 18.166666666666668
+        },
+        "3.0x": {
+          "oos": {
+            "cumulative_return": 0.15179224487052956,
+            "max_drawdown": -0.13790502407803018,
+            "observations": 529,
+            "sharpe": 0.6149527251493007
+          },
+          "rebalances": 276,
+          "turnover": 18.166666666666668
+        },
+        "4.0x": {
+          "oos": {
+            "cumulative_return": 0.14546343009785478,
+            "max_drawdown": -0.13853780709017194,
+            "observations": 529,
+            "sharpe": 0.5946239356805997
+          },
+          "rebalances": 276,
+          "turnover": 18.166666666666668
+        },
+        "5.0x": {
+          "oos": {
+            "cumulative_return": 0.13916615673934984,
+            "max_drawdown": -0.13917035778373033,
+            "observations": 529,
+            "sharpe": 0.5742614703257506
+          },
+          "rebalances": 276,
+          "turnover": 18.166666666666668
+        }
+      }
+    },
+    "FIN-0102": {
+      "benchmark_oos": {
+        "btc": {
+          "cumulative_return": 0.5827611165126387,
+          "max_drawdown": -0.2809851622539804,
+          "observations": 529,
+          "sharpe": 0.9313558814685209
+        },
+        "equal_weight": {
+          "cumulative_return": 0.7120139642145795,
+          "max_drawdown": -0.46602130566615607,
+          "observations": 528,
+          "sharpe": 0.9040801517205919
+        }
+      },
+      "oos_halves": {
+        "first": {
+          "cumulative_return": 0.39325086620480065,
+          "max_drawdown": -0.10636261458468033,
+          "observations": 265,
+          "sharpe": 1.9182335306426892
+        },
+        "second": {
+          "cumulative_return": -0.09595241809375121,
+          "max_drawdown": -0.25051643957204983,
+          "observations": 265,
+          "sharpe": -0.47011092533846643
+        }
+      },
+      "residual_sharpe": -6.258262151980603e-16,
+      "runs": {
+        "1.0x": {
+          "oos": {
+            "cumulative_return": 0.25956507658123673,
+            "max_drawdown": -0.25051643957204994,
+            "observations": 529,
+            "sharpe": 0.765654263943532
+          },
+          "rebalances": 273,
+          "turnover": 51.166666666666664
+        },
+        "2.0x": {
+          "oos": {
+            "cumulative_return": 0.22267323079413304,
+            "max_drawdown": -0.2611671838858657,
+            "observations": 529,
+            "sharpe": 0.6824348898953857
+          },
+          "rebalances": 273,
+          "turnover": 51.166666666666664
+        },
+        "3.0x": {
+          "oos": {
+            "cumulative_return": 0.18684064407223877,
+            "max_drawdown": -0.2716727577726734,
+            "observations": 529,
+            "sharpe": 0.599173756646227
+          },
+          "rebalances": 273,
+          "turnover": 51.166666666666664
+        },
+        "4.0x": {
+          "oos": {
+            "cumulative_return": 0.1520375112718928,
+            "max_drawdown": -0.28203505617408486,
+            "observations": 529,
+            "sharpe": 0.5159167477011335
+          },
+          "rebalances": 273,
+          "turnover": 51.166666666666664
+        },
+        "5.0x": {
+          "oos": {
+            "cumulative_return": 0.11823484882475621,
+            "max_drawdown": -0.2922559503822325,
+            "observations": 529,
+            "sharpe": 0.4327095523375636
+          },
+          "rebalances": 273,
+          "turnover": 51.166666666666664
+        }
+      }
+    }
+  },
+  "integrity": {
+    "candidate_mutation": false,
+    "direction_search": false,
+    "holdout_access": false,
+    "parameter_search": false,
+    "universe_search": false
+  },
+  "oos_start": "2024-05-22",
+  "passed_cheap": [
+    "FIN-0101",
+    "FIN-0102",
+    "FIN-0100"
+  ],
+  "promoted_guarded": [],
+  "results": {
+    "FIN-0097": {
+      "attempts": 64,
+      "coverage": 1.0,
+      "discovery_1x": {
+        "cumulative_return": -0.5898133613171075,
+        "max_drawdown": -0.6325933608357255,
+        "observations": 1408,
+        "sharpe": -0.7088430390465154
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.5994848177212537,
+        "max_drawdown": -0.640597043696622,
+        "observations": 1408,
+        "sharpe": -0.7315863076965327
+      },
+      "rebalances": 64,
+      "status": "CHEAP_FAIL",
+      "usable": 64
+    },
+    "FIN-0098": {
+      "attempts": 276,
+      "coverage": 1.0,
+      "discovery_1x": {
+        "cumulative_return": -0.7078273566705073,
+        "max_drawdown": -0.7930578524870004,
+        "observations": 1408,
+        "sharpe": -0.3969760829917068
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.7467166248294264,
+        "max_drawdown": -0.814899562147485,
+        "observations": 1408,
+        "sharpe": -0.48035796126052716
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL",
+      "usable": 276
+    },
+    "FIN-0099": {
+      "attempts": 276,
+      "coverage": 1.0,
+      "discovery_1x": {
+        "cumulative_return": -0.8902345350215879,
+        "max_drawdown": -0.9373315161600259,
+        "observations": 1408,
+        "sharpe": -0.9782263172585516
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.9056106756327069,
+        "max_drawdown": -0.9449503204010619,
+        "observations": 1408,
+        "sharpe": -1.06686596276489
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL",
+      "usable": 276
+    },
+    "FIN-0100": {
+      "attempts": 276,
+      "coverage": 1.0,
+      "discovery_1x": {
+        "cumulative_return": 0.4886915524913724,
+        "max_drawdown": -0.5320730516230425,
+        "observations": 1408,
+        "sharpe": 0.4187988522990294
+      },
+      "discovery_2x": {
+        "cumulative_return": 0.3339306258129471,
+        "max_drawdown": -0.5645603309928328,
+        "observations": 1408,
+        "sharpe": 0.3559622044659531
+      },
+      "rebalances": 276,
+      "status": "CHEAP_PASS",
+      "usable": 276
+    },
+    "FIN-0101": {
+      "attempts": 276,
+      "coverage": 1.0,
+      "discovery_1x": {
+        "cumulative_return": 3.414955386659382,
+        "max_drawdown": -0.23506699664497277,
+        "observations": 1408,
+        "sharpe": 1.041164211183741
+      },
+      "discovery_2x": {
+        "cumulative_return": 3.260582263551239,
+        "max_drawdown": -0.2411382376607779,
+        "observations": 1408,
+        "sharpe": 1.0207133204631
+      },
+      "rebalances": 276,
+      "status": "CHEAP_PASS",
+      "usable": 276
+    },
+    "FIN-0102": {
+      "attempts": 276,
+      "coverage": 0.9891304347826086,
+      "discovery_1x": {
+        "cumulative_return": 1.3006197161101372,
+        "max_drawdown": -0.4394524464811125,
+        "observations": 1408,
+        "sharpe": 0.6730939893376381
+      },
+      "discovery_2x": {
+        "cumulative_return": 1.1151515221151143,
+        "max_drawdown": -0.4704521099939999,
+        "observations": 1408,
+        "sharpe": 0.6237623813523652
+      },
+      "rebalances": 273,
+      "status": "CHEAP_PASS",
+      "usable": 273
+    }
+  },
+  "selected_for_deep": [
+    "FIN-0101",
+    "FIN-0102"
+  ],
+  "source_gateway": "HARMONY-DATA-GATEWAY-005"
+}
