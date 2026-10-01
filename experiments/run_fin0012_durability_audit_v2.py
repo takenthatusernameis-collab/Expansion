@@ -649,7 +649,7 @@ with (DUR_OUT/"equity_and_residual.csv").open("w",newline="") as f:
             re*=1.0+residual[i]
         w.writerow({
             "date":d,
-            "strategy_equity":trace_base["curve"][i+1],
+            "strategy_equity":trace_base["curve"][i],
             "strategy_return":strategy_returns[i],
             "residual_return":"" if residual[i] is None else residual[i],
             "residual_equity":"" if residual[i] is None else re,
