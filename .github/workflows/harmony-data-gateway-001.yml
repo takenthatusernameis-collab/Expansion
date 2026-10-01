@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   gateway:
@@ -39,3 +39,23 @@ PY
           path: artifacts/HARMONY-DATA-GATEWAY-001
           if-no-files-found: error
           retention-days: 90
+      - name: Publish compact gateway proof
+        run: |
+          mkdir -p research/execution_results
+          python - <<'PY'
+import json
+from pathlib import Path
+p=Path("artifacts/HARMONY-DATA-GATEWAY-001/HARMONY-DATA-GATEWAY-001-RESULT.json")
+x=json.loads(p.read_text())
+Path("research/execution_results/HARMONY-DATA-GATEWAY-001.json").write_text(json.dumps({
+  "gateway_id": x["gateway_id"],
+  "readiness": x["readiness"],
+  "coinmetrics": x["coinmetrics"],
+  "wikimedia_ready": x["readiness"]["wikimedia_ready"],
+  "binance_files": len(x["binance_intraday"])
+}, sort_keys=True, indent=2)+"\n")
+PY
+          git config user.name "harmony-actions"
+          git config user.email "harmony-actions@users.noreply.github.com"
+          git add research/execution_results/HARMONY-DATA-GATEWAY-001.json
+          git diff --cached --quiet || (git commit -m "Publish data gateway proof" && git push)
