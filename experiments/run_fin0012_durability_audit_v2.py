@@ -274,6 +274,28 @@ from pathlib import Path
 DUR_OUT = Path("artifacts/HARMONY-FIN-0012-DURABILITY-V2")
 DUR_OUT.mkdir(parents=True, exist_ok=True)
 
+def safe_metrics(returns):
+    eq = [1.0]
+    for r in returns:
+        eq.append(eq[-1] * (1.0 + r))
+    rr = returns
+    sd = statistics.stdev(rr) if len(rr) > 1 else 0.0
+    sharpe = statistics.mean(rr) / sd * math.sqrt(365.25) if sd else 0.0
+    peak = eq[0]
+    mdd = 0.0
+    for x in eq:
+        peak = max(peak, x)
+        mdd = min(mdd, x / peak - 1.0) if peak != 0 else mdd
+    cagr = None if eq[-1] <= 0 else eq[-1] ** (365.25 / max(1, len(eq) - 1)) - 1.0
+    return {
+        "cumulative_return": eq[-1] - 1.0,
+        "cagr": cagr,
+        "sharpe": sharpe,
+        "max_drawdown": mdd,
+        "final_equity": eq[-1],
+        "observations": len(eq),
+    }
+
 ACCEPTED = {
     "cumulative_return": 0.4169009579470373,
     "cagr": 0.273179006712682,
@@ -431,8 +453,8 @@ def segment_rows():
             "sharpe": (metrics([1.0]+rr)["sharpe"]),
             "sortino": (metrics([1.0]+rr).get("sortino") if "sortino" in metrics([1.0]+rr) else None),
             "max_drawdown": metrics([1.0]+rr)["max_drawdown"],
-            "residual_cumulative_return": "" if not res else metrics([1.0]+res)["cumulative_return"],
-            "residual_sharpe": "" if not res else metrics([1.0]+res)["sharpe"],
+            "residual_cumulative_return": "" if not res else safe_metrics(res)["cumulative_return"],
+            "residual_sharpe": "" if not res else safe_metrics(res)["sharpe"],
         })
     return out
 
@@ -460,7 +482,7 @@ for k in range(4):
     a=k*q; b=(k+1)*q if k<3 else n
     res=[x for x in residual[a:b] if x is not None]
     if res:
-        mm=metrics([1.0]+res)
+        mm=safe_metrics(res)
         factor_quarters.append({"quarter":k+1,"sharpe":mm["sharpe"],"sortino":mm.get("sortino"),"cumulative_return":mm["cumulative_return"],"max_drawdown":mm["max_drawdown"]})
 
 cost_stress={}
