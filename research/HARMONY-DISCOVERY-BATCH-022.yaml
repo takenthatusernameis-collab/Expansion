@@ -1,0 +1,65 @@
+batch_id: HARMONY-DISCOVERY-BATCH-022
+status: preregistered_frozen
+purpose: "Bounded exchange-order-flow mechanism wave using the reusable Binance 4h taker-flow gateway."
+dataset:
+  feature_gateway: HARMONY-DATA-GATEWAY-006
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+  feature_interval: 4h
+schedule: weekly
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+candidates:
+  FIN-0109:
+    mechanism: taker_flow_persistence
+    fixed_definition: "Weekly long highest 3 / short lowest 3 by prior 21-day average taker-buy base-volume imbalance."
+    direction: long_high_flow_short_low_flow
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+  FIN-0110:
+    mechanism: taker_flow_shock
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by current daily taker-flow imbalance z-score within its prior 21-day history."
+    direction: long_low_flow_shock_short_high_flow_shock
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+  FIN-0111:
+    mechanism: flow_price_confirmation
+    fixed_definition: "Weekly long highest 3 / short lowest 3 by daily taker-flow imbalance multiplied by same-day close-to-close return."
+    direction: long_high_confirmation_short_low_confirmation
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+  FIN-0112:
+    mechanism: flow_price_divergence
+    fixed_definition: "Weekly long highest 3 / short lowest 3 by the negative of daily taker-flow imbalance multiplied by same-day return."
+    direction: long_high_divergence_short_low_divergence
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+  FIN-0113:
+    mechanism: flow_volatility_interaction
+    fixed_definition: "Weekly long highest 3 / short lowest 3 by daily taker-flow imbalance multiplied by prior 21-day realized volatility."
+    direction: long_high_flow_vol_interaction_short_low
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+      - "Cross-sectional interactions in cryptocurrency returns, International Review of Financial Analysis 2025, DOI 10.1016/j.irfa.2024.103809"
+  FIN-0114:
+    mechanism: flow_acceleration
+    fixed_definition: "Weekly long highest 3 / short lowest 3 by prior 21-day average taker-flow imbalance minus prior 63-day average."
+    direction: long_high_flow_acceleration_short_low
+    external_evidence:
+      - "Order flow and cryptocurrency returns, Journal of Financial Markets 2026, DOI 10.1016/j.finmar.2026.101047"
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+  benchmark_relative_diagnostics_required: true
