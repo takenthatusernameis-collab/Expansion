@@ -29,3 +29,9 @@ integrity:
   no_direction_search: true
   no_candidate_mutation: true
   holdout_access_forbidden: true
+
+implementation_integrity:
+  corrected_pullback_logic: true
+  long_pullback_definition: "close[i-1] < close[i-2]"
+  short_pullback_definition: "close[i-1] > close[i-2]"
+  note: "The breakout/trigger is evaluated on the current completed bar after the two-bar pullback; the old contradictory condition was removed before corrected re-execution."
