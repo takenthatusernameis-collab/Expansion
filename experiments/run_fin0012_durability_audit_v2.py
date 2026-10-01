@@ -429,7 +429,7 @@ trace_authoritative = {
 trace_full_mismatches = {
     k: {"trace": trace_authoritative[k], "accepted": ACCEPTED[k]}
     for k in ACCEPTED
-    if abs(trace_authoritative[k] - ACCEPTED[k]) > TOL
+    if abs(trace_authoritative[k] - ACCEPTED[k]) > 1e-9
 }
 if trace_full_mismatches:
     raise RuntimeError("TRACE REPRODUCTION GATE FAILED: " + json.dumps(trace_full_mismatches, sort_keys=True))
