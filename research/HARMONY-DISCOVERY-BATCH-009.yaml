@@ -1,0 +1,40 @@
+batch_id: HARMONY-DISCOVERY-BATCH-009
+status: preregistered_frozen
+dataset:
+  cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+  selection: "all passing candidates ranked by 2x-cost discovery Sharpe descending, top two only"
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+candidates:
+  HARMONY-FIN-0051:
+    mechanism: idiosyncratic-volatility-premium
+    schedule: monthly
+    feature: "standard deviation of 60 prior daily residual returns after OLS of asset return on BTC return with intercept"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Zhang & Li, Research in International Business and Finance (2020), DOI 10.1016/j.ribaf.2020.101252"
+  HARMONY-FIN-0052:
+    mechanism: short-term-cross-sectional-reversal
+    schedule: daily
+    feature: "immediately preceding completed daily return"
+    direction: "long lowest 3; short highest 3"
+    external_evidence:
+      - "Zaremba et al., International Review of Financial Analysis (2021), DOI 10.1016/j.irfa.2021.101908"
+    translation_note: "The source reports reversal broadly but notes the largest/most tradeable coins can instead show momentum; this fixed eight-symbol test is therefore an explicit falsification test, not a replication claim."
