@@ -710,6 +710,14 @@ report=[
 
 # --- Authoritative v2 diagnostic finalization; executed only after full reproduction gates above ---
 
+# Use the actual OOS return intervals for diagnostics: no synthetic zero-return observation.
+strategy_returns = point_returns(trace_base["curve"])
+btc_returns = point_returns(trace_btc["curve"])
+ew_returns = point_returns(trace_ew["curve"])
+oos_dates = dates[split + 1:]
+residual, betas, r2s = factor_residual(strategy_returns, btc_returns, ew_returns)
+
+
 def diagnostic_metrics_v2(rr):
     curve = [1.0]
     for r in rr:
