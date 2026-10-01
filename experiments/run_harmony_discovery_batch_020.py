@@ -40,7 +40,7 @@ def load_daily():
 def load_features():
     f={}
     for s in S:
-        p=VROOT/f"{s}_realized_2h.csv"
+        p=VROOT/f"{s}_realized_4h.csv"
         if not p.exists(): raise RuntimeError(f"missing gateway feature file {p}")
         with p.open(encoding="utf-8") as fh:
             f[s]={r["date"]:r for r in csv.DictReader(fh)}
