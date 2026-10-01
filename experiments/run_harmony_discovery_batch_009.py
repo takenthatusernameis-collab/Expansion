@@ -80,60 +80,116 @@ def targets(cid,dates,r):
         else: raise ValueError(cid)
     return out
 
-def simulate(dates,px,funding,tar,mult=1.0):
+def simulate(dates,px,funding,tar,mult=1.0,end_date=None):
+    end_idx=len(dates)-1 if end_date is None else max(i for i,d in enumerate(dates) if d<=end_date)
     eq=1.0; prev={s:0.0 for s in SYMBOLS}; curve=[]; turn=0; rebs=0; fpnl=0
-    for i,d in enumerate(dates):
+    for i in range(end_idx+1):
+        d=dates[i]
         for s in SYMBOLS:
             for rate in funding[s].get(d,[]):
                 pnl=-prev[s]*rate; eq*=1+pnl; fpnl+=pnl
         if i>0:
             pd=dates[i-1]; eq*=1+sum(prev[s]*(px[s][d]/px[s][pd]-1) for s in SYMBOLS)
         if d in tar:
-            t=tar[d]; delta=sum(abs(t[s]-prev[s]) for s in SYMBOLS)
+            t=tar[d]
+            if set(t)!=set(SYMBOLS) or abs(sum(abs(t[s]) for s in SYMBOLS)-1.0)>1e-12:
+                raise RuntimeError("invalid target contract")
+            delta=sum(abs(t[s]-prev[s]) for s in SYMBOLS)
             eq*=max(0,1-(FEE+SLIP)*mult*delta); turn+=delta/2; rebs+=1; prev=t.copy()
         curve.append(eq)
     liq=sum(abs(v) for v in prev.values()); eq*=max(0,1-(FEE+SLIP)*mult*liq); curve[-1]=eq
     return curve,turn,rebs,fpnl
 
-def metrics(curve):
-    rr=[curve[i]/curve[i-1]-1 for i in range(1,len(curve))]
-    sd=statistics.stdev(rr) if len(rr)>1 else 0
-    sharpe=statistics.mean(rr)/sd*math.sqrt(365.25) if sd else 0
-    peak=curve[0]; mdd=0
-    for x in curve: peak=max(peak,x); mdd=min(mdd,x/peak-1)
-    yrs=max((len(curve)-1)/365.25,1e-12)
-    return {"final_equity":curve[-1],"cumulative_return":curve[-1]-1,"cagr":curve[-1]**(1/yrs)-1,"sharpe":sharpe,"max_drawdown":mdd,"observations":len(curve)}
-
-def seg(dates,curve,start,end=None):
-    idx=[i for i,d in enumerate(dates) if d>=start and (end is None or d<=end)]
-    base=curve[idx[0]-1] if idx[0]>0 else 1; c=[1]+[curve[i]/base for i in idx]
-    m=metrics(c); m.update(start=dates[idx[0]],end=dates[idx[-1]]); return m
-
-def halves(dates,curve,start):
-    idx=[i for i,d in enumerate(dates) if d>=start]; mid=len(idx)//2
-    def part(xs):
-        base=curve[xs[0]-1] if xs[0]>0 else 1; m=metrics([1]+[curve[i]/base for i in xs]); m.update(start=dates[xs[0]],end=dates[xs[-1]]); return m
-    return {"first_half":part(idx[:mid]),"second_half":part(idx[mid:])}
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     dates,px,funding=load(); r=rets(dates,px)
-    results={}
+
+    # Stage 1: discovery-only. No candidate OOS is computed before selection.
+    discovery={}
     for cid in CANDIDATES:
-        tar=targets(cid,dates,r); runs={}
+        tar=targets(cid,dates,r)
+        runs={}
+        for mult in (1.0,2.0):
+            curve,turn,rebs,fpnl=simulate(dates,px,funding,tar,mult,end_date=DISCOVERY_END)
+            runs[f"{mult:.1f}x"]={"discovery":seg(dates,curve,"2020-07-10",DISCOVERY_END),"turnover":turn,"rebalance_count":rebs,"funding_pnl_sum":fpnl}
+        passed=runs["1.0x"]["discovery"]["cumulative_return"]>0 and runs["1.0x"]["discovery"]["sharpe"]>0 and runs["1.0x"]["rebalance_count"]>=20
+        discovery[cid]={"passed_gate":passed,"runs":runs}
+
+    passed=sorted(
+        [c for c in CANDIDATES if discovery[c]["passed_gate"]],
+        key=lambda c:(discovery[c]["runs"]["2.0x"]["discovery"]["sharpe"],c),
+        reverse=True,
+    )
+    selected=passed[:DEEP_CAPACITY]
+
+    # Stage 2: conditional deep execution only for selected candidates.
+    deep={}
+    for cid in selected:
+        tar=targets(cid,dates,r)
+        runs={}
         for mult in (1.0,2.0):
             curve,turn,rebs,fpnl=simulate(dates,px,funding,tar,mult)
-            runs[f"{mult:.1f}x"]={"discovery":seg(dates,curve,"2020-07-10",DISCOVERY_END),"oos":seg(dates,curve,OOS_START),"oos_halves":halves(dates,curve,OOS_START),"turnover":turn,"rebalance_count":rebs,"funding_pnl_sum":fpnl}
-        passed=runs["1.0x"]["discovery"]["cumulative_return"]>0 and runs["1.0x"]["discovery"]["sharpe"]>0 and runs["1.0x"]["rebalance_count"]>=20
-        results[cid]={"passed_gate":passed,"runs":runs}
-    passed=sorted([c for c in CANDIDATES if results[c]["passed_gate"]],key=lambda c:(results[c]["runs"]["2.0x"]["discovery"]["sharpe"],c),reverse=True)
-    selected=passed[:DEEP_CAPACITY]
-    manifest={"batch_id":"HARMONY-DISCOVERY-BATCH-009","cache_key":"harmony-binance-um-deep-history-2019-2025-10-v1-36777989764","panel":{"start":dates[0],"end":dates[-1],"rows":len(dates),"symbols":SYMBOLS},"discovery_end":DISCOVERY_END,"oos_start":OOS_START,"candidates":CANDIDATES,"cheap_gate":{"min_rebalances":20,"min_cumulative_return":0.0,"min_sharpe":0.0},"deep_capacity":DEEP_CAPACITY,"no_parameter_search":True,"holdout_access":False}
-    mraw=(json.dumps(manifest,sort_keys=True,indent=2)+"\n").encode(); (OUT/"input-manifest.json").write_bytes(mraw)
-    payload={"batch_id":"HARMONY-DISCOVERY-BATCH-009","input_manifest_sha256":hashlib.sha256(mraw).hexdigest(),"screen":results,"passed_cheap":passed,"selected_for_deep":selected,"integrity":{"holdout_access":False,"parameter_search":False,"universe_search":False,"direction_search":False,"candidate_mutation":False}}
-    raw=(json.dumps(payload,sort_keys=True,indent=2)+"\n").encode(); rsha=hashlib.sha256(raw).hexdigest()
+            runs[f"{mult:.1f}x"]={
+                "full":metrics(curve),
+                "oos":seg(dates,curve,OOS_START),
+                "oos_halves":halves(dates,curve,OOS_START),
+                "turnover":turn,
+                "rebalance_count":rebs,
+                "funding_pnl_sum":fpnl,
+            }
+        deep[cid]={"runs":runs}
+
+    # Benchmarks are calculated only for the conditional deep-readout stage.
+    if selected:
+        ew_tar={d:{s:1.0/len(SYMBOLS) for s in SYMBOLS} for d in dates}
+        btc_tar={d:{s:(1.0 if s=="BTCUSDT" else 0.0) for s in SYMBOLS} for d in dates}
+        bcurve,_,_,_=simulate(dates,px,funding,btc_tar,1.0)
+        ecurve,_,_,_=simulate(dates,px,funding,ew_tar,1.0)
+        benchmarks={
+            "BTCUSDT_buy_and_hold":{"full":metrics(bcurve),"oos":seg(dates,bcurve,OOS_START),"oos_halves":halves(dates,bcurve,OOS_START)},
+            "same_universe_equal_weight_long_only":{"full":metrics(ecurve),"oos":seg(dates,ecurve,OOS_START),"oos_halves":halves(dates,ecurve,OOS_START)},
+        }
+    else:
+        benchmarks={}
+
+    manifest={
+        "batch_id":"HARMONY-DISCOVERY-BATCH-009",
+        "cache_key":"harmony-binance-um-deep-history-2019-2025-10-v1-36777989764",
+        "panel":{"start":dates[0],"end":dates[-1],"rows":len(dates),"symbols":SYMBOLS},
+        "discovery_end":DISCOVERY_END,"oos_start":OOS_START,
+        "candidates":CANDIDATES,
+        "cheap_gate":{"min_rebalances":20,"min_cumulative_return":0.0,"min_sharpe":0.0},
+        "deep_capacity":DEEP_CAPACITY,
+        "selection_metric":"discovery_sharpe_2x_cost",
+        "oos_computed_for_nonselected":False,
+        "no_parameter_search":True,
+        "holdout_access":False,
+    }
+    mraw=(json.dumps(manifest,sort_keys=True,indent=2)+"\n").encode()
+    (OUT/"input-manifest.json").write_bytes(mraw)
+    payload={
+        "batch_id":"HARMONY-DISCOVERY-BATCH-009",
+        "input_manifest_sha256":hashlib.sha256(mraw).hexdigest(),
+        "cheap_screen":discovery,
+        "passed_cheap":passed,
+        "selected_for_deep":selected,
+        "deep_results":deep,
+        "benchmarks":benchmarks,
+        "integrity":{"holdout_access":False,"parameter_search":False,"universe_search":False,"direction_search":False,"candidate_mutation":False,"oos_computed_for_nonselected":False},
+    }
+    raw=(json.dumps(payload,sort_keys=True,indent=2)+"\n").encode()
+    rsha=hashlib.sha256(raw).hexdigest()
     (OUT/"HARMONY-DISCOVERY-BATCH-009-RESULT.json").write_bytes(raw)
-    (OUT/"HARMONY-DISCOVERY-BATCH-009-SUMMARY.json").write_text(json.dumps({"batch_id":payload["batch_id"],"passed_cheap":passed,"selected_for_deep":selected,"result_sha256":rsha,"2x_cost_discovery_sharpe":{c:results[c]["runs"]["2.0x"]["discovery"]["sharpe"] for c in CANDIDATES}},sort_keys=True,indent=2)+"\n")
+    (OUT/"HARMONY-DISCOVERY-BATCH-009-SUMMARY.json").write_text(
+        json.dumps({
+            "batch_id":payload["batch_id"],
+            "passed_cheap":passed,
+            "selected_for_deep":selected,
+            "result_sha256":rsha,
+            "discovery_2x_cost_sharpe":{c:discovery[c]["runs"]["2.0x"]["discovery"]["sharpe"] for c in CANDIDATES},
+        },sort_keys=True,indent=2)+"\n"
+    )
     print(json.dumps({"passed_cheap":passed,"selected_for_deep":selected,"result_sha256":rsha},indent=2))
 
 if __name__=="__main__": main()
