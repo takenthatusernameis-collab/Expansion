@@ -1,0 +1,32 @@
+batch_id: HARMONY-DISCOVERY-BATCH-010
+status: preregistered_frozen
+dataset:
+  cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 1
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+candidates:
+  HARMONY-FIN-0056:
+    mechanism: cross-sectional-kurtosis-premium
+    schedule: monthly
+    feature: "population kurtosis of the prior 60 completed daily returns: E[(r-mu)^4]/E[(r-mu)^2]^2"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Jia, Liu & Yan, Finance Research Letters (2021), DOI 10.1016/j.frl.2020.101536"
+    translation_note: "The source studies intraday realized kurtosis; this daily-data version is an explicitly labeled proxy/falsification test, not an exact replication."
