@@ -1,0 +1,30 @@
+batch_id: HARMONY-DISCOVERY-BATCH-015
+status: preregistered
+candidates:
+  - HARMONY-FIN-0079
+  - HARMONY-FIN-0080
+  - HARMONY-FIN-0082
+selection:
+  cheap_gate:
+    minimum_rebalances: 20
+    after_cost_discovery_cumulative_return_positive: true
+    after_cost_discovery_sharpe_positive: true
+  ranking: "2x-cost discovery Sharpe"
+  deep_capacity: 2
+costs:
+  fee: 0.0006
+  slippage: 0.0005
+time:
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+integrity:
+  holdout_access: false
+  parameter_search: false
+  universe_search: false
+  direction_search: false
+  candidate_mutation: false
+data_requirements:
+  FIN-0079: "CoinMetrics AdrNewCnt + Binance spot daily close"
+  FIN-0080: "CoinMetrics VolumeTotUSD + CapMrktCurUSD"
+  FIN-0082: "Binance spot and USD-M futures daily closes"
