@@ -1,0 +1,268 @@
+{
+  "batch_id": "HARMONY-STATARB-4H-026",
+  "integrity": {
+    "blue_chip_assets_excluded": true,
+    "direction_search": false,
+    "holdout_access": false,
+    "pair_mutation_after_oos": false,
+    "parameter_search": false,
+    "universe_search": false
+  },
+  "pair_count": 45,
+  "passed_cheap": [],
+  "promoted_guarded": [],
+  "results": {
+    "SA01": {
+      "costs": {
+        "11": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "16.5": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "22": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        }
+      },
+      "status": "CHEAP_FAIL"
+    },
+    "SA02": {
+      "costs": {
+        "11": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "16.5": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "22": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        }
+      },
+      "status": "CHEAP_FAIL"
+    },
+    "SA03": {
+      "costs": {
+        "11": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "16.5": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "22": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        }
+      },
+      "status": "CHEAP_FAIL"
+    },
+    "SA04": {
+      "costs": {
+        "11": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "16.5": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "22": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        }
+      },
+      "status": "CHEAP_FAIL"
+    },
+    "SA05": {
+      "costs": {
+        "11": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "16.5": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        },
+        "22": {
+          "discovery": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "oos": {
+            "mdd": 0,
+            "observations": 0,
+            "return": 0,
+            "sharpe": 0
+          },
+          "trades": 0
+        }
+      },
+      "status": "CHEAP_FAIL"
+    }
+  },
+  "selected_for_deep": [],
+  "selected_pairs": []
+}
