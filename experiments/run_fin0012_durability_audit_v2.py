@@ -417,6 +417,23 @@ def trace_simulate(start, end, mode, cost_mult=1.0):
     }
 
 trace_base = trace_simulate(split, len(dates), "strategy", 1.0)
+trace_authoritative = {
+    "cumulative_return": trace_base["metrics"]["cumulative_return"],
+    "cagr": trace_base["metrics"]["cagr"],
+    "sharpe": trace_base["metrics"]["sharpe"],
+    "max_drawdown": trace_base["metrics"]["max_drawdown"],
+    "turnover": trace_base["turnover"],
+    "transaction_costs": trace_base["transaction_cost_fraction"],
+    "funding_pnl": trace_base["funding_pnl_sum"],
+}
+trace_full_mismatches = {
+    k: {"trace": trace_authoritative[k], "accepted": ACCEPTED[k]}
+    for k in ACCEPTED
+    if abs(trace_authoritative[k] - ACCEPTED[k]) > TOL
+}
+if trace_full_mismatches:
+    raise RuntimeError("TRACE REPRODUCTION GATE FAILED: " + json.dumps(trace_full_mismatches, sort_keys=True))
+
 trace_btc = trace_simulate(split, len(dates), "btc", 1.0)
 trace_ew = trace_simulate(split, len(dates), "equal_weight", 1.0)
 
@@ -689,3 +706,381 @@ report=[
     json.dumps(json_sanitize(payload["timing"]),indent=2,sort_keys=True),
 ]
 (DUR_OUT/"durability_report.md").write_text("\\n".join(report)+"\\n")
+
+
+# --- Authoritative v2 diagnostic finalization; executed only after full reproduction gates above ---
+
+def diagnostic_metrics_v2(rr):
+    curve = [1.0]
+    for r in rr:
+        curve.append(curve[-1] * (1.0 + r))
+    mm = metrics(curve)
+    downside = [min(r, 0.0) ** 2 for r in rr]
+    dd = math.sqrt(sum(downside) / len(rr)) if rr else 0.0
+    mm["sortino"] = (statistics.mean(rr) / dd) * math.sqrt(365.25) if dd else 0.0
+    return mm
+
+def segment_metrics_v2(name, a, b):
+    rr = strategy_returns[a:b]
+    mm = diagnostic_metrics_v2(rr)
+    res = [x for x in residual[a:b] if x is not None]
+    rm = diagnostic_metrics_v2(res) if res else None
+    return {
+        "segment": name,
+        "start": oos_dates[a],
+        "end": oos_dates[b-1],
+        "observations": len(rr),
+        "cumulative_return": mm["cumulative_return"],
+        "cagr": mm["cagr"],
+        "sharpe": mm["sharpe"],
+        "sortino": mm["sortino"],
+        "max_drawdown": mm["max_drawdown"],
+        "residual_cumulative_return": None if rm is None else rm["cumulative_return"],
+        "residual_cagr": None if rm is None else rm["cagr"],
+        "residual_sharpe": None if rm is None else rm["sharpe"],
+        "residual_sortino": None if rm is None else rm["sortino"],
+        "residual_max_drawdown": None if rm is None else rm["max_drawdown"],
+        "residual_observations": 0 if rm is None else len(res),
+    }
+
+q = len(strategy_returns) // 4
+segments_v2 = [
+    segment_metrics_v2("first_half", 0, len(strategy_returns)//2),
+    segment_metrics_v2("second_half", len(strategy_returns)//2, len(strategy_returns)),
+    segment_metrics_v2("quarter1", 0, q),
+    segment_metrics_v2("quarter2", q, 2*q),
+    segment_metrics_v2("quarter3", 2*q, 3*q),
+    segment_metrics_v2("quarter4", 3*q, len(strategy_returns)),
+]
+
+def rolling_v2(window):
+    out = []
+    for i in range(window, len(strategy_returns)+1):
+        rr = strategy_returns[i-window:i]
+        mm = diagnostic_metrics_v2(rr)
+        out.append({
+            "start": oos_dates[i-window],
+            "end": oos_dates[i-1],
+            "observations": window,
+            "cumulative_return": mm["cumulative_return"],
+            "cagr": mm["cagr"],
+            "sharpe": mm["sharpe"],
+            "sortino": mm["sortino"],
+            "max_drawdown": mm["max_drawdown"],
+        })
+    return out
+
+roll90_v2 = rolling_v2(90)
+roll180_v2 = rolling_v2(180)
+
+def rolling_summary_v2(items):
+    sh = [x["sharpe"] for x in items]
+    return {
+        "median_sharpe": statistics.median(sh),
+        "q25_sharpe": statistics.quantiles(sh, n=4, method="inclusive")[0],
+        "q75_sharpe": statistics.quantiles(sh, n=4, method="inclusive")[2],
+        "positive_return_fraction": sum(x["cumulative_return"] > 0 for x in items) / len(items),
+        "positive_sharpe_fraction": sum(x["sharpe"] > 0 for x in items) / len(items),
+        "min_sharpe": min(sh),
+        "max_sharpe": max(sh),
+        "window_count": len(items),
+    }
+
+roll90_summary_v2 = rolling_summary_v2(roll90_v2)
+roll180_summary_v2 = rolling_summary_v2(roll180_v2)
+
+residual_clean_v2 = [r for r in residual if r is not None]
+residual_full_v2 = diagnostic_metrics_v2(residual_clean_v2) if residual_clean_v2 else None
+factor_quarters_v2 = []
+for k in range(4):
+    a = k*q
+    b = (k+1)*q if k < 3 else len(strategy_returns)
+    clean = [r for r in residual[a:b] if r is not None]
+    rm = diagnostic_metrics_v2(clean) if clean else None
+    factor_quarters_v2.append({
+        "quarter": k+1,
+        "start": oos_dates[a],
+        "end": oos_dates[b-1],
+        "observations": len(clean),
+        "cumulative_return": None if rm is None else rm["cumulative_return"],
+        "cagr": None if rm is None else rm["cagr"],
+        "sharpe": None if rm is None else rm["sharpe"],
+        "sortino": None if rm is None else rm["sortino"],
+        "max_drawdown": None if rm is None else rm["max_drawdown"],
+    })
+
+def residual_metrics_for_trace_v2(trace):
+    rr = [trace["curve"][i] / trace["curve"][i-1] - 1.0 for i in range(1, len(trace["curve"]))]
+    res, betas, r2s = factor_residual(rr, btc_returns, ew_returns)
+    clean = [r for r in res if r is not None]
+    return diagnostic_metrics_v2(clean) if clean else None
+
+cost_stress_v2 = {}
+for mult in (1.0, 1.5, 2.0):
+    tr = trace_simulate(split, len(dates), "strategy", mult, True)
+    cost_stress_v2[f"{mult:.1f}x"] = {
+        "raw": diagnostic_metrics_v2([tr["curve"][i]/tr["curve"][i-1]-1.0 for i in range(1, len(tr["curve"]))]),
+        "one_way_turnover": tr["turnover"],
+        "transaction_cost_fraction": tr["transaction_cost_fraction"],
+        "funding_pnl_sum": tr["funding_pnl_sum"],
+        "residual": residual_metrics_for_trace_v2(tr),
+    }
+
+def grouped_metrics_v2(groups):
+    out = {}
+    for k, rr in groups.items():
+        mm = diagnostic_metrics_v2(rr)
+        out[k] = {
+            "observations": len(rr),
+            "cumulative_return": mm["cumulative_return"],
+            "cagr": mm["cagr"],
+            "sharpe": mm["sharpe"],
+            "sortino": mm["sortino"],
+            "max_drawdown": mm["max_drawdown"],
+        }
+    return out
+
+year_groups = {}
+quarter_groups = {}
+for d, r in zip(oos_dates, strategy_returns):
+    year_groups.setdefault(d[:4], []).append(r)
+    qkey = f"{d[:4]}-Q{((int(d[5:7])-1)//3)+1}"
+    quarter_groups.setdefault(qkey, []).append(r)
+
+by_year_v2 = grouped_metrics_v2(year_groups)
+by_quarter_v2 = grouped_metrics_v2(quarter_groups)
+total_profit_v2 = base["metrics"]["cumulative_return"]
+best_year_v2 = max(by_year_v2, key=lambda k: by_year_v2[k]["cumulative_return"])
+best_quarter_v2 = max(by_quarter_v2, key=lambda k: by_quarter_v2[k]["cumulative_return"])
+timing_v2 = {
+    "by_year": by_year_v2,
+    "by_quarter": by_quarter_v2,
+    "best_year": best_year_v2,
+    "best_year_contribution_fraction_of_total_profit": by_year_v2[best_year_v2]["cumulative_return"]/total_profit_v2 if total_profit_v2 > 0 else None,
+    "best_quarter": best_quarter_v2,
+    "best_quarter_contribution_fraction_of_total_profit": by_quarter_v2[best_quarter_v2]["cumulative_return"]/total_profit_v2 if total_profit_v2 > 0 else None,
+}
+
+half_v2 = segments_v2[:2]
+quarter_v2 = segments_v2[2:]
+temporal_distributed_v2 = (
+    all(x["cumulative_return"] > 0 and x["sharpe"] > 0 for x in half_v2)
+    and sum(x["cumulative_return"] > 0 for x in quarter_v2) >= 3
+)
+residual_persistent_v2 = (
+    residual_full_v2 is not None
+    and residual_full_v2["cumulative_return"] > 0
+    and sum((x["cumulative_return"] or 0) > 0 for x in factor_quarters_v2) >= 3
+)
+raw_2x_v2 = cost_stress_v2["2.0x"]["raw"]
+res_2x_v2 = cost_stress_v2["2.0x"]["residual"]
+cost_preserved_v2 = (
+    raw_2x_v2["cumulative_return"] > 0
+    and res_2x_v2 is not None
+    and res_2x_v2["cumulative_return"] > 0
+)
+best_year_frac_v2 = timing_v2["best_year_contribution_fraction_of_total_profit"]
+best_quarter_frac_v2 = timing_v2["best_quarter_contribution_fraction_of_total_profit"]
+not_concentrated_v2 = (
+    best_year_frac_v2 is None or best_year_frac_v2 <= 0.75
+) and (
+    best_quarter_frac_v2 is None or best_quarter_frac_v2 <= 0.50
+)
+
+if temporal_distributed_v2 and residual_persistent_v2 and cost_preserved_v2 and not_concentrated_v2:
+    final_status_v2 = "DURABILITY_SUPPORTED"
+elif (
+    sum(x["cumulative_return"] > 0 for x in half_v2) == 0
+    or (residual_full_v2 is not None and residual_full_v2["cumulative_return"] <= 0 and raw_2x_v2["cumulative_return"] <= 0)
+    or (best_quarter_frac_v2 is not None and best_quarter_frac_v2 > 0.85)
+):
+    final_status_v2 = "DURABILITY_NOT_SUPPORTED"
+else:
+    final_status_v2 = "DURABILITY_MIXED"
+
+final_payload = {
+    "version": "2.0",
+    "status": final_status_v2,
+    "reproduction_gate": {
+        "all_within_1e-9": True,
+        "values": gate,
+    },
+    "trace_gate": {
+        "all_within_1e-9": True,
+        "values": trace_authoritative,
+    },
+    "panel": {
+        "common_rows": len(dates),
+        "oos_rows": len(oos),
+        "oos_start": oos[0],
+        "oos_end": oos[-1],
+        "cache_key": "harmony-binance-um-2021-01-2025-10-v4",
+    },
+    "temporal": {
+        "segments": segments_v2,
+        "temporally_distributed": temporal_distributed_v2,
+    },
+    "rolling_90": roll90_summary_v2,
+    "rolling_180": roll180_summary_v2,
+    "factor_residual": {
+        "definition": "strategy return = intercept + BTC return beta + equal-weight benchmark beta + residual",
+        "note": "Residual return is a diagnostic factor residual and is not causal alpha.",
+        "full_period": residual_full_v2,
+        "by_quarter": factor_quarters_v2,
+        "persists": residual_persistent_v2,
+    },
+    "cost_stress": cost_stress_v2,
+    "cost_stress_preserves": cost_preserved_v2,
+    "timing": timing_v2,
+    "classification_facts": {
+        "temporal_distributed": temporal_distributed_v2,
+        "residual_persistent": residual_persistent_v2,
+        "cost_preserved": cost_preserved_v2,
+        "not_extremely_concentrated": not_concentrated_v2,
+    },
+    "next_stage": {
+        "separate_frozen_factor_neutral_descendant_justified": bool(residual_persistent_v2 and cost_preserved_v2),
+        "created": False,
+    },
+    "integrity": {
+        "candidate_immutable": True,
+        "holdout_access": False,
+        "parameter_search": False,
+        "universe_search": False,
+        "direction_search": False,
+        "failed_v1_outputs_reused": False,
+    },
+}
+(DUR_OUT / "durability_audit.json").write_text(json.dumps(final_payload, sort_keys=True, indent=2) + "\n")
+(DUR_OUT / "cost_stress.json").write_text(json.dumps(cost_stress_v2, sort_keys=True, indent=2) + "\n")
+
+with (DUR_OUT / "oos_segments.csv").open("w", newline="") as f:
+    fields = list(segments_v2[0].keys())
+    w = csv.DictWriter(f, fieldnames=fields)
+    w.writeheader()
+    w.writerows(segments_v2)
+
+with (DUR_OUT / "rolling_90.csv").open("w", newline="") as f:
+    fields = list(roll90_v2[0].keys())
+    w = csv.DictWriter(f, fieldnames=fields)
+    w.writeheader()
+    w.writerows(roll90_v2)
+
+with (DUR_OUT / "rolling_180.csv").open("w", newline="") as f:
+    fields = list(roll180_v2[0].keys())
+    w = csv.DictWriter(f, fieldnames=fields)
+    w.writeheader()
+    w.writerows(roll180_v2)
+
+# Rewrite the required equity/residual CSV from the final trace state.
+rf_residual, rf_betas, rf_r2s = factor_residual(strategy_returns, btc_returns, ew_returns)
+equity_path = DUR_OUT / "equity_and_residual.csv"
+with equity_path.open("w", newline="") as f:
+    fields = ["date","strategy_equity","strategy_return","residual_return","residual_equity","rolling_btc_beta","rolling_equal_weight_beta","rolling_r2"]
+    w = csv.DictWriter(f, fieldnames=fields)
+    w.writeheader()
+    re = 1.0
+    for i, d in enumerate(oos_dates):
+        if rf_residual[i] is not None:
+            re *= 1.0 + rf_residual[i]
+        w.writerow({
+            "date": d,
+            "strategy_equity": trace_base["curve"][i+1],
+            "strategy_return": strategy_returns[i],
+            "residual_return": "" if rf_residual[i] is None else rf_residual[i],
+            "residual_equity": "" if rf_residual[i] is None else re,
+            "rolling_btc_beta": "" if rf_betas[i] is None else rf_betas[i][0],
+            "rolling_equal_weight_beta": "" if rf_betas[i] is None else rf_betas[i][1],
+            "rolling_r2": "" if rf_r2s[i] is None else rf_r2s[i],
+        })
+
+manifest_final = {
+    "engine_source_commit": ENGINE_SOURCE_COMMIT,
+    "engine_source_path": ".github/workflows/harmony-fin-0012.yml",
+    "cache_key": "harmony-binance-um-2021-01-2025-10-v4",
+    "files": [{"path": p, "sha256": h, "bytes": z} for p,h,z in sorted(cache_hashes)],
+    "panel_rows": len(dates),
+    "oos_rows": len(oos),
+    "oos_start": oos[0],
+    "oos_end": oos[-1],
+    "holdout_access": False,
+    "candidate_mutation": False,
+    "parameter_search": False,
+    "universe_search": False,
+    "direction_search": False,
+    "failed_v1_outputs_reused": False,
+}
+(DUR_OUT / "input_manifest.json").write_text(json.dumps(manifest_final, sort_keys=True, indent=2) + "\n")
+
+report = f"""# FIN-0012 Reproducibility-First Durability Audit v2
+
+## Final status
+
+{final_status_v2}
+
+This is a research status, not a trading recommendation.
+
+## 1. Exact accepted result reproduced
+
+Yes. The verbatim FIN-0012 engine from accepted execution commit {ENGINE_SOURCE_COMMIT} reproduced every accepted reproduction-gate value within 1e-9.
+
+{json.dumps(gate, indent=2, sort_keys=True)}
+
+Panel verification: 1760 common rows; 528 OOS rows; OOS {oos[0]} through {oos[-1]}; verified cache key harmony-binance-um-2021-01-2025-10-v4.
+
+## 2. Trace independently matched it
+
+Yes. The trace copy of the same simulation logic independently matched the authoritative OOS metrics before durability diagnostics.
+
+{json.dumps(trace_authoritative, indent=2, sort_keys=True)}
+
+## 3. Whether the edge is temporally distributed
+
+{str(temporal_distributed_v2).upper()}
+
+{json.dumps(segments_v2, indent=2, sort_keys=True)}
+
+## 4. Whether residual performance persists
+
+{str(residual_persistent_v2).upper()}
+
+The attribution is strategy return = intercept + BTC return beta + equal-weight benchmark beta + residual. Residual return is a diagnostic factor residual, not causal alpha.
+
+Full-period residual:
+{json.dumps(residual_full_v2, indent=2, sort_keys=True)}
+
+By quarter:
+{json.dumps(factor_quarters_v2, indent=2, sort_keys=True)}
+
+## 5. Whether cost stress preserves it
+
+{str(cost_preserved_v2).upper()}
+
+{json.dumps(cost_stress_v2, indent=2, sort_keys=True)}
+
+## 6. Whether a separate frozen factor-neutral descendant is justified
+
+{str(bool(residual_persistent_v2 and cost_preserved_v2)).upper()}
+
+No descendant was created in this audit.
+
+## Rolling durability
+
+90-observation summary:
+{json.dumps(roll90_summary_v2, indent=2, sort_keys=True)}
+
+180-observation summary:
+{json.dumps(roll180_summary_v2, indent=2, sort_keys=True)}
+
+## Timing concentration
+
+{json.dumps(timing_v2, indent=2, sort_keys=True)}
+
+## Classification rule
+
+DURABILITY_SUPPORTED requires: both OOS halves positive on cumulative return and Sharpe; at least 3 of 4 quarters positive; positive full-period residual return and at least 3 of 4 residual quarters positive; positive raw and residual cumulative return at 2.0x costs; and no extreme concentration above 50 percent of total profit in the best quarter or 75 percent in the best year.
+
+DURABILITY_NOT_SUPPORTED is reserved for clear failure patterns; all other outcomes are DURABILITY_MIXED.
+"""
+(DUR_OUT / "durability_report.md").write_text(report)
+print(final_status_v2)
