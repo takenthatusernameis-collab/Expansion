@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   discovery:
@@ -45,3 +45,11 @@ jobs:
           path: artifacts/HARMONY-DISCOVERY-BATCH-014
           if-no-files-found: error
           retention-days: 90
+      - name: Publish compact execution proof
+        run: |
+          mkdir -p research/execution_results
+          cp artifacts/HARMONY-DISCOVERY-BATCH-014/HARMONY-DISCOVERY-BATCH-014-RESULT.json research/execution_results/HARMONY-DISCOVERY-BATCH-014.json
+          git config user.name "harmony-actions"
+          git config user.email "harmony-actions@users.noreply.github.com"
+          git add research/execution_results/HARMONY-DISCOVERY-BATCH-014.json
+          git diff --cached --quiet || (git commit -m "Publish discovery batch 014 proof" && git push)
