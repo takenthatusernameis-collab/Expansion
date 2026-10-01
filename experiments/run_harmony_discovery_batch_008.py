@@ -119,9 +119,7 @@ def targets_for(candidate, dates, px, qv, rets):
             # First common day of month; formation ends at the previous common month-end.
             if i == 0 or month_key(d) == month_key(dates[i-1]):
                 continue
-            prev = i-1
-            while prev > 0 and month_key(dates[prev-1]) == month_key(dates[prev]):
-                prev -= 1
+            prev = i-1  # current date is the first common observation of the month; i-1 is prior month-end
             if prev < 62:
                 continue
             vals=[]
