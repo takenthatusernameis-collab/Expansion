@@ -1,6 +1,6 @@
 batch_id: HARMONY-DISCOVERY-BATCH-023
 status: preregistered_exploratory
-purpose: "Bounded external-financial-uncertainty mechanism wave. Candidates use fixed 24-month uncertainty exposures; positive evidence can enter deep validation but cannot receive guarded promotion until source-vintage/PIT proof exists."
+purpose: "Bounded external-financial-uncertainty mechanism wave. Positive evidence can enter deep validation but cannot receive guarded promotion until source-vintage/PIT proof exists."
 dataset:
   crypto_cache: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
   uncertainty_gateway: HARMONY-DATA-GATEWAY-007
@@ -41,14 +41,10 @@ candidates:
     fixed_definition: "24-month beta estimated only on months with positive FINU shocks; long lowest 3 / short highest 3."
     external_evidence: "Financial uncertainty and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2026, DOI 10.1016/j.jbankfin.2026.107717"
   FIN-0118:
-    mechanism: orthogonalized_finu_beta
-    fixed_definition: "Residualize monthly FINU shock on monthly EPU change, then estimate 24-month crypto beta to the residual; long lowest 3 / short highest 3."
-    external_evidence: "Financial uncertainty and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2026, DOI 10.1016/j.jbankfin.2026.107717"
-  FIN-0119:
     mechanism: finu_beta_x_crypto_volatility
     fixed_definition: "Current 24-month FINU beta multiplied by trailing 12-month monthly crypto return volatility; long lowest 3 / short highest 3."
     external_evidence: "Financial uncertainty and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2026, DOI 10.1016/j.jbankfin.2026.107717"
-  FIN-0120:
+  FIN-0119:
     mechanism: finu_beta_trend
     fixed_definition: "Slope of the 6 most recent monthly 24-month FINU beta estimates; long lowest 3 / short highest 3."
     external_evidence: "Financial uncertainty and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2026, DOI 10.1016/j.jbankfin.2026.107717"
