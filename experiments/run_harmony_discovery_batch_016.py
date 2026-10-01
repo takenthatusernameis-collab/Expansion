@@ -145,6 +145,32 @@ def prefix(curve,dates,end):
     idx=[i for i,d in enumerate(dates) if d<=end]; base=curve[idx[0]-1] if idx and idx[0]>0 else 1
     return metrics([1]+[curve[i]/base for i in idx])
 
+def oos_curve(curve,dates):
+    idx=[i for i,d in enumerate(dates) if d>=OOS_START]
+    base=curve[idx[0]-1]
+    return [curve[i]/base for i in idx]
+
+def benchmark_curves(dates,px):
+    idx=[i for i,d in enumerate(dates) if d>=OOS_START]; a=idx[0]
+    btc=[px["BTCUSDT"][d]/px["BTCUSDT"][dates[a]] for d in dates[a:]]
+    ew=[1.0]
+    for i in range(a+1,len(dates)):
+        pd=dates[i-1]
+        ew.append(ew[-1]*(1+sum((px[s][dates[i]]/px[s][pd]-1)/8 for s in S)))
+    return btc,ew
+
+def residual_sharpe(sc,bc,ec):
+    import numpy as np
+    sr=np.array([sc[i]/sc[i-1]-1 for i in range(1,len(sc))])
+    br=np.array([bc[i]/bc[i-1]-1 for i in range(1,len(bc))])
+    er=np.array([ec[i]/ec[i-1]-1 for i in range(1,len(ec))])
+    n=min(len(sr),len(br),len(er))
+    if n<10: return 0.0
+    X=np.column_stack([np.ones(n),br[:n],er[:n]])
+    y=sr[:n]; res=y-X@np.linalg.lstsq(X,y,rcond=None)[0]
+    sd=float(np.std(res,ddof=1))
+    return float(np.mean(res)/sd*math.sqrt(365.25)) if sd else 0.0
+
 def oos(curve,dates):
     idx=[i for i,d in enumerate(dates) if d>=OOS_START]; base=curve[idx[0]-1]
     return metrics([1]+[curve[i]/base for i in idx])
@@ -166,6 +192,7 @@ def main():
         if ok: passed.append(cid)
     passed.sort(key=lambda c:(results[c]["runs"]["2.0x"]["discovery"]["sharpe"],c),reverse=True)
     selected=passed[:CAP]; deep={}
+    btc,ew=benchmark_curves(dates,px)
     for cid in selected:
         targets,_,_=build_targets(cid,dates,cm)
         curves={}
@@ -173,11 +200,14 @@ def main():
             curve,turn=simulate(dates,px,funding,targets,mult); curves[f"{mult:.1f}x"]={"oos":oos(curve,dates),"turnover":turn}
         curve,_=simulate(dates,px,funding,targets,1.)
         oi=[i for i,d in enumerate(dates) if d>=OOS_START]; base=curve[oi[0]-1]
+        sc=[curve[i]/base for i in oi]; bc=[x/btc[0] for x in btc]; ec=[x/ew[0] for x in ew]
         half=len(oi)//2
         first=metrics([1]+[curve[i]/base for i in oi[:half]])
         second_base=curve[oi[half]-1]
         second=metrics([1]+[curve[i]/second_base for i in oi[half:]])
-        deep[cid]={"runs":curves,"oos_halves":{"first":first,"second":second}}
+        deep[cid]={"runs":curves,"oos_halves":{"first":first,"second":second},
+                   "benchmark_oos":{"btc_cumulative_return":bc[-1]-1,"equal_weight_cumulative_return":ec[-1]-1},
+                   "residual_sharpe":residual_sharpe(sc,bc,ec)}
     result={"batch_id":"HARMONY-DISCOVERY-BATCH-016","results":results,"passed_cheap":passed,"selected_for_deep":selected,"deep":deep,
             "integrity":{"holdout_access":False,"parameter_search":False,"universe_search":False,"direction_search":False,"candidate_mutation":False},
             "source_commit":"f1a36afb962731c387bb03982758ab0103063da5"}
