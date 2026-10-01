@@ -86,7 +86,7 @@ def score(cid,sd,dates,cm,spot,fut):
         elif cid=="FIN-0080":
             obs=[]
             for d in prior[-30:]:
-                v=cm[a].get(d,{}).get("VolumeTotUSD"); m=cm[a].get(d,{}).get("CapMrktCurUSD")
+                v=cm[a].get(d,{}).get("volume_reported_spot_usd_1d"); m=cm[a].get(d,{}).get("CapMrktCurUSD")
                 if v is not None and m is not None and m>0: obs.append(v/m)
             if len(obs)<25: return None
             val=statistics.stdev(obs)
