@@ -10,4 +10,4 @@ def test_fixed_assets():
 def test_frozen_period():
     assert g.START=="2020-01-01"
     assert g.END=="2025-10-31"
-    assert g.MARKETS[0]=="binance-BTCUSDT-future"
+    assert g.CM_COMMIT=="f1a36afb962731c387bb03982758ab0103063da5"
