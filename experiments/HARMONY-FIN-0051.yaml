@@ -1,0 +1,7 @@
+experiment_id: HARMONY-FIN-0051
+strategy_id: monthly_idiosyncratic_volatility_60d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-009
+definition: "Monthly long highest/short lowest idiosyncratic volatility, measured as residual SD from 60 daily asset-on-BTC return OLS with intercept."
+external_evidence:
+  - "Zhang & Li, Research in International Business and Finance (2020), DOI 10.1016/j.ribaf.2020.101252"
