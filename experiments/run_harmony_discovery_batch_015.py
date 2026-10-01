@@ -39,6 +39,8 @@ def load_panel():
 def load_spot():
     spot={s:{} for s in S}
     base=CMROOT/"binance_spot"
+    if not base.exists():
+        return spot
     for s in S:
         for p in sorted((base/s).glob(f"{s}-1d-*.zip")):
             for r in parse_zip(p):
