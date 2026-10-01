@@ -1,0 +1,36 @@
+name: Harmony FIN-0012 Durability Audit v1
+
+on:
+  push:
+    paths:
+      - "prompts/fin0012_durability_audit_v1.md"
+      - "experiments/run_fin0012_durability_audit_v1.py"
+      - ".github/workflows/harmony-fin0012-durability.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  durability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified FIN-0012 cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Run frozen FIN-0012 durability audit
+        run: python experiments/run_fin0012_durability_audit_v1.py
+
+      - name: Upload durability evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-fin-0012-durability-v1
+          path: artifacts/HARMONY-FIN-0012-DURABILITY-V1
+          if-no-files-found: error
+          retention-days: 90
