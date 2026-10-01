@@ -423,9 +423,9 @@ trace_ew = trace_simulate(split, len(dates), "equal_weight", 1.0)
 def point_returns(curve):
     return [curve[i] / curve[i-1] - 1.0 for i in range(1, len(curve))]
 
-strategy_returns = point_returns(trace_base["curve"])
-btc_returns = point_returns(trace_btc["curve"])
-ew_returns = point_returns(trace_ew["curve"])
+strategy_returns = [trace_base["curve"][0] - 1.0] + point_returns(trace_base["curve"])
+btc_returns = [trace_btc["curve"][0] - 1.0] + point_returns(trace_btc["curve"])
+ew_returns = [trace_ew["curve"][0] - 1.0] + point_returns(trace_ew["curve"])
 
 diagnostic_global = diagnostic_metrics(strategy_returns)
 diagnostic_gate = {
@@ -442,7 +442,7 @@ diagnostic_mismatches = {
 if diagnostic_mismatches:
     raise RuntimeError("DIAGNOSTIC GLOBAL METRIC GATE FAILED: " + json.dumps(diagnostic_mismatches, sort_keys=True))
 
-oos_dates = dates[split + 1:]
+oos_dates = dates[split:]
 
 def factor_residual(strategy, btc, ew, window=60):
     residual = [None] * len(strategy)
