@@ -121,14 +121,15 @@ def score_for(cid,signal_day,cm,wiki,flow):
             if v0 is None or v0<=0 or v1 is None: return None
             val=v1/v0-1.0
         elif cid=="FIN-0074":
-            vals=[]
             dt=sd-timedelta(days=1)
             w0=dt-timedelta(days=6)
+            qsum=0.0; tbsum=0.0; nd=0
             for d,(q,tb) in flow[s].items():
                 dd=datetime.fromisoformat(d).date()
-                if w0<=dd<=dt and q>0: vals.append(tb/q-0.5)
-            if len(vals)<5: return None
-            val=sum(vals)/len(vals)
+                if w0<=dd<=dt and q>0:
+                    qsum+=q; tbsum+=tb; nd+=1
+            if nd<5 or qsum<=0: return None
+            val=tbsum/qsum-0.5
         elif cid=="FIN-0075":
             dt=sd-timedelta(days=1); start7=dt-timedelta(days=6); start30=dt-timedelta(days=29)
             cur=[v for d,v in wiki[a].items() if start7<=datetime.fromisoformat(d).date()<=dt]
