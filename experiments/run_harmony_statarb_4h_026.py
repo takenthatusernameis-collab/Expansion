@@ -50,7 +50,9 @@ def load_pair(pair):
                     if START<=d<=END:rows.append((dt, float(r[1]),float(r[4])))
     dd={int(t.timestamp()): (t,o,c) for t,o,c in rows}
     rows=sorted(dd.values(),key=lambda x:x[0])
-    return pd.DataFrame(rows,columns=["timestamp","open","close"]).set_index("timestamp")
+    out=pd.DataFrame(rows,columns=["timestamp","open","close"]).set_index("timestamp")
+    out.attrs["pair"]=pair
+    return out
 
 def hedge(y,x):
     X=np.column_stack([np.ones(len(x)),x])
@@ -77,7 +79,7 @@ def pair_test(a,b):
         st,p,_=coint(sub.iloc[:,0],sub.iloc[:,1],trend="c");bounds.append(float(p))
     adf_p=float(adfuller(spread,autolag="AIC")[1])
     stable=sum(p<.10 for p in bounds)>=2
-    return {"a":a.name,"b":b.name,"bars":len(df),"coint_p":float(pv),"adf_resid_p":adf_p,"beta":beta,"intercept":inter,
+    return {"a":a.attrs["pair"],"b":b.attrs["pair"],"bars":len(df),"coint_p":float(pv),"adf_resid_p":adf_p,"beta":beta,"intercept":inter,
             "half_life_bars":hl,"window_pvalues":bounds,"stable":stable}
 
 def build_diagnostics(series):
@@ -131,7 +133,8 @@ def trade_pair(df_a,df_b,beta,intercept,mode,entry,exit,max_hold,cost_bps):
 
 def basket_test(selected,series,kind,cost_bps):
     all_curves=[];trade_ct=0
-    for p in selected:
+    selected_for_kind = selected[:1] if kind=="SA05" else selected
+    for p in selected_for_kind:
         a,b=p["a"],p["b"];aa=series[a];bb=series[b]
         if kind=="SA01":
             c,t=trade_pair(aa,bb,p["beta"],p["intercept"],"static",2,.5,48,cost_bps)
@@ -141,8 +144,10 @@ def basket_test(selected,series,kind,cost_bps):
             c,t=trade_pair(aa,bb,p["beta"],p["intercept"],"rolling",2,.5,48,cost_bps)
         elif kind=="SA04":
             c,t=trade_pair(aa,bb,p["beta"],p["intercept"],"rolling",2,.5,96,cost_bps)
-        else:
+        elif kind=="SA05":
             c,t=trade_pair(aa,bb,p["beta"],p["intercept"],"static",2,.5,48,cost_bps)
+        else:
+            raise KeyError(kind)
         all_curves.append(c);trade_ct+=len(t)
     if not all_curves:return [],0
     # Align by timestamp and equal-weight log equity returns across selected pairs.
