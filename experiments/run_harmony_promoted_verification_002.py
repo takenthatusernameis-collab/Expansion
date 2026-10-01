@@ -1,5 +1,7 @@
-import hashlib, json
+import hashlib, json, sys
 from pathlib import Path
+ROOT_DIR=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT_DIR))
 from experiments.run_harmony_promoted_validation_001 import run_0012, run_0024
 
 OUT = Path("artifacts/HARMONY-PROMOTED-VERIFICATION-002")
