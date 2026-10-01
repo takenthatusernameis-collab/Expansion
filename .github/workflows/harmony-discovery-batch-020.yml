@@ -46,7 +46,8 @@ jobs:
         run: |
           mkdir -p research/execution_results
           cp artifacts/HARMONY-DISCOVERY-BATCH-020/SUMMARY.json research/execution_results/HARMONY-DISCOVERY-BATCH-020.json
+          cp artifacts/HARMONY-DISCOVERY-BATCH-020/HARMONY-DISCOVERY-BATCH-020-RESULT.json research/execution_results/HARMONY-DISCOVERY-BATCH-020-RESULT.json
           git config user.name "harmony-actions"
           git config user.email "harmony-actions@users.noreply.github.com"
-          git add research/execution_results/HARMONY-DISCOVERY-BATCH-020.json
+          git add research/execution_results/HARMONY-DISCOVERY-BATCH-020.json research/execution_results/HARMONY-DISCOVERY-BATCH-020-RESULT.json
           git diff --cached --quiet || (git commit -m "Publish batch 020 proof" && git push)
