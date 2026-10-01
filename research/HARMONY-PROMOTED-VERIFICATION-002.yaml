@@ -1,0 +1,22 @@
+verification_id: HARMONY-PROMOTED-VERIFICATION-002
+status: preregistered_frozen
+purpose: "Independent re-execution of the current fixed promoted-validation engine before further durability work."
+source_runner: experiments/run_harmony_promoted_validation_001.py
+definitions: [HARMONY-FIN-0012, HARMONY-FIN-0024]
+integrity:
+  fixed_definitions: true
+  parameter_search: false
+  universe_search: false
+  direction_search: false
+  holdout_access_forbidden: true
+baseline_authority:
+  FIN-0012:
+    cumulative_return: 0.4169009579470373
+    sharpe: 0.9671591056994208
+  FIN-0024:
+    cumulative_return: 0.43002307869081013
+    sharpe: 1.3589824243083648
+stress:
+  transaction_cost_multipliers: [1, 2, 3, 4, 5]
+  funding_neutral: true
+decision_rule: "Do not modify either strategy. Diagnose reproducibility drift first; allocate durability capacity only to candidates that reproduce the archived fixed-definition baseline."
