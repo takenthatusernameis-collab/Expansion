@@ -1,0 +1,54 @@
+batch_id: HARMONY-DISCOVERY-BATCH-012
+status: preregistered_frozen
+dataset:
+  cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+candidates:
+  HARMONY-FIN-0062:
+    mechanism: downside-value-at-risk-premium
+    schedule: weekly
+    feature: "negative empirical 5th percentile of prior 90 completed daily returns"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Zhang, Li, Xiong & Wang, Journal of Banking & Finance (2021), DOI 10.1016/j.jbankfin.2021.106246"
+      - "Cakici, Shahzad, Będowska-Sójka & Zaremba, International Review of Financial Analysis (2024), DOI 10.1016/j.irfa.2024.103244"
+  HARMONY-FIN-0063:
+    mechanism: salience-theory-return-distortion
+    schedule: monthly
+    feature: "20-day salience-weighted return minus equal-weighted return; theta=0.1, delta=0.7"
+    direction: "long lowest 3; short highest 3"
+    external_evidence:
+      - "Cai & Zhao, Journal of Banking & Finance (2024), DOI 10.1016/j.jbankfin.2023.107052"
+  HARMONY-FIN-0064:
+    mechanism: cross-sectional-weekday-seasonality
+    schedule: daily
+    feature: "average of the 20 prior completed same-weekday daily returns"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Long, Zaremba, Demir, Szczygielski & Vasenin, Finance Research Letters (2020), DOI 10.1016/j.frl.2020.101566"
+  HARMONY-FIN-0065:
+    mechanism: chronological-return-ordering
+    schedule: monthly
+    feature: "correlation between the prior 30 completed daily returns and chronological time-to-window-end"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Mohrschladt, Journal of Banking & Finance (2021), DOI 10.1016/j.jbankfin.2021.106064"
+      - "Cakici, Shahzad, Będowska-Sójka & Zaremba, International Review of Financial Analysis (2024), DOI 10.1016/j.irfa.2024.103244"
