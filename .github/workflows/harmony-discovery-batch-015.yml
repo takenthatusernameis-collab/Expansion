@@ -22,7 +22,7 @@ jobs:
       - uses: actions/cache/restore@v4
         with:
           path: data/cache/harmony_gateway_v2
-          key: harmony-data-gateway-002-v1
+          key: harmony-data-gateway-003-v1
           fail-on-cache-miss: true
       - uses: actions/cache/restore@v4
         with:
