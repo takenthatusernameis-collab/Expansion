@@ -1,76 +1,44 @@
 from __future__ import annotations
-import csv, hashlib, json, math, urllib.parse, urllib.request
-from datetime import datetime, timezone
+import csv, hashlib, json, math
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 RAW=ROOT/"data/cache/harmony_gateway_v7/raw"
+FEATURES=ROOT/"data/cache/harmony_gateway_v7/features"
 OUT=ROOT/"artifacts/HARMONY-DATA-GATEWAY-007"
-FINU=RAW/"LMNUF12M.csv"
-EPU=RAW/"USEPUINDXD.csv"
-FINU_URL="https://fred.stlouisfed.org/graph/fredgraph.csv?id=LMNUF12M"
-EPU_URL="https://fred.stlouisfed.org/graph/fredgraph.csv?id=USEPUINDXD"
-ASSETS=["BTCUSDT","ETHUSDT","LTCUSDT","XRPUSDT","BNBUSDT","BCHUSDT","ADAUSDT","DOGEUSDT"]
+SNAPSHOT=RAW/"LMNUF12M_2019-12_2025-10.csv"
 
-def sha(p: Path): return hashlib.sha256(p.read_bytes()).hexdigest()
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 
-def get(url,path):
-    req=urllib.request.Request(url,headers={"User-Agent":"Harmony-Research-Gateway-007"})
-    with urllib.request.urlopen(req,timeout=60) as r: b=r.read()
-    path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b)
-    return sha(path),len(b)
-
-def load_fred(p,series):
+def load_snapshot():
     rows=[]
-    with p.open(encoding="utf-8") as f:
-        for r in csv.DictReader(f):
-            if r.get("DATE") in (None,"."): continue
-            v=r.get(series)
-            if v in (None,".",""): continue
-            rows.append((r["DATE"],float(v)))
+    with SNAPSHOT.open(encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            rows.append((r["date"],float(r["value"])))
+    assert rows[0][0]=="2019-12" and rows[-1][0]=="2025-10"
     return rows
 
-def monthly_finu():
-    rows=load_fred(FINU,"LMNUF12M")
-    by=[]
-    prev=None
-    for d,v in rows:
-        dt=datetime.fromisoformat(d).replace(tzinfo=timezone.utc)
-        if prev is not None and prev>0 and v>0:
-            by.append((dt.strftime("%Y-%m"),math.log(v/prev)))
-        prev=v
-    return by
-
-def monthly_epu():
-    rows=load_fred(EPU,"USEPUINDXD")
-    acc={}
-    for d,v in rows:
-        m=d[:7];acc.setdefault(m,[]).append(v)
-    return [(m,sum(v)/len(v)) for m,v in sorted(acc.items())]
-
 def main():
-    OUT.mkdir(parents=True,exist_ok=True)
-    finu_sha,finu_bytes=get(FINU_URL,FINU) if not FINU.exists() else (sha(FINU),FINU.stat().st_size)
-    epu_sha,epu_bytes=get(EPU_URL,EPU) if not EPU.exists() else (sha(EPU),EPU.stat().st_size)
-    finu=monthly_finu();epu=monthly_epu()
-    (ROOT/"data/cache/harmony_gateway_v7/features").mkdir(parents=True,exist_ok=True)
-    path=ROOT/"data/cache/harmony_gateway_v7/features/external_uncertainty_monthly.csv"
-    with path.open("w",newline="",encoding="utf-8") as f:
-        w=csv.writer(f);w.writerow(["month","finu_log_change","epu_monthly_mean"])
-        em=dict(epu)
-        for m,x in finu:w.writerow([m,x,em.get(m)])
-    result={
-      "gateway_id":"HARMONY-DATA-GATEWAY-007",
-      "finu_source":{"url":FINU_URL,"sha256":finu_sha,"bytes":finu_bytes},
-      "epu_source":{"url":EPU_URL,"sha256":epu_sha,"bytes":epu_bytes},
-      "normalized_sha256":sha(path),
-      "financial_uncertainty_months":len(finu),
-      "policy_uncertainty_months":len(epu),
-      "vintage_proof":False,
-      "promotion_restriction":"No guarded promotion from this gateway until vintage/PIT evidence exists."
-    }
+    OUT.mkdir(parents=True,exist_ok=True);RAW.mkdir(parents=True,exist_ok=True);FEATURES.mkdir(parents=True,exist_ok=True)
+    if not SNAPSHOT.exists():
+        raise RuntimeError("Frozen FRED snapshot file missing")
+    raw_sha=sha(SNAPSHOT)
+    rows=load_snapshot()
+    out=[]
+    prev=None
+    for m,v in rows:
+        shock=None if prev is None else math.log(v/prev)
+        out.append((m,v,shock));prev=v
+    p=FEATURES/"external_uncertainty_monthly.csv"
+    with p.open("w",newline="",encoding="utf-8") as fh:
+        w=csv.writer(fh);w.writerow(["month","finu_level","finu_log_change"])
+        for r in out:w.writerow(r)
+    result={"gateway_id":"HARMONY-DATA-GATEWAY-007","source_series":"LMNUF12M",
+            "snapshot_sha256":raw_sha,"normalized_sha256":sha(p),
+            "rows":len(rows),"start":rows[0][0],"end":rows[-1][0],
+            "vintage_proof":False,"guarded_promotion_blocked":True,
+            "source_note":"Values frozen from FRED table output observed 2026-10-01; historical vintage provenance is not established."}
     (OUT/"HARMONY-DATA-GATEWAY-007-RESULT.json").write_text(json.dumps(result,sort_keys=True,indent=2)+"\n")
     print(json.dumps(result,indent=2))
 
-if __name__=="__main__":
-    main()
+if __name__=="__main__":main()
