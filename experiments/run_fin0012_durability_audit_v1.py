@@ -161,6 +161,7 @@ def simulate(px, funding, dates, start_idx, end_idx, cost_mult=1.0):
                     cash = -weights[s] * rate
                     equity *= 1.0 + cash
                     funding_pnl += cash
+            equity *= 1.0 + daily
         else:
             daily = 0.0
 
