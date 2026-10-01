@@ -23,6 +23,17 @@ strategies:
   TC08: keltner_squeeze_resumption
   TC09: aroon_trend_recovery
   TC10: cci_zero_reclaim
+execution_accounting:
+  signal_timing: "evaluate on completed 4h bar; enter at next 4h bar open"
+  normal_exit: "exit at the open of the bar exactly 6 bars after entry"
+  stop_loss: false
+  take_profit: false
+  trailing_stop: false
+portfolio_accounting:
+  sizing: "fixed 1/N gross slot per asset across the frozen universe; unused slots remain cash"
+  gross_exposure_cap: 1.0
+  transaction_cost_application: "fee plus slippage multiplied by position weight at each entry and exit; never charged against full portfolio equity per trade"
+
 integrity:
   no_parameter_search: true
   no_universe_search: true
