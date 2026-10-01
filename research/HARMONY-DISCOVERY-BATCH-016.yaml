@@ -1,0 +1,34 @@
+batch_id: HARMONY-DISCOVERY-BATCH-016
+status: preregistered
+candidates:
+  - HARMONY-FIN-0085
+  - HARMONY-FIN-0086
+  - HARMONY-FIN-0087
+  - HARMONY-FIN-0088
+cheap_gate:
+  minimum_rebalances: 20
+  after_cost_discovery_cumulative_return_positive: true
+  after_cost_discovery_sharpe_positive: true
+ranking: "2x-cost discovery Sharpe"
+deep_capacity: 2
+costs:
+  fee: 0.0006
+  slippage: 0.0005
+time:
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+data:
+  source: coinmetrics/data
+  source_commit: f1a36afb962731c387bb03982758ab0103063da5
+  fields:
+    - AdrActCnt
+    - CapMVRVCur
+    - CapMrktCurUSD
+    - volume_reported_spot_usd_1d
+integrity:
+  holdout_access: false
+  parameter_search: false
+  universe_search: false
+  direction_search: false
+  candidate_mutation: false
