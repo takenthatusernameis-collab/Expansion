@@ -1,0 +1,90 @@
+batch_id: HARMONY-TECH-4H-025
+status: preregistered_frozen
+purpose: "4h non-blue-chip proxy technical-indicator warehouse plus fixed trend-continuation/reversal-resumption strategy funnel."
+universe:
+  definition: "Explicit non-blue-chip proxy basket; large-cap/blue-chip assets are excluded by construction."
+  assets: [APTUSDT, ARBUSDT, OPUSDT, INJUSDT, SUIUSDT, SEIUSDT, TIAUSDT, JTOUSDT, PYTHUSDT, WIFUSDT, ENAUSDT, ORDIUSDT, JUPUSDT]
+  exclusions: [BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT, ADAUSDT, DOGEUSDT, LTCUSDT, BCHUSDT]
+data:
+  source: "Binance USD-M public monthly futures 4h kline archives"
+  interval: 4h
+  start: "2023-01-01"
+  end: "2025-10-31"
+  acquisition: "month-partitioned immutable archive downloads; missing pre-listing months are recorded, never backfilled."
+indicator_warehouse:
+  library: "ta==0.11.0"
+  method: "add_all_ta_features"
+  extra_features:
+    - ema20
+    - ema50
+    - ema200
+    - ema20_slope_6
+    - atr14_pct
+    - donchian20_high
+    - donchian20_low
+    - volume_z20
+    - return_1
+    - return_6
+strategies:
+  TC01:
+    name: trend_reversal_resumption
+    definition: "Trend via EMA20>EMA50 and positive EMA20 6-bar slope; require 2 consecutive countertrend closes above EMA50; enter next bar when close breaks the 2-bar pullback high; bearish symmetric."
+    exit: "maximum 6 bars; no optimization."
+  TC02:
+    name: adx_pullback_resumption
+    definition: "ADX14>=20 with DI direction aligned to EMA20/EMA50 trend; 2-bar countertrend pullback; enter next bar on pullback-high/low break."
+    exit: "maximum 6 bars."
+  TC03:
+    name: rsi_trend_recovery
+    definition: "EMA20/EMA50 trend; 2-bar countertrend pullback; RSI14 recovers through 50 in trend direction; enter next bar."
+    exit: "maximum 6 bars."
+  TC04:
+    name: macd_histogram_resumption
+    definition: "EMA20/EMA50 trend; histogram negative then turns positive for longs (symmetric shorts) after a short pullback; enter next bar."
+    exit: "maximum 6 bars."
+  TC05:
+    name: bollinger_midline_reclaim
+    definition: "EMA20/EMA50 trend; price pulls through Bollinger midline for at most 3 bars; enter next bar when price reclaims the midline in trend direction."
+    exit: "maximum 6 bars."
+  TC06:
+    name: stochastic_trend_recovery
+    definition: "EMA20/EMA50 trend; Stochastic K/D makes a directional cross from the opposite half of the oscillator; enter next bar."
+    exit: "maximum 6 bars."
+  TC07:
+    name: donchian_pullback_break
+    definition: "EMA20/EMA50 trend; short pullback; enter next bar on break of prior 20-bar Donchian boundary."
+    exit: "maximum 6 bars."
+  TC08:
+    name: keltner_squeeze_resumption
+    definition: "EMA20/EMA50 trend; Bollinger width below its prior 60-bar median during pullback; enter next bar on directional close above/below Keltner midline."
+    exit: "maximum 6 bars."
+  TC09:
+    name: aroon_trend_recovery
+    definition: "EMA20/EMA50 trend; Aroon direction agrees; enter after short countertrend close when Aroon trend remains aligned."
+    exit: "maximum 6 bars."
+  TC10:
+    name: cci_zero_reclaim
+    definition: "EMA20/EMA50 trend; short pullback; CCI20 reclaims zero in trend direction; enter next bar."
+    exit: "maximum 6 bars."
+costs:
+  one_way_total_bps: [11, 16.5, 22]
+screen:
+  discovery_end: "2024-05-21"
+  holdout_start: "2024-05-22"
+  cheap_gate:
+    minimum_trades: 100
+    positive_return_at_11bp: true
+    positive_return_at_22bp: true
+    sharpe_at_11bp_min: 0.50
+    sharpe_at_22bp_min: 0.25
+  deep_capacity: 3
+deep_validation:
+  costs_bps: [11, 16.5, 22]
+  oos_halves_required_positive: true
+  promotion_guarded_requires: "OOS Sharpe >= 0.90 at 11bp, >=0.50 at 22bp, positive both OOS halves, and no benchmark-only explanation."
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
