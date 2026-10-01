@@ -1,0 +1,25 @@
+audit_id: HARMONY-FIN-0024-DURABILITY-001
+status: preregistered_frozen
+candidate: HARMONY-FIN-0024
+engine_source: experiments/run_harmony_deep_discovery_batch_004.py
+engine_freeze_commit: 44db6c6e441906b8f51fdcaf5c8b7529ffb3bff4
+baseline:
+  oos_start: "2024-05-22"
+  oos_end: "2025-10-31"
+  cumulative_return: 0.43002307869081013
+  sharpe: 1.3589824243083648
+controls:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_signal_mutation: true
+  holdout_access: false
+  archived_failed_outputs_reused: false
+diagnostics:
+  cost_multipliers: [1, 2, 3, 4, 5]
+  temporal_halves: true
+  temporal_quarters: true
+  rolling_windows: [90, 180]
+  benchmark_relative: [BTCUSDT_buy_and_hold, equal_weight_long_only]
+  factor_residual: "BTC + equal-weight fixed OOS factor regression"
+decision: "Durability status is descriptive; no deployment authorization."
