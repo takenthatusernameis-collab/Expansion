@@ -1,0 +1,31 @@
+batch_id: HARMONY-TECH-4H-027
+status: preregistered_frozen
+purpose: "Fast supplementary 4h non-blue-chip technical-indicator/continuation screen using the explicitly fixed 8-asset research basket. This does not replace the long 13-asset batch."
+universe:
+  assets: [JTOUSDT, PYTHUSDT, WIFUSDT, SEIUSDT, TIAUSDT, ENAUSDT, ORDIUSDT, JUPUSDT]
+  exclusions: [BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT, ADAUSDT, DOGEUSDT, LTCUSDT, BCHUSDT]
+data:
+  source: "Binance USD-M public monthly futures 4h kline archives"
+  interval: 4h
+  start: "2024-01-01"
+  end: "2025-10-31"
+indicator_warehouse:
+  library: "ta==0.11.0"
+  method: "add_all_ta_features"
+strategies:
+  TC01: trend_reversal_resumption
+  TC02: adx_pullback_resumption
+  TC03: rsi_trend_recovery
+  TC04: macd_histogram_resumption
+  TC05: bollinger_midline_reclaim
+  TC06: stochastic_trend_recovery
+  TC07: donchian_pullback_break
+  TC08: keltner_squeeze_resumption
+  TC09: aroon_trend_recovery
+  TC10: cci_zero_reclaim
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
