@@ -225,9 +225,18 @@ def main():
         if successes<40 or coverage<0.80:
             results[cid]={"status":"DATA_BLOCKED","attempted_signal_dates":attempts,"usable_signal_dates":successes,"coverage":coverage}; data_blocked.append(cid); continue
         runs={}
+        discovery_targets={d:w for d,w in targets.items() if d<=DISCOVERY_END}
         for mult in (1.0,2.0):
-            curve,turn=simulate(dates,px,funding,targets,mult); disc=segment(curve,dates,dates[0])
-            runs[f"{mult:.1f}x"]={"discovery":disc,"turnover":turn,"rebalances":len(targets)}
+            curve,turn=simulate(dates,px,funding,targets,mult)
+            disc=segment(curve,dates,"1900-01-01")
+            # Strict discovery prefix: only observations through the frozen discovery boundary may affect screening.
+            di=[i for i,d in enumerate(dates) if d<=DISCOVERY_END]
+            if not di:
+                raise RuntimeError("empty discovery prefix")
+            base=curve[di[0]-1] if di[0]>0 else 1.0
+            disc=metrics([1.0]+[curve[i]/base for i in di])
+            disc.update({"start":dates[di[0]],"end":dates[di[-1]],"observations":len(di)})
+            runs[f"{mult:.1f}x"]={"discovery":disc,"turnover":turn,"rebalances":len(discovery_targets)}
         ok=runs["1.0x"]["discovery"]["cumulative_return"]>0 and runs["1.0x"]["discovery"]["sharpe"]>0 and runs["1.0x"]["rebalances"]>=20
         results[cid]={"status":"CHEAP_PASS" if ok else "CHEAP_FAIL","coverage":coverage,"usable_signal_dates":successes,"runs":runs}
         if ok: passed.append(cid)
