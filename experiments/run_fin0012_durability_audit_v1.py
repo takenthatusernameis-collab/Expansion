@@ -152,17 +152,15 @@ def simulate(px, funding, dates, start_idx, end_idx, cost_mult=1.0):
         # funding -> daily price PnL -> rebalance -> transaction cost.
         if i > start_idx:
             previous_date = dates[i - 1]
-            price_pnl = sum(
+            daily = sum(
                 weights[s] * (px[s][d] / px[s][previous_date] - 1.0)
                 for s in SYMBOLS
             )
-            funding_cash = -sum(
-                weights[s] * sum(funding[s].get(d, []))
-                for s in SYMBOLS
-            )
-            daily = price_pnl + funding_cash
-            funding_pnl += funding_cash
-            equity *= 1.0 + daily
+            for s in SYMBOLS:
+                for rate in funding[s].get(d, []):
+                    cash = -weights[s] * rate
+                    equity *= 1.0 + cash
+                    funding_pnl += cash
         else:
             daily = 0.0
 
