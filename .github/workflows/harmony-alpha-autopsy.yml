@@ -1,0 +1,43 @@
+name: Harmony Alpha Autopsy v1
+
+on:
+  push:
+    paths:
+      - "prompts/alpha_autopsy_v1.md"
+      - "experiments/run_alpha_autopsy_v1.py"
+      - ".github/workflows/harmony-alpha-autopsy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  alpha-autopsy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore verified 2021-2025 USD-M cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/monthly
+          key: harmony-binance-um-2021-01-2025-10-v4
+          fail-on-cache-miss: true
+
+      - name: Restore verified deep-history USD-M cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+          fail-on-cache-miss: true
+
+      - name: Execute frozen alpha autopsy
+        run: python experiments/run_alpha_autopsy_v1.py
+
+      - name: Upload alpha-autopsy evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-alpha-autopsy-v1
+          path: artifacts/HARMONY-ALPHA-AUTOPSY-V1
+          if-no-files-found: error
+          retention-days: 90
