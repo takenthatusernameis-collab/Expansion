@@ -1,0 +1,59 @@
+batch_id: HARMONY-DISCOVERY-BATCH-021
+status: preregistered_frozen
+purpose: "Bounded downside-risk pricing wave using the verified daily futures cache; distinct from funding, network, volume, skewness, and realized-volatility gateway families."
+dataset:
+  price_cache: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+schedule: weekly
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+candidates:
+  FIN-0103:
+    mechanism: downside_beta
+    fixed_definition: "63-day conditional beta using only days when BTC daily return is negative; weekly long highest 3 / short lowest 3."
+    direction: long_high_downside_beta_short_low_downside_beta
+    external_evidence:
+      - "Downside risk and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2021, DOI 10.1016/j.jbankfin.2021.106246"
+      - "Is downside risk priced in cryptocurrency market? Finance Research Letters 2023, DOI 10.1016/j.frl.2023.103793"
+  FIN-0104:
+    mechanism: empirical_downside_var
+    fixed_definition: "63-day empirical 5% downside VaR, defined as the positive magnitude of the 5th-percentile daily return; weekly long highest 3 / short lowest 3."
+    direction: long_high_downside_var_short_low_downside_var
+    external_evidence:
+      - "Downside risk and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2021, DOI 10.1016/j.jbankfin.2021.106246"
+  FIN-0105:
+    mechanism: expected_shortfall
+    fixed_definition: "63-day expected shortfall at the empirical 5% tail; positive loss magnitude of returns at or below the 5th percentile; weekly long highest 3 / short lowest 3."
+    direction: long_high_expected_shortfall_short_low_expected_shortfall
+    external_evidence:
+      - "Downside risk and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2021, DOI 10.1016/j.jbankfin.2021.106246"
+  FIN-0106:
+    mechanism: downside_semivariance
+    fixed_definition: "63-day mean squared negative daily return; weekly long highest 3 / short lowest 3."
+    direction: long_high_downside_semivariance_short_low_downside_semivariance
+    external_evidence:
+      - "Downside risk and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2021, DOI 10.1016/j.jbankfin.2021.106246"
+  FIN-0107:
+    mechanism: tail_asymmetry
+    fixed_definition: "63-day downside expected-shortfall magnitude minus upside-tail expected gain magnitude, both at fixed 5% empirical tails; weekly long highest 3 / short lowest 3."
+    direction: long_high_tail_asymmetry_short_low_tail_asymmetry
+    external_evidence:
+      - "Downside risk and the cross-section of cryptocurrency returns, Journal of Banking & Finance 2021, DOI 10.1016/j.jbankfin.2021.106246"
+      - "Is downside risk priced in cryptocurrency market? Finance Research Letters 2023, DOI 10.1016/j.frl.2023.103793"
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+  benchmark_relative_diagnostics_required: true
