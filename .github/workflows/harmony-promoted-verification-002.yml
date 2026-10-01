@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -42,3 +42,11 @@ jobs:
           path: artifacts/HARMONY-PROMOTED-VERIFICATION-002
           if-no-files-found: error
           retention-days: 90
+      - name: Publish compact execution proof
+        run: |
+          mkdir -p research/execution_results
+          cp artifacts/HARMONY-PROMOTED-VERIFICATION-002/SUMMARY.json research/execution_results/HARMONY-PROMOTED-VERIFICATION-002.json
+          git config user.name "harmony-actions"
+          git config user.email "harmony-actions@users.noreply.github.com"
+          git add research/execution_results/HARMONY-PROMOTED-VERIFICATION-002.json
+          git diff --cached --quiet || (git commit -m "Publish promoted verification 002 proof" && git push)
