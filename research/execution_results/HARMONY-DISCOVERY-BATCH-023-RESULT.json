@@ -1,0 +1,98 @@
+{
+  "batch_id": "HARMONY-DISCOVERY-BATCH-023",
+  "deep": {},
+  "integrity": {
+    "candidate_mutation": false,
+    "direction_search": false,
+    "guarded_promotion_blocked": true,
+    "holdout_access": false,
+    "parameter_search": false,
+    "universe_search": false,
+    "vintage_proof": false
+  },
+  "passed_cheap": [],
+  "promoted_guarded": [],
+  "results": {
+    "FIN-0115": {
+      "discovery_1x": {
+        "cumulative_return": -0.43197453427506616,
+        "max_drawdown": -0.43197453427506616,
+        "observations": 30,
+        "sharpe": -0.4816872452838281
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.4357150321245572,
+        "max_drawdown": -0.4357150321245572,
+        "observations": 30,
+        "sharpe": -0.4904411788127857
+      },
+      "rebalances": 41,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0116": {
+      "discovery_1x": {
+        "cumulative_return": -0.4971702525118734,
+        "max_drawdown": -0.5788868961565851,
+        "observations": 30,
+        "sharpe": -0.6947933478009275
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.4993796624710646,
+        "max_drawdown": -0.5801210291010885,
+        "observations": 30,
+        "sharpe": -0.6999222093832895
+      },
+      "rebalances": 41,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0117": {
+      "discovery_1x": {
+        "cumulative_return": 0.0,
+        "max_drawdown": 0,
+        "observations": 30,
+        "sharpe": 0
+      },
+      "discovery_2x": {
+        "cumulative_return": 0.0,
+        "max_drawdown": 0,
+        "observations": 30,
+        "sharpe": 0
+      },
+      "rebalances": 0,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0118": {
+      "discovery_1x": {
+        "cumulative_return": -0.13589872323565022,
+        "max_drawdown": -0.450697105043957,
+        "observations": 30,
+        "sharpe": -0.03868756044755182
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.14064291950818608,
+        "max_drawdown": -0.452106169926906,
+        "observations": 30,
+        "sharpe": -0.046408533653556135
+      },
+      "rebalances": 41,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0119": {
+      "discovery_1x": {
+        "cumulative_return": -0.2821900819006793,
+        "max_drawdown": -0.4678753949099522,
+        "observations": 30,
+        "sharpe": -0.24297500502232552
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.2829805423170465,
+        "max_drawdown": -0.4678753949099521,
+        "observations": 30,
+        "sharpe": -0.2443969813735977
+      },
+      "rebalances": 41,
+      "status": "CHEAP_FAIL"
+    }
+  },
+  "selected_for_deep": []
+}
