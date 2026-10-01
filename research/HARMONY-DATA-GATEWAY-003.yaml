@@ -1,0 +1,15 @@
+gateway_id: HARMONY-DATA-GATEWAY-003
+status: preregistered
+purpose: "Fast immutable Tier-B cache for network, valuation, market-cap, and reported-spot-volume factors."
+source: coinmetrics/data
+source_commit: f1a36afb962731c387bb03982758ab0103063da5
+assets: [btc, eth, ltc, xrp, bnb, bch, ada, doge]
+fields_expected:
+  - AdrActCnt
+  - CapMVRVCur
+  - CapMrktCurUSD
+  - volume_reported_spot_usd_1d
+integrity:
+  no_api_key_required: true
+  no_current_value_backfill: true
+  raw_file_hashes_required: true
