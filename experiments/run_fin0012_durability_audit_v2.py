@@ -710,63 +710,62 @@ report=[
 
 # --- Authoritative v2 diagnostic finalization; executed only after full reproduction gates above ---
 
-# Preserve all 528 OOS observations. The first OOS return is the realized
-# entry/rebalance/funding return represented by curve[0] - 1.0.
-strategy_returns = [trace_base["curve"][0] - 1.0] + point_returns(trace_base["curve"])
-btc_returns = [trace_btc["curve"][0] - 1.0] + point_returns(trace_btc["curve"])
-ew_returns = [trace_ew["curve"][0] - 1.0] + point_returns(trace_ew["curve"])
-oos_dates = dates[split:]
-residual, betas, r2s = factor_residual(strategy_returns, btc_returns, ew_returns)
-
-
-def diagnostic_metrics_v2(rr):
-    curve = [1.0]
-    for r in rr:
-        curve.append(curve[-1] * (1.0 + r))
+def metrics_from_curve_v2(curve):
     mm = metrics(curve)
+    rr = point_returns(curve)
     downside = [min(r, 0.0) ** 2 for r in rr]
     dd = math.sqrt(sum(downside) / len(rr)) if rr else 0.0
     mm["sortino"] = (statistics.mean(rr) / dd) * math.sqrt(365.25) if dd else 0.0
     return mm
 
-def segment_metrics_v2(name, a, b):
-    rr = strategy_returns[a:b]
-    mm = diagnostic_metrics_v2(rr)
-    res = [x for x in residual[a:b] if x is not None]
-    rm = diagnostic_metrics_v2(res) if res else None
+def metrics_from_returns_v2(rr):
+    curve = [1.0]
+    for r in rr:
+        curve.append(curve[-1] * (1.0 + r))
+    return metrics_from_curve_v2(curve)
+
+def normalize_curve(curve):
+    if not curve:
+        raise RuntimeError("empty curve")
+    base_eq = curve[0]
+    return [x / base_eq for x in curve]
+
+# Use the complete 528-observation OOS trace for temporal, rolling, and timing durability.
+oos_curve = trace_base["curve"]
+oos_dates = dates[split:]
+assert len(oos_curve) == 528 and len(oos_dates) == 528
+
+def temporal_segment(name, a, b):
+    curve = normalize_curve(oos_curve[a:b])
+    mm = metrics_from_curve_v2(curve)
     return {
         "segment": name,
         "start": oos_dates[a],
         "end": oos_dates[b-1],
-        "observations": len(rr),
+        "observations": b-a,
         "cumulative_return": mm["cumulative_return"],
         "cagr": mm["cagr"],
         "sharpe": mm["sharpe"],
         "sortino": mm["sortino"],
         "max_drawdown": mm["max_drawdown"],
-        "residual_cumulative_return": None if rm is None else rm["cumulative_return"],
-        "residual_cagr": None if rm is None else rm["cagr"],
-        "residual_sharpe": None if rm is None else rm["sharpe"],
-        "residual_sortino": None if rm is None else rm["sortino"],
-        "residual_max_drawdown": None if rm is None else rm["max_drawdown"],
-        "residual_observations": 0 if rm is None else len(res),
     }
 
-q = len(strategy_returns) // 4
+half = len(oos_curve) // 2
+q = len(oos_curve) // 4
 segments_v2 = [
-    segment_metrics_v2("first_half", 0, len(strategy_returns)//2),
-    segment_metrics_v2("second_half", len(strategy_returns)//2, len(strategy_returns)),
-    segment_metrics_v2("quarter1", 0, q),
-    segment_metrics_v2("quarter2", q, 2*q),
-    segment_metrics_v2("quarter3", 2*q, 3*q),
-    segment_metrics_v2("quarter4", 3*q, len(strategy_returns)),
+    temporal_segment("first_half", 0, half),
+    temporal_segment("second_half", half, len(oos_curve)),
+    temporal_segment("quarter1", 0, q),
+    temporal_segment("quarter2", q, 2*q),
+    temporal_segment("quarter3", 2*q, 3*q),
+    temporal_segment("quarter4", 3*q, len(oos_curve)),
 ]
 
 def rolling_v2(window):
     out = []
-    for i in range(window, len(strategy_returns)+1):
-        rr = strategy_returns[i-window:i]
-        mm = diagnostic_metrics_v2(rr)
+    for i in range(window, len(oos_curve)+1):
+        curve = normalize_curve(oos_curve[i-window:i])
+        mm = metrics_from_curve_v2(curve)
         out.append({
             "start": oos_dates[i-window],
             "end": oos_dates[i-1],
@@ -798,18 +797,30 @@ def rolling_summary_v2(items):
 roll90_summary_v2 = rolling_summary_v2(roll90_v2)
 roll180_summary_v2 = rolling_summary_v2(roll180_v2)
 
-residual_clean_v2 = [r for r in residual if r is not None]
-residual_full_v2 = diagnostic_metrics_v2(residual_clean_v2) if residual_clean_v2 else None
+# Factor-residual attribution uses true inter-day return intervals, excluding the
+# first OOS observation because it has no preceding day return.
+strategy_daily = point_returns(trace_base["curve"])
+btc_daily = point_returns(trace_btc["curve"])
+ew_daily = point_returns(trace_ew["curve"])
+daily_dates = dates[split+1:]
+residual, betas, r2s = factor_residual(strategy_daily, btc_daily, ew_daily)
+
+residual_clean = [r for r in residual if r is not None]
+residual_full_v2 = metrics_from_returns_v2(residual_clean)
+
 factor_quarters_v2 = []
 for k in range(4):
-    a = k*q
-    b = (k+1)*q if k < 3 else len(strategy_returns)
+    a_obs = k*q
+    b_obs = (k+1)*q if k < 3 else len(oos_dates)
+    # Map OOS observation boundaries to inter-day return boundaries.
+    a = max(0, a_obs-1)
+    b = min(len(strategy_daily), max(0, b_obs-1))
     clean = [r for r in residual[a:b] if r is not None]
-    rm = diagnostic_metrics_v2(clean) if clean else None
+    rm = metrics_from_returns_v2(clean) if clean else None
     factor_quarters_v2.append({
         "quarter": k+1,
-        "start": oos_dates[a],
-        "end": oos_dates[b-1],
+        "start": oos_dates[a_obs],
+        "end": oos_dates[b_obs-1],
         "observations": len(clean),
         "cumulative_return": None if rm is None else rm["cumulative_return"],
         "cagr": None if rm is None else rm["cagr"],
@@ -819,46 +830,50 @@ for k in range(4):
     })
 
 def residual_metrics_for_trace_v2(trace):
-    rr = [trace["curve"][i] / trace["curve"][i-1] - 1.0 for i in range(1, len(trace["curve"]))]
-    res, betas, r2s = factor_residual(rr, btc_returns, ew_returns)
+    rr = point_returns(trace["curve"])
+    b = btc_daily
+    z = ew_daily
+    res, _, _ = factor_residual(rr, b, z)
     clean = [r for r in res if r is not None]
-    return diagnostic_metrics_v2(clean) if clean else None
+    return metrics_from_returns_v2(clean) if clean else None
 
 cost_stress_v2 = {}
 for mult in (1.0, 1.5, 2.0):
     tr = trace_simulate(split, len(dates), "strategy", mult)
-    stressed_returns = [tr["curve"][0] - 1.0] + point_returns(tr["curve"])
     cost_stress_v2[f"{mult:.1f}x"] = {
-        "raw": diagnostic_metrics_v2(stressed_returns),
+        "raw": metrics_from_curve_v2(tr["curve"]),
         "one_way_turnover": tr["turnover"],
         "transaction_cost_fraction": tr["transaction_cost_fraction"],
         "funding_pnl_sum": tr["funding_pnl_sum"],
         "residual": residual_metrics_for_trace_v2(tr),
     }
 
-def grouped_metrics_v2(groups):
-    out = {}
-    for k, rr in groups.items():
-        mm = diagnostic_metrics_v2(rr)
-        out[k] = {
-            "observations": len(rr),
-            "cumulative_return": mm["cumulative_return"],
-            "cagr": mm["cagr"],
-            "sharpe": mm["sharpe"],
-            "sortino": mm["sortino"],
-            "max_drawdown": mm["max_drawdown"],
-        }
-    return out
+def period_group_indices(key_fn):
+    groups = {}
+    for i, d in enumerate(oos_dates):
+        groups.setdefault(key_fn(d), []).append(i)
+    return groups
 
-year_groups = {}
-quarter_groups = {}
-for d, r in zip(oos_dates, strategy_returns):
-    year_groups.setdefault(d[:4], []).append(r)
-    qkey = f"{d[:4]}-Q{((int(d[5:7])-1)//3)+1}"
-    quarter_groups.setdefault(qkey, []).append(r)
+def timing_metrics_from_indices(indices):
+    a, b = indices[0], indices[-1]+1
+    curve = normalize_curve(oos_curve[a:b])
+    mm = metrics_from_curve_v2(curve)
+    return {
+        "observations": len(indices),
+        "start": oos_dates[a],
+        "end": oos_dates[b-1],
+        "cumulative_return": mm["cumulative_return"],
+        "cagr": mm["cagr"],
+        "sharpe": mm["sharpe"],
+        "sortino": mm["sortino"],
+        "max_drawdown": mm["max_drawdown"],
+    }
 
-by_year_v2 = grouped_metrics_v2(year_groups)
-by_quarter_v2 = grouped_metrics_v2(quarter_groups)
+year_groups = period_group_indices(lambda d: d[:4])
+quarter_groups = period_group_indices(lambda d: f"{d[:4]}-Q{((int(d[5:7])-1)//3)+1}")
+by_year_v2 = {k: timing_metrics_from_indices(v) for k,v in year_groups.items()}
+by_quarter_v2 = {k: timing_metrics_from_indices(v) for k,v in quarter_groups.items()}
+
 total_profit_v2 = base["metrics"]["cumulative_return"]
 best_year_v2 = max(by_year_v2, key=lambda k: by_year_v2[k]["cumulative_return"])
 best_quarter_v2 = max(by_quarter_v2, key=lambda k: by_quarter_v2[k]["cumulative_return"])
@@ -866,9 +881,9 @@ timing_v2 = {
     "by_year": by_year_v2,
     "by_quarter": by_quarter_v2,
     "best_year": best_year_v2,
-    "best_year_contribution_fraction_of_total_profit": by_year_v2[best_year_v2]["cumulative_return"]/total_profit_v2 if total_profit_v2 > 0 else None,
+    "best_year_contribution_fraction_of_total_profit": by_year_v2[best_year_v2]["cumulative_return"]/total_profit_v2,
     "best_quarter": best_quarter_v2,
-    "best_quarter_contribution_fraction_of_total_profit": by_quarter_v2[best_quarter_v2]["cumulative_return"]/total_profit_v2 if total_profit_v2 > 0 else None,
+    "best_quarter_contribution_fraction_of_total_profit": by_quarter_v2[best_quarter_v2]["cumulative_return"]/total_profit_v2,
 }
 
 half_v2 = segments_v2[:2]
@@ -892,9 +907,7 @@ cost_preserved_v2 = (
 best_year_frac_v2 = timing_v2["best_year_contribution_fraction_of_total_profit"]
 best_quarter_frac_v2 = timing_v2["best_quarter_contribution_fraction_of_total_profit"]
 not_concentrated_v2 = (
-    best_year_frac_v2 is None or best_year_frac_v2 <= 0.75
-) and (
-    best_quarter_frac_v2 is None or best_quarter_frac_v2 <= 0.50
+    best_year_frac_v2 <= 0.75 and best_quarter_frac_v2 <= 0.50
 )
 
 if temporal_distributed_v2 and residual_persistent_v2 and cost_preserved_v2 and not_concentrated_v2:
@@ -902,7 +915,7 @@ if temporal_distributed_v2 and residual_persistent_v2 and cost_preserved_v2 and 
 elif (
     sum(x["cumulative_return"] > 0 for x in half_v2) == 0
     or (residual_full_v2 is not None and residual_full_v2["cumulative_return"] <= 0 and raw_2x_v2["cumulative_return"] <= 0)
-    or (best_quarter_frac_v2 is not None and best_quarter_frac_v2 > 0.85)
+    or best_quarter_frac_v2 > 0.85
 ):
     final_status_v2 = "DURABILITY_NOT_SUPPORTED"
 else:
@@ -911,14 +924,8 @@ else:
 final_payload = {
     "version": "2.0",
     "status": final_status_v2,
-    "reproduction_gate": {
-        "all_within_1e-9": True,
-        "values": gate,
-    },
-    "trace_gate": {
-        "all_within_1e-9": True,
-        "values": trace_authoritative,
-    },
+    "reproduction_gate": {"all_within_1e-9": True, "values": gate},
+    "trace_gate": {"all_within_1e-9": True, "values": trace_authoritative},
     "panel": {
         "common_rows": len(dates),
         "oos_rows": len(oos),
@@ -961,6 +968,7 @@ final_payload = {
         "failed_v1_outputs_reused": False,
     },
 }
+DUR_OUT.mkdir(parents=True, exist_ok=True)
 (DUR_OUT / "durability_audit.json").write_text(json.dumps(final_payload, sort_keys=True, indent=2) + "\n")
 (DUR_OUT / "cost_stress.json").write_text(json.dumps(cost_stress_v2, sort_keys=True, indent=2) + "\n")
 
@@ -982,26 +990,41 @@ with (DUR_OUT / "rolling_180.csv").open("w", newline="") as f:
     w.writeheader()
     w.writerows(roll180_v2)
 
-# Rewrite the required equity/residual CSV from the final trace state.
-rf_residual, rf_betas, rf_r2s = factor_residual(strategy_returns, btc_returns, ew_returns)
-equity_path = DUR_OUT / "equity_and_residual.csv"
-with equity_path.open("w", newline="") as f:
-    fields = ["date","strategy_equity","strategy_return","residual_return","residual_equity","rolling_btc_beta","rolling_equal_weight_beta","rolling_r2"]
+rf_residual, rf_betas, rf_r2s = factor_residual(strategy_daily, btc_daily, ew_daily)
+with (DUR_OUT / "equity_and_residual.csv").open("w", newline="") as f:
+    fields = [
+        "date","strategy_equity","strategy_return","residual_return",
+        "residual_equity","rolling_btc_beta","rolling_equal_weight_beta","rolling_r2"
+    ]
     w = csv.DictWriter(f, fieldnames=fields)
     w.writeheader()
-    re = 1.0
+    residual_equity = 1.0
+    # First row has no inter-day return attribution; it is retained as a blank residual row.
     for i, d in enumerate(oos_dates):
-        if rf_residual[i] is not None:
-            re *= 1.0 + rf_residual[i]
+        if i == 0:
+            w.writerow({
+                "date": d,
+                "strategy_equity": oos_curve[i],
+                "strategy_return": oos_curve[i] - 1.0,
+                "residual_return": "",
+                "residual_equity": "",
+                "rolling_btc_beta": "",
+                "rolling_equal_weight_beta": "",
+                "rolling_r2": "",
+            })
+            continue
+        j = i - 1
+        if rf_residual[j] is not None:
+            residual_equity *= 1.0 + rf_residual[j]
         w.writerow({
             "date": d,
-            "strategy_equity": trace_base["curve"][i],
-            "strategy_return": strategy_returns[i],
-            "residual_return": "" if rf_residual[i] is None else rf_residual[i],
-            "residual_equity": "" if rf_residual[i] is None else re,
-            "rolling_btc_beta": "" if rf_betas[i] is None else rf_betas[i][0],
-            "rolling_equal_weight_beta": "" if rf_betas[i] is None else rf_betas[i][1],
-            "rolling_r2": "" if rf_r2s[i] is None else rf_r2s[i],
+            "strategy_equity": oos_curve[i],
+            "strategy_return": strategy_daily[j],
+            "residual_return": "" if rf_residual[j] is None else rf_residual[j],
+            "residual_equity": "" if rf_residual[j] is None else residual_equity,
+            "rolling_btc_beta": "" if rf_betas[j] is None else rf_betas[j][0],
+            "rolling_equal_weight_beta": "" if rf_betas[j] is None else rf_betas[j][1],
+            "rolling_r2": "" if rf_r2s[j] is None else rf_r2s[j],
         })
 
 manifest_final = {
@@ -1032,7 +1055,7 @@ This is a research status, not a trading recommendation.
 
 ## 1. Exact accepted result reproduced
 
-Yes. The verbatim FIN-0012 engine from accepted execution commit {"8388dc680571bf3fa849d349b60de99e38ebf8ea"} reproduced every accepted reproduction-gate value within 1e-9.
+Yes. The verbatim FIN-0012 engine from accepted execution commit 8388dc680571bf3fa849d349b60de99e38ebf8ea reproduced every accepted reproduction-gate value within 1e-9.
 
 {json.dumps(gate, indent=2, sort_keys=True)}
 
@@ -1059,7 +1082,7 @@ The attribution is strategy return = intercept + BTC return beta + equal-weight 
 Full-period residual:
 {json.dumps(residual_full_v2, indent=2, sort_keys=True)}
 
-By quarter:
+Residual by quarter:
 {json.dumps(factor_quarters_v2, indent=2, sort_keys=True)}
 
 ## 5. Whether cost stress preserves it
@@ -1088,7 +1111,7 @@ No descendant was created in this audit.
 
 ## Classification rule
 
-DURABILITY_SUPPORTED requires: both OOS halves positive on cumulative return and Sharpe; at least 3 of 4 quarters positive; positive full-period residual return and at least 3 of 4 residual quarters positive; positive raw and residual cumulative return at 2.0x costs; and no extreme concentration above 50 percent of total profit in the best quarter or 75 percent in the best year.
+DURABILITY_SUPPORTED requires both OOS halves positive on cumulative return and Sharpe, at least 3 of 4 quarters positive, positive full-period residual return and at least 3 of 4 residual quarters positive, positive raw and residual cumulative return at 2.0x costs, and no extreme concentration above 50 percent of total profit in the best quarter or 75 percent in the best year.
 
 DURABILITY_NOT_SUPPORTED is reserved for clear failure patterns; all other outcomes are DURABILITY_MIXED.
 """
