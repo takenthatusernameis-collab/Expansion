@@ -10,6 +10,10 @@ on:
       - ".github/workflows/harmony-tech-4h-025b.yml"
 permissions:
   contents: write
+
+concurrency:
+  group: harmony-tech-4h-025b
+  cancel-in-progress: true
 jobs:
   tech:
     runs-on: ubuntu-latest
