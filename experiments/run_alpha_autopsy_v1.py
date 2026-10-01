@@ -117,13 +117,14 @@ def fund_map(funding, dates):
 def pnl_step(prev_w, d, dprev, returns, frates):
     return sum(prev_w[s]*returns[s].get(d,0.0) for s in SYMBOLS) - sum(prev_w[s]*frates[s].get(d,0.0) for s in SYMBOLS)
 
-def simulate(dates, close, funding, weight_fn, initial_rebalance=True):
+def simulate(dates, close, funding, weight_fn, start_idx):
     rets=daily_returns(close,dates)
     fr=fund_map(funding,dates)
     prev={s:0.0 for s in SYMBOLS}
     eq=1.0; curve=[]; daily=[]; turnover=0.0; costs=0.0; fund_pnl=0.0
-    for i,d in enumerate(dates):
-        if i>0:
+    for i in range(start_idx,len(dates)):
+        d=dates[i]
+        if i>start_idx:
             r=sum(prev[s]*rets[s].get(d,0.0) for s in SYMBOLS)
             f=-sum(prev[s]*fr[s].get(d,0.0) for s in SYMBOLS)
             daily_r=r+f
@@ -145,10 +146,12 @@ def simulate(dates, close, funding, weight_fn, initial_rebalance=True):
     lc=(FEE+SLIP)*liq
     eq*=max(0.0,1.0-lc); costs+=lc
     curve[-1]=eq
-    return {"dates":dates,"returns":daily,"equity":curve,"turnover":turnover,"costs":costs,"funding_pnl":fund_pnl}
+    return {"dates":dates[start_idx:],"returns":daily,"equity":curve,
+            "turnover":turnover,"costs":costs,"funding_pnl":fund_pnl}
 
 def fin12_weights(close, dates, i):
-    if i<max(21,61): return {s:0.0 for s in SYMBOLS} if i==61 else None
+    if i < max(21,61):
+        return None
     sig=i-1; base=i-21
     btc20=close["BTCUSDT"][dates[sig]]/close["BTCUSDT"][dates[base]]-1.0
     btc_daily=[close["BTCUSDT"][dates[j]]/close["BTCUSDT"][dates[j-1]]-1.0 for j in range(i-60,i)]
@@ -169,14 +172,14 @@ def fin12_weights(close, dates, i):
     return w
 
 def fin24_weights(funding, dates, i):
-    if i<1 or (i-1)%7!=0: return None
+    if i<1: return None
     d=dates[i-1]
     scores=[]
     for s in SYMBOLS:
-        # exactly prior 21 funding observations, with no future access
         rows=[]
         for dd in sorted(funding[s]):
-            if dd < d: rows.append((dd,sum(funding[s][dd])))
+            if dd < d:
+                rows.append((dd,sum(funding[s][dd])))
         rows=rows[-21:]
         if len(rows)<21: return None
         mean=sum(x[1] for x in rows)/21.0
@@ -221,30 +224,29 @@ def rolling_attribution(strategy_returns, btc_returns, ew_returns):
 def percentile(actual, values):
     return 100.0*sum(v<=actual for v in values)/len(values)
 
-def placebo(close, funding, dates, weight_builder, seed):
-    rng=random.Random(seed)
+def placebo(close, funding, dates, start_idx, weight_builder, gross_per_leg, n_longs, n_shorts, seed):
     rets=daily_returns(close,dates); fr=fund_map(funding,dates)
-    results=[]
+    rng=random.Random(seed); results=[]
     for _ in range(PLACEBOS):
         prev={s:0.0 for s in SYMBOLS}; eq=1.0; daily=[]
-        for i,d in enumerate(dates):
-            if i>0:
+        for i in range(start_idx,len(dates)):
+            d=dates[i]
+            if i>start_idx:
                 r=sum(prev[s]*rets[s].get(d,0.0) for s in SYMBOLS)
                 f=-sum(prev[s]*fr[s].get(d,0.0) for s in SYMBOLS)
                 rr=r+f; eq*=1+rr; daily.append(rr)
-            else: daily.append(0.0)
-            deterministic=weight_builder(i,d)
-            if deterministic is not None:
-                longs=[s for s in SYMBOLS if deterministic.get(s,0)>0]
-                shorts=[s for s in SYMBOLS if deterministic.get(s,0)<0]
-                # preserve exact counts and gross by randomly selecting identities
-                nl,ns=len(longs),len(shorts)
+            else:
+                daily.append(0.0)
+            if (i-start_idx)%7==0:
+                deterministic=weight_builder(i,d)
+                if deterministic is None: continue
                 pool=list(SYMBOLS); rng.shuffle(pool)
-                L=pool[:nl]; rem=[s for s in pool if s not in L]; S=rem[:ns]
-                gross=(0.25 if nl==2 and ns==2 else (1.0/6.0))
+                longs=pool[:n_longs]
+                remaining=[s for s in pool if s not in longs]
+                shorts=remaining[:n_shorts]
                 w={s:0.0 for s in SYMBOLS}
-                for s in L: w[s]=gross
-                for s in S: w[s]=-gross
+                for s in longs: w[s]=gross_per_leg
+                for s in shorts: w[s]=-gross_per_leg
                 delta=sum(abs(w[s]-prev[s]) for s in SYMBOLS)
                 eq*=max(0.0,1-(FEE+SLIP)*delta)
                 prev=w
@@ -252,20 +254,52 @@ def placebo(close, funding, dates, weight_builder, seed):
         results.append({"cum":eq-1.0,"sharpe":metrics(daily)["sharpe"],"mdd":metrics(daily)["max_drawdown"]})
     return results
 
-def process(name, close, funding, weight_builder):
-    dates=oos_dates(close)
-    strat=simulate(dates,close,funding,lambda i,d: weight_builder(close if name=="FIN-0012" else funding, dates, i))
-    # benchmarks on same daily panel
-    btc=simulate(dates,close,funding,btc_weights)
-    ew=simulate(dates,close,funding,equal_weights)
+def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_per_leg):
+    dates=sorted(set.intersection(*(set(close[s]) for s in SYMBOLS)))
+    dates=[d for d in dates if d<=END]
+    start_idx=next(i for i,d in enumerate(dates) if d>=OOS_START)
+
+    def candidate_weight(i,d):
+        if (i-start_idx)%7!=0:
+            return None
+        return raw_weight_builder(close if name=="FIN-0012" else funding, dates, i)
+
+    def benchmark_weight(i,d,kind):
+        if i!=start_idx:
+            return None
+        if kind=="btc":
+            return {s:(1.0 if s=="BTCUSDT" else 0.0) for s in SYMBOLS}
+        return {s:1.0/len(SYMBOLS) for s in SYMBOLS}
+
+    strat=simulate(dates,close,funding,candidate_weight,start_idx)
+    btc=simulate(dates,close,funding,lambda i,d: benchmark_weight(i,d,"btc"),start_idx)
+    ew=simulate(dates,close,funding,lambda i,d: benchmark_weight(i,d,"ew"),start_idx)
+
     residual,betas,r2s=rolling_attribution(strat["returns"],btc["returns"],ew["returns"])
-    placeholders=placebo(close,funding,dates,lambda i,d: weight_builder(close if name=="FIN-0012" else funding, dates, i),SEED+(12 if name=="FIN-0012" else 24))
+    usable_residual=residual[WINDOW:]
+    placebo_seed=SEED+(12 if name=="FIN-0012" else 24)
+    placeholders=placebo(close,funding,dates,start_idx,raw_weight_builder,gross_per_leg,n_longs,n_shorts,placebo_seed)
+
+    def info_ratio(a,b):
+        x=[u-v for u,v in zip(a,b)]
+        sd=statistics.stdev(x) if len(x)>1 else 0.0
+        return (statistics.mean(x)/sd)*math.sqrt(365.25) if sd>0 else 0.0
+
+    sm=metrics(strat["returns"]); bm=metrics(btc["returns"]); em=metrics(ew["returns"])
     result={
         "candidate":name,
-        "oos":{"start":dates[0],"end":dates[-1],"observations":len(dates)},
-        "raw_metrics":metrics(strat["returns"]),
-        "benchmarks":{"btc":metrics(btc["returns"]),"equal_weight":metrics(ew["returns"])},
-        "rolling_factor_metrics":metrics(residual),
+        "oos":{"start":strat["dates"][0],"end":strat["dates"][-1],"observations":len(strat["dates"]),
+                "full_history_start":dates[0],"full_history_end":dates[-1]},
+        "raw_metrics":sm,
+        "benchmarks":{"btc":bm,"equal_weight":em},
+        "benchmark_relative":{
+            "vs_btc_relative_wealth_return":(1+sm["cumulative_return"])/(1+bm["cumulative_return"])-1,
+            "vs_equal_weight_relative_wealth_return":(1+sm["cumulative_return"])/(1+em["cumulative_return"])-1,
+            "information_ratio_vs_btc":info_ratio(strat["returns"],btc["returns"]),
+            "information_ratio_vs_equal_weight":info_ratio(strat["returns"],ew["returns"])
+        },
+        "rolling_factor_metrics":metrics(usable_residual),
+        "rolling_factor_warmup_observations":WINDOW,
         "rolling_beta_summary":{
             "btc_mean":statistics.mean(b[0] for b in betas[WINDOW:]),
             "btc_median":statistics.median(b[0] for b in betas[WINDOW:]),
@@ -276,10 +310,10 @@ def process(name, close, funding, weight_builder):
         },
         "placebo":{
             "n":len(placeholders),
-            "seed":SEED+(12 if name=="FIN-0012" else 24),
-            "actual_cumulative_percentile":percentile(metrics(strat["returns"])["cumulative_return"],[x["cum"] for x in placeholders]),
-            "actual_sharpe_percentile":percentile(metrics(strat["returns"])["sharpe"],[x["sharpe"] for x in placeholders]),
-            "actual_mdd_percentile":percentile(metrics(strat["returns"])["max_drawdown"],[x["mdd"] for x in placeholders]),
+            "seed":placebo_seed,
+            "actual_cumulative_percentile":percentile(sm["cumulative_return"],[x["cum"] for x in placeholders]),
+            "actual_sharpe_percentile":percentile(sm["sharpe"],[x["sharpe"] for x in placeholders]),
+            "actual_mdd_percentile":percentile(sm["max_drawdown"],[x["mdd"] for x in placeholders]),
             "cum_mean":statistics.mean(x["cum"] for x in placeholders),
             "cum_median":statistics.median(x["cum"] for x in placeholders),
             "cum_p05":sorted(x["cum"] for x in placeholders)[int(0.05*len(placeholders))],
@@ -288,7 +322,15 @@ def process(name, close, funding, weight_builder):
         "execution":{"turnover":strat["turnover"],"transaction_costs":strat["costs"],"funding_pnl":strat["funding_pnl"]}
     }
     curves=[]
-    for i,d in enumerate(dates):
+    residual_eq=1.0
+    for i,d in enumerate(strat["dates"]):
+        if i>=WINDOW:
+            residual_eq*=1+residual[i]
+            residual_return=residual[i]
+            residual_equity=residual_eq
+        else:
+            residual_return=""
+            residual_equity=""
         curves.append({
             "date":d,
             "strategy_return":strat["returns"][i],
@@ -300,12 +342,9 @@ def process(name, close, funding, weight_builder):
             "rolling_btc_beta":betas[i][0],
             "rolling_equal_weight_beta":betas[i][1],
             "rolling_r2":"" if r2s[i] is None else r2s[i],
-            "residual_return":residual[i],
-            "residual_equity":(1.0 if i==0 else None)
+            "residual_return":residual_return,
+            "residual_equity":residual_equity
         })
-    eq=1.0
-    for row in curves:
-        eq*=1+row["residual_return"]; row["residual_equity"]=eq
     return result,curves,placeholders
 
 def main():
