@@ -1,0 +1,8 @@
+experiment_id: HARMONY-FIN-0062
+strategy_id: weekly_var90_downside_risk_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-012
+definition: "Weekly long highest/short lowest empirical downside VaR, defined as negative 5th-percentile prior 90 daily returns."
+external_evidence:
+  - "Zhang, Li, Xiong & Wang, Journal of Banking & Finance (2021), DOI 10.1016/j.jbankfin.2021.106246"
+  - "Cakici et al., International Review of Financial Analysis (2024), DOI 10.1016/j.irfa.2024.103244"
