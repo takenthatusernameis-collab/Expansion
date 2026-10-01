@@ -321,6 +321,8 @@ def diagnostic_metrics(returns):
         "observations": len(returns),
     }
 
+WINDOW = 60
+
 ACCEPTED = {
     "cumulative_return": 0.4169009579470373,
     "cagr": 0.273179006712682,
