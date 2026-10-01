@@ -1,0 +1,185 @@
+{
+  "batch_id": "HARMONY-DISCOVERY-BATCH-022",
+  "deep": {
+    "FIN-0111": {
+      "oos_halves": {
+        "first": {
+          "cumulative_return": -0.14499274016292596,
+          "max_drawdown": -0.3546281746127239,
+          "observations": 265,
+          "sharpe": -0.9378841709839248
+        },
+        "second": {
+          "cumulative_return": -0.012987648656711759,
+          "max_drawdown": -0.15507404477273024,
+          "observations": 265,
+          "sharpe": -0.017803799292576555
+        }
+      },
+      "runs": {
+        "1x": {
+          "oos": {
+            "cumulative_return": -0.15609727405262774,
+            "max_drawdown": -0.3546281746127239,
+            "observations": 529,
+            "sharpe": -0.517658092821659
+          },
+          "rebalances": 276,
+          "turnover": 173.50000000000006
+        },
+        "2x": {
+          "oos": {
+            "cumulative_return": -0.24503534544102734,
+            "max_drawdown": -0.3675413301825424,
+            "observations": 529,
+            "sharpe": -0.9129356317619274
+          },
+          "rebalances": 276,
+          "turnover": 173.50000000000006
+        },
+        "3x": {
+          "oos": {
+            "cumulative_return": -0.32472071953167503,
+            "max_drawdown": -0.38673706689693454,
+            "observations": 529,
+            "sharpe": -1.2995596124104238
+          },
+          "rebalances": 276,
+          "turnover": 173.50000000000006
+        },
+        "4x": {
+          "oos": {
+            "cumulative_return": -0.39610346362550974,
+            "max_drawdown": -0.4325335502066985,
+            "observations": 529,
+            "sharpe": -1.674696719989875
+          },
+          "rebalances": 276,
+          "turnover": 173.50000000000006
+        },
+        "5x": {
+          "oos": {
+            "cumulative_return": -0.46003738107965075,
+            "max_drawdown": -0.4769190165831614,
+            "observations": 529,
+            "sharpe": -2.0359591738604403
+          },
+          "rebalances": 276,
+          "turnover": 173.50000000000006
+        }
+      }
+    }
+  },
+  "integrity": {
+    "candidate_mutation": false,
+    "direction_search": false,
+    "holdout_access": false,
+    "parameter_search": false,
+    "universe_search": false
+  },
+  "passed_cheap": [
+    "FIN-0111"
+  ],
+  "promoted_guarded": [],
+  "results": {
+    "FIN-0109": {
+      "discovery_1x": {
+        "cumulative_return": -0.8112858344419701,
+        "max_drawdown": -0.8669496581696389,
+        "observations": 1408,
+        "sharpe": -0.6858602067298727
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.8248981674557819,
+        "max_drawdown": -0.8738444742495,
+        "observations": 1408,
+        "sharpe": -0.7309355843004788
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0110": {
+      "discovery_1x": {
+        "cumulative_return": -0.7919357659684468,
+        "max_drawdown": -0.8566278587982166,
+        "observations": 1408,
+        "sharpe": -0.6645479844379005
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.8425799847024483,
+        "max_drawdown": -0.8838016783315121,
+        "observations": 1408,
+        "sharpe": -0.8357146153234798
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0111": {
+      "discovery_1x": {
+        "cumulative_return": 1.4270904825759252,
+        "max_drawdown": -0.4997210934497961,
+        "observations": 1408,
+        "sharpe": 0.6988872287256341
+      },
+      "discovery_2x": {
+        "cumulative_return": 0.8485049285389097,
+        "max_drawdown": -0.5833910346181588,
+        "observations": 1408,
+        "sharpe": 0.542401731892515
+      },
+      "rebalances": 276,
+      "status": "CHEAP_PASS"
+    },
+    "FIN-0112": {
+      "discovery_1x": {
+        "cumulative_return": -0.9030431616532617,
+        "max_drawdown": -0.916399589657352,
+        "observations": 1408,
+        "sharpe": -1.0104323631218832
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.9261563609489823,
+        "max_drawdown": -0.9349169705866727,
+        "observations": 1408,
+        "sharpe": -1.1652085923777342
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0113": {
+      "discovery_1x": {
+        "cumulative_return": -0.904230489171836,
+        "max_drawdown": -0.9414101696779633,
+        "observations": 1408,
+        "sharpe": -1.043096813481656
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.9218350409889472,
+        "max_drawdown": -0.950645380454846,
+        "observations": 1408,
+        "sharpe": -1.1598745389749596
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL"
+    },
+    "FIN-0114": {
+      "discovery_1x": {
+        "cumulative_return": -0.7221302363878157,
+        "max_drawdown": -0.8251971072998967,
+        "observations": 1408,
+        "sharpe": -0.47659191140603696
+      },
+      "discovery_2x": {
+        "cumulative_return": -0.7575159379273012,
+        "max_drawdown": -0.8340350748306852,
+        "observations": 1408,
+        "sharpe": -0.5599603176150493
+      },
+      "rebalances": 276,
+      "status": "CHEAP_FAIL"
+    }
+  },
+  "selected_for_deep": [
+    "FIN-0111"
+  ]
+}
