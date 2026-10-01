@@ -1,0 +1,23 @@
+audit_id: HARMONY-FIN-0056-DURABILITY-001
+status: preregistered_frozen
+candidate: HARMONY-FIN-0056
+purpose: "Reproduction-first durability diagnostics using the exact accepted FIN-0056 signal definition."
+controls:
+  no_parameter_search: true
+  no_universe_search: true
+  holdout_access: false
+diagnostics:
+  temporal_segments: "fixed first-half, second-half, and four chronological OOS quarters"
+  rolling_windows: [90, 180]
+  factor_residual: "BTC return and same-universe equal-weight long-only benchmark residual"
+  cost_stress: [1.0, 2.0, 3.0, 4.0]
+classification:
+  reproduction: "accepted Batch-010 OOS cumulative return and Sharpe must match within 1e-12"
+  temporal_distributed: "both OOS halves positive Sharpe and at least 3 of 4 OOS quarters positive cumulative return"
+  residual_persistent: "full OOS factor residual positive cumulative return and at least 3 of 4 residual quarters positive"
+  cost_preserved: "2x-cost raw cumulative return remains positive"
+  concentration: "best-year profit fraction <= 0.75 and best-quarter profit fraction <= 0.50"
+  final_rule: "same FIN-0012 durability-v2 classification rule; 4x cost is diagnostic only"
+expected_batch010:
+  oos_cumulative_return: 0.28467078513220323
+  oos_sharpe: 1.035538238338156
