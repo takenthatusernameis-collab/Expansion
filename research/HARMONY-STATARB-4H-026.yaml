@@ -1,0 +1,56 @@
+batch_id: HARMONY-STATARB-4H-026
+status: preregistered_frozen
+purpose: "Non-blue-chip proxy 4h Z-score, cointegration, and statistical-arbitrage infrastructure. No BTC/ETH/BNB/SOL/XRP/ADA/DOGE/LTC/BCH."
+universe:
+  assets: [APTUSDT, ARBUSDT, OPUSDT, INJUSDT, SUIUSDT, SEIUSDT, TIAUSDT, JTOUSDT, PYTHUSDT, WIFUSDT, ENAUSDT, ORDIUSDT, JUPUSDT]
+  objective_exclusions: [BTCUSDT, ETHUSDT, BNBUSDT, SOLUSDT, XRPUSDT, ADAUSDT, DOGEUSDT, LTCUSDT, BCHUSDT]
+  note: "This is an explicit non-blue-chip proxy basket, not a historical market-cap certification."
+data:
+  source: "Binance USD-M public monthly futures 4h kline archives"
+  interval: 4h
+  start: "2023-01-01"
+  end: "2025-10-31"
+cointegration_screen:
+  discovery_end: "2024-05-21"
+  minimum_common_bars: 800
+  test: "Engle-Granger coint with constant"
+  pair_pvalue_max: 0.05
+  stability_windows: 3
+  stability_requirement: "cointegration p<0.10 in at least 2 of 3 contiguous discovery windows"
+  half_life_bounds_bars: [2, 240]
+  selection: "up to 5 lowest discovery p-value pairs after stability and half-life filters"
+strategies:
+  SA01:
+    name: static_pair_zscore_2_05
+    definition: "Discovery-frozen hedge beta/intercept; 120-bar residual z-score; enter at +/-2.0, exit at +/-0.5, max 48 bars."
+  SA02:
+    name: static_pair_zscore_1_5_025
+    definition: "Discovery-frozen hedge beta/intercept; 120-bar residual z-score; enter at +/-1.5, exit at +/-0.25, max 48 bars."
+  SA03:
+    name: rolling_pair_zscore_2_05
+    definition: "240-bar rolling hedge beta/intercept; 120-bar residual z-score; enter at +/-2.0, exit at +/-0.5, max 48 bars."
+  SA04:
+    name: rolling_pair_zscore_2_05_longer_exit
+    definition: "240-bar rolling hedge beta/intercept; 120-bar residual z-score; enter at +/-2.0, exit at +/-0.5, max 96 bars."
+  SA05:
+    name: top5_stat_arb_basket
+    definition: "Equal-risk basket of up to five discovery-selected cointegrated pairs using SA01 rules."
+costs:
+  one_way_total_bps: [11, 16.5, 22, 27.5, 33]
+screen:
+  minimum_trades: 50
+  discovery_sharpe_11bp_min: 0.50
+  discovery_sharpe_22bp_min: 0.25
+  positive_discovery_return_at_both_costs: true
+deep_gate:
+  oos_sharpe_11bp_min: 0.90
+  oos_sharpe_22bp_min: 0.50
+  both_oos_halves_positive: true
+promotion:
+  guarded_requires: "cointegration pair selection frozen before OOS; OOS durability gate; no blue-chip constituents."
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_pair_mutation_after_oos: true
+  holdout_access_forbidden: true
