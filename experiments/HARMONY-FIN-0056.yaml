@@ -1,0 +1,7 @@
+experiment_id: HARMONY-FIN-0056
+strategy_id: monthly_daily_kurtosis_60d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-010
+definition: "Monthly long highest/short lowest population kurtosis over prior 60 completed daily returns, equal gross weight."
+external_evidence:
+  - "Jia, Liu & Yan, Finance Research Letters (2021), DOI 10.1016/j.frl.2020.101536"
