@@ -1,0 +1,12 @@
+{
+  "end": "2025-10",
+  "gateway_id": "HARMONY-DATA-GATEWAY-007",
+  "guarded_promotion_blocked": true,
+  "normalized_sha256": "0c26738767333d52768f9e429760ce8d8737e7cdbc9dc749c9c2a7243e301c98",
+  "rows": 71,
+  "snapshot_sha256": "3ac0652f0e39c7ce3db942ede2d1f0d196a9a3520a9565cfa9d80468a44166aa",
+  "source_note": "Values frozen from FRED table output observed 2026-10-01; historical vintage provenance is not established.",
+  "source_series": "LMNUF12M",
+  "start": "2019-12",
+  "vintage_proof": false
+}
