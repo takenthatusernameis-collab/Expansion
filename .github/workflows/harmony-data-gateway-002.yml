@@ -1,4 +1,5 @@
 name: Harmony external data gateway 002
+# Public-archive snapshot is used because the Coin Metrics API is blocked from the runner.
 
 on:
   push:
