@@ -278,7 +278,7 @@ def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_p
     residual,betas,r2s=rolling_attribution(strat["returns"],btc["returns"],ew["returns"])
     usable_residual=residual[WINDOW:]
     placebo_seed=SEED+(12 if name=="FIN-0012" else 24)
-    placeholders=placebo(close,funding,dates,start_idx,raw_weight_builder,gross_per_leg,n_longs,n_shorts,placebo_seed)
+    placeholders=placebo(close,funding,dates,start_idx,(lambda i,d: raw_weight_builder(close if name=="FIN-0012" else funding, dates, i)),gross_per_leg,n_longs,n_shorts,placebo_seed)
 
     def info_ratio(a,b):
         x=[u-v for u,v in zip(a,b)]
