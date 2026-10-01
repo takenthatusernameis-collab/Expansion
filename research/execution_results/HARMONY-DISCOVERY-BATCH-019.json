@@ -2,7 +2,7 @@
   "batch_id": "HARMONY-DISCOVERY-BATCH-019",
   "candidate": "FIN-0093",
   "passed_cheap": [],
-  "result_sha256": "e032f0a79bfb8568a1c7a37bd303a4fd966512c2118552e4b2083cc00ea83d78",
+  "result_sha256": "b6e27d70bda257c6bb06a0d293f2140b6d82c0368702d2df939687e3454d3125",
   "selected_for_deep": [],
   "status": "DATA_BLOCKED"
 }
