@@ -184,13 +184,12 @@ def simulate(px, funding, dates, start_idx, end_idx, cost_mult=1.0):
     transaction_costs += liquidation_cost
     equity_curve[-1] = equity
 
-    exact_returns = [equity_curve[0] - 1.0]
-    exact_returns.extend(
+    exact_returns = [
         equity_curve[i] / equity_curve[i - 1] - 1.0
         for i in range(1, len(equity_curve))
-    )
+    ]
     return {
-        "dates": dates[start_idx:end_idx],
+        "dates": dates[start_idx + 1:end_idx],
         "returns": exact_returns,
         "equity": equity_curve,
         "turnover": turnover,
@@ -441,7 +440,7 @@ def main():
                 residual_equity *= 1.0 + residual[i]
             writer.writerow({
                 "date": d,
-                "strategy_equity": baseline["equity"][i],
+                "strategy_equity": baseline["equity"][i + 1],
                 "strategy_return": baseline["returns"][i],
                 "residual_return": "" if residual[i] is None else residual[i],
                 "residual_equity": "" if residual[i] is None else residual_equity,
