@@ -322,7 +322,7 @@ def main():
             "quarter": qidx + 1,
             "start": baseline["dates"][a],
             "end": baseline["dates"][b - 1],
-            **metrics(rr) if rr else {},
+            **(metrics(rr) if rr else {}),
         })
 
     cost_stress = {}
