@@ -208,7 +208,7 @@ def main():
         oos_ids=[i for i,d in enumerate(dates) if d>=OOS_START]
         base=curve[oos_ids[0]-1]
         sc=[curve[i]/base for i in oos_ids]
-        btc=[px["BTCUSDT"][d]/px["BTCUSDT"][dates[oos_ids[0]]] for d in dates[oos_ids]]
+        btc=[px["BTCUSDT"][dates[i]]/px["BTCUSDT"][dates[oos_ids[0]]] for i in oos_ids]
         ew=[1.0]
         for j in range(1,len(oos_ids)):
             i=oos_ids[j]; prevd=dates[i-1]
