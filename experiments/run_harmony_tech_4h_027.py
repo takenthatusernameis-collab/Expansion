@@ -155,22 +155,36 @@ def signal(cid,df,i):
         return 1 if trend==1 and pull_long and cip<=0<ci else -1 if trend==-1 and pull_short and cip>=0>ci else 0
     raise KeyError(cid)
 
+def portfolio_weight(n_assets):
+    """Fixed 1/N gross slot per asset; unused slots remain in cash."""
+    if n_assets <= 0:
+        raise ValueError("n_assets must be positive")
+    return 1.0 / n_assets
+
+
 def backtest(cid,assets_data,cost_bps,start,end,hold_bars=6):
-    # Event-driven, close-t signal -> next-open entry. Timestamp indexes are precomputed to avoid quadratic lookups.
+    # Event-driven, close-t signal -> next-open entry.
+    # Portfolio accounting is fixed 1/N gross across the frozen universe.
+    # Transaction costs are applied to the position weight, not to full portfolio equity per trade.
     timelines={a:list(df["timestamp"]) for a,df in assets_data.items()}
     ts_maps={a:{ts:i for i,ts in enumerate(timeline)} for a,timeline in timelines.items()}
     timeline=sorted(set().union(*[set(timeline) for timeline in timelines.values()]))
     equity=1.0;curve=[];trades=[];cost=cost_bps/10000
     active={}
+    position_weight=portfolio_weight(len(assets_data))
     for ts in timeline:
+        realized_pnl_weight=0.0
+        turnover_weight=0.0
         # Exit due to time limit.
         for pos_id,pos in list(active.items()):
             if ts>=pos["exit_ts"]:
                 df=assets_data[pos["asset"]];mp=ts_maps[pos["asset"]].get(ts)
                 if mp is not None:
                     px=float(df["open"].iloc[mp]);ret=(px/pos["entry_px"]-1)*pos["side"]
-                    equity*=1+ret/max(1,len(active));equity*=max(0,1-cost)
-                    trades.append({"asset":pos["asset"],"side":pos["side"],"entry":pos["entry_ts"].isoformat(),"exit":ts.isoformat(),"ret":ret})
+                    realized_pnl_weight += pos["weight"] * ret
+                    turnover_weight += pos["weight"]
+                    trades.append({"asset":pos["asset"],"side":pos["side"],"weight":pos["weight"],
+                                   "entry":pos["entry_ts"].isoformat(),"exit":ts.isoformat(),"ret":ret})
                 del active[pos_id]
         # Generate signals from the previous completed bar for each asset.
         for asset,df in assets_data.items():
@@ -180,14 +194,28 @@ def backtest(cid,assets_data,cost_bps,start,end,hold_bars=6):
             sig=signal(cid,df,mp-1)
             if sig==0:continue
             px=float(df["open"].iloc[mp])
-            equity*=max(0,1-cost)
+            turnover_weight += position_weight
             exit_idx=min(mp+hold_bars,len(df)-1)
-            active[f"{asset}-{ts}"]={"asset":asset,"side":sig,"entry_px":px,"entry_ts":ts,"exit_ts":df["timestamp"].iloc[exit_idx]}
+            active[f"{asset}-{ts}"]={"asset":asset,"side":sig,"weight":position_weight,
+                                     "entry_px":px,"entry_ts":ts,"exit_ts":df["timestamp"].iloc[exit_idx]}
+        if realized_pnl_weight:
+            equity *= max(0.0, 1.0 + realized_pnl_weight)
+        if turnover_weight:
+            equity *= max(0.0, 1.0 - cost * turnover_weight)
         curve.append((ts,equity))
+    realized_pnl_weight=0.0
+    turnover_weight=0.0
     for pos in list(active.values()):
         df=assets_data[pos["asset"]];px=float(df["close"].iloc[-1])
-        ret=(px/pos["entry_px"]-1)*pos["side"];equity*=1+ret/max(1,len(active));equity*=max(0,1-cost)
-        trades.append({"asset":pos["asset"],"side":pos["side"],"entry":pos["entry_ts"].isoformat(),"exit":"forced","ret":ret})
+        ret=(px/pos["entry_px"]-1)*pos["side"]
+        realized_pnl_weight += pos["weight"] * ret
+        turnover_weight += pos["weight"]
+        trades.append({"asset":pos["asset"],"side":pos["side"],"weight":pos["weight"],
+                       "entry":pos["entry_ts"].isoformat(),"exit":"forced","ret":ret})
+    if realized_pnl_weight:
+        equity *= max(0.0, 1.0 + realized_pnl_weight)
+    if turnover_weight:
+        equity *= max(0.0, 1.0 - cost * turnover_weight)
     return curve,trades
 
 def metrics(curve,start,end):
