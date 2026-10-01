@@ -10,9 +10,12 @@ def test_fixed_universe_and_window():
     assert r.END=="2025-10-31"
 
 def test_fixed_fields_and_rank_direction():
-    assert r.score("FIN-0091","2024-05-13",
-                   ["2020-07-10","2024-05-06","2024-05-07","2024-05-08","2024-05-09","2024-05-10","2024-05-11","2024-05-12"],
-                   {a:{"2024-05-06":{"TxCnt":1.0},"2024-05-07":{"TxCnt":1.0},"2024-05-08":{"TxCnt":1.0},"2024-05-09":{"TxCnt":1.0},"2024-05-10":{"TxCnt":2.0},"2024-05-11":{"TxCnt":2.0},"2024-05-12":{"TxCnt":2.0}} for a in r.A}) is not None
+    dates=[
+        "2024-04-29","2024-04-30","2024-05-01","2024-05-02","2024-05-03","2024-05-04","2024-05-05",
+        "2024-05-06","2024-05-07","2024-05-08","2024-05-09","2024-05-10","2024-05-11","2024-05-12"
+    ]
+    activity={a:{d:{"TxCnt":1.0 if i<7 else 2.0} for i,d in enumerate(dates)} for a in r.A}
+    assert r.score("FIN-0091","2024-05-13",dates,activity) is not None
     w=r.rank_weights([(0.1,"BTCUSDT"),(0.2,"ETHUSDT"),(0.3,"LTCUSDT"),(0.4,"XRPUSDT"),
                       (0.5,"BNBUSDT"),(0.6,"BCHUSDT"),(0.7,"ADAUSDT"),(0.8,"DOGEUSDT")])
     assert sum(v>0 for v in w.values())==3
