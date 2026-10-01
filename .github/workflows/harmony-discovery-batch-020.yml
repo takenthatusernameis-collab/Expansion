@@ -26,11 +26,6 @@ jobs:
           ref: research/grind-2026-10-01-batch020
       - uses: actions/cache/restore@v4
         with:
-          path: data/cache/harmony_gateway_v5/realized_4h
-          key: harmony-data-gateway-005-v2
-          fail-on-cache-miss: true
-      - uses: actions/cache/restore@v4
-        with:
           path: data/cache/binance/futures_um/deep_history_2019
           key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
           fail-on-cache-miss: true
