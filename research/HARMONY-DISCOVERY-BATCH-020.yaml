@@ -1,0 +1,68 @@
+batch_id: HARMONY-DISCOVERY-BATCH-020
+status: preregistered_frozen
+purpose: "Bounded intraday-risk mechanism wave using the reusable Tier-C realized-feature gateway; no momentum/lookback shopping."
+dataset:
+  price_cache: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  feature_gateway: harmony-data-gateway-005-v1
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+  feature_interval: 2h
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  rank_metric: discovery_sharpe_2x_cost
+  deep_capacity: 2
+candidates:
+  FIN-0097:
+    mechanism: cross_sectional_low_realized_volatility
+    fixed_definition: "Monthly long lowest 3 / short highest 3 by prior 63-day realized volatility built from completed 2h returns."
+    direction: long_low_risk_short_high_risk
+    external_evidence:
+      - "Revisiting the low-volatility anomaly in cryptocurrency markets, Finance Research Letters 2026, DOI 10.1016/j.frl.2026.109851"
+      - "Variance Decomposition and Cryptocurrency Return Prediction, JFQA forthcoming / SSRN 4721415"
+  FIN-0098:
+    mechanism: realized_signed_jump_risk
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day average signed-jump ratio (upside variance minus downside variance divided by total variance)."
+    direction: long_low_signed_jump_short_high_signed_jump
+    external_evidence:
+      - "Good volatility, bad volatility, and the cross section of cryptocurrency returns, International Review of Financial Analysis 2023, DOI 10.1016/j.irfa.2023.102712"
+  FIN-0099:
+    mechanism: jump_concentration
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day average maximum-single-2h-bar variance share."
+    direction: long_low_jump_concentration_short_high_jump_concentration
+    external_evidence:
+      - "Good volatility, bad volatility, and the cross section of cryptocurrency returns, International Review of Financial Analysis 2023, DOI 10.1016/j.irfa.2023.102712"
+      - "Higher moments, extreme returns, and cross-section of cryptocurrency returns, Finance Research Letters 2020"
+  FIN-0100:
+    mechanism: volatility_of_volatility
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day standard deviation of daily realized volatility."
+    direction: long_low_vol_of_vol_short_high_vol_of_vol
+    external_evidence:
+      - "Detecting Volatility Regimes in Crypto Markets using Realized Volatility Structure and Normalized Momentum, SSRN 5920642, 2025/2026"
+  FIN-0101:
+    mechanism: liquidity_risk_interaction
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day Amihud-like illiquidity multiplied by prior 21-day realized volatility."
+    direction: long_low_liquidity_risk_short_high_liquidity_risk
+    external_evidence:
+      - "Cross-sectional interactions in cryptocurrency returns, International Review of Financial Analysis 2025, DOI 10.1016/j.irfa.2024.103809"
+      - "Returns from liquidity provision in cryptocurrency markets, Journal of Banking & Finance 2025, DOI 10.1016/j.jbankfin.2025.107411"
+  FIN-0102:
+    mechanism: idiosyncratic_realized_variance
+    fixed_definition: "Weekly long lowest 3 / short highest 3 by prior 21-day idiosyncratic variance after removing a 63-day rolling BTC beta from daily returns."
+    direction: long_low_idio_variance_short_high_idio_variance
+    external_evidence:
+      - "Variance Decomposition and Cryptocurrency Return Prediction, JFQA forthcoming / SSRN 4721415"
+      - "Cross-sectional interactions in cryptocurrency returns, International Review of Financial Analysis 2025, DOI 10.1016/j.irfa.2024.103809"
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+  benchmark_relative_diagnostics_required: true
