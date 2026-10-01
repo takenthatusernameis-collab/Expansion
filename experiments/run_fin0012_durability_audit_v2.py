@@ -710,11 +710,12 @@ report=[
 
 # --- Authoritative v2 diagnostic finalization; executed only after full reproduction gates above ---
 
-# Use the actual OOS return intervals for diagnostics: no synthetic zero-return observation.
-strategy_returns = point_returns(trace_base["curve"])
-btc_returns = point_returns(trace_btc["curve"])
-ew_returns = point_returns(trace_ew["curve"])
-oos_dates = dates[split + 1:]
+# Preserve all 528 OOS observations. The first OOS return is the realized
+# entry/rebalance/funding return represented by curve[0] - 1.0.
+strategy_returns = [trace_base["curve"][0] - 1.0] + point_returns(trace_base["curve"])
+btc_returns = [trace_btc["curve"][0] - 1.0] + point_returns(trace_btc["curve"])
+ew_returns = [trace_ew["curve"][0] - 1.0] + point_returns(trace_ew["curve"])
+oos_dates = dates[split:]
 residual, betas, r2s = factor_residual(strategy_returns, btc_returns, ew_returns)
 
 
@@ -826,8 +827,9 @@ def residual_metrics_for_trace_v2(trace):
 cost_stress_v2 = {}
 for mult in (1.0, 1.5, 2.0):
     tr = trace_simulate(split, len(dates), "strategy", mult)
+    stressed_returns = [tr["curve"][0] - 1.0] + point_returns(tr["curve"])
     cost_stress_v2[f"{mult:.1f}x"] = {
-        "raw": diagnostic_metrics_v2([tr["curve"][i]/tr["curve"][i-1]-1.0 for i in range(1, len(tr["curve"]))]),
+        "raw": diagnostic_metrics_v2(stressed_returns),
         "one_way_turnover": tr["turnover"],
         "transaction_cost_fraction": tr["transaction_cost_fraction"],
         "funding_pnl_sum": tr["funding_pnl_sum"],
@@ -993,7 +995,7 @@ with equity_path.open("w", newline="") as f:
             re *= 1.0 + rf_residual[i]
         w.writerow({
             "date": d,
-            "strategy_equity": trace_base["curve"][i+1],
+            "strategy_equity": trace_base["curve"][i],
             "strategy_return": strategy_returns[i],
             "residual_return": "" if rf_residual[i] is None else rf_residual[i],
             "residual_equity": "" if rf_residual[i] is None else re,
