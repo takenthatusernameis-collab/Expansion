@@ -61,14 +61,20 @@ def returns_for(dates, px):
     return r
 
 def top_bottom(values):
-    ordered = sorted(values, key=lambda x: (x[1], x[0]))
-    if len(ordered) != len(SYMBOLS):
+    # Values are explicitly (score, symbol). Enforce exact universe and gross exposure.
+    if len(values) != len(SYMBOLS):
         raise RuntimeError("ranking universe mismatch")
+    symbols = [symbol for _, symbol in values]
+    if set(symbols) != set(SYMBOLS) or len(set(symbols)) != len(SYMBOLS):
+        raise RuntimeError("ranking symbols mismatch")
+    ordered = sorted(values, key=lambda x: (x[0], x[1]))
     w = {s: 0.0 for s in SYMBOLS}
-    for _, s in ordered[:3]:
-        w[s] = 1.0/6.0
-    for _, s in ordered[-3:]:
-        w[s] = -1.0/6.0
+    for _, symbol in ordered[:3]:
+        w[symbol] = 1.0/6.0
+    for _, symbol in ordered[-3:]:
+        w[symbol] = -1.0/6.0
+    if abs(sum(abs(w[s]) for s in SYMBOLS) - 1.0) > 1e-12:
+        raise RuntimeError("invalid gross exposure")
     return w
 
 def skew(values):
@@ -116,18 +122,18 @@ def targets_for(candidate, dates, px, qv, rets):
     targets = {}
     for i,d in enumerate(dates):
         if candidate == "HARMONY-FIN-0040":
-            # First common day of month; formation ends at the previous common month-end.
+            # First common day of month; formation ends at prior common month-end.
             if i == 0 or month_key(d) == month_key(dates[i-1]):
                 continue
-            prev = i-1  # current date is the first common observation of the month; i-1 is prior month-end
+            prev = i-1
             if prev < 62:
                 continue
             vals=[]
             for s in SYMBOLS:
-                vals.append((s, skew([rets[s][dates[j]] for j in range(prev-62, prev+1)])))
-            targets[d]=top_bottom([(s,v) for s,v in vals])
+                vals.append((skew([rets[s][dates[j]] for j in range(prev-62, prev+1)]), s))
+            targets[d]=top_bottom(vals)
         elif candidate == "HARMONY-FIN-0044":
-            # End-of-day signal uses the immediately completed day and a fixed 30-day focal history.
+            # Decision uses completed observations through the immediately prior day.
             if i < 61:
                 continue
             vals=[]
@@ -135,7 +141,9 @@ def targets_for(candidate, dates, px, qv, rets):
                 t=i-1
                 base=[qv[s][dates[j]] for j in range(t-30,t)]
                 mean_base=sum(base)/30.0
-                if mean_base <= 0: continue
+                if mean_base <= 0:
+                    vals=[]
+                    break
                 surprise=qv[s][dates[t]]/mean_base - 1.0
                 prior=[]
                 for k in range(t-30,t):
@@ -144,29 +152,28 @@ def targets_for(candidate, dates, px, qv, rets):
                     prior.append(qv[s][dates[k]]/m - 1.0 if m>0 else 0.0)
                 sd=statistics.pstdev(prior)
                 score=surprise/sd if sd>0 else 0.0
-                vals.append((s,score))
+                vals.append((score,s))
             if len(vals)==len(SYMBOLS):
                 targets[d]=top_bottom(vals)
         elif candidate == "HARMONY-FIN-0048":
-            if i < 21 or (i == 0 or d[:10] == ""):
+            if i < 21:
                 continue
-            # First common day of each ISO week; use prior 21 completed observations.
             if i > 0 and week_key(dates[i-1]) == week_key(d):
                 continue
             vals=[]
             for s in SYMBOLS:
-                vals.append((s,max(rets[s][dates[j]] for j in range(i-21,i))))
+                vals.append((max(rets[s][dates[j]] for j in range(i-21,i)),s))
             targets[d]=top_bottom(vals)
         elif candidate == "HARMONY-FIN-0049":
-            if i == 0 or (i < 31 and month_key(dates[i-1]) != month_key(d)):
-                continue
+            # First common day of month; use prior 30 completed observations.
             if i == 0 or month_key(dates[i-1]) == month_key(d):
                 continue
-            if i < 30: continue
+            if i < 30:
+                continue
             vals=[]
             for s in SYMBOLS:
                 score=sum(abs(rets[s][dates[j]])/max(qv[s][dates[j]],1e-300) for j in range(i-30,i))/30.0
-                vals.append((s,score))
+                vals.append((score,s))
             targets[d]=top_bottom(vals)
         elif candidate == "HARMONY-FIN-0050":
             if i < 60 or (i > 0 and month_key(dates[i-1]) == month_key(d)):
@@ -178,7 +185,7 @@ def targets_for(candidate, dates, px, qv, rets):
                 if v is None:
                     vals=[]
                     break
-                vals.append((s,v))
+                vals.append((v,s))
             if len(vals)==len(SYMBOLS):
                 targets[d]=top_bottom(vals)
         else:
