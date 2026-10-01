@@ -353,7 +353,7 @@ def trace_simulate(start, end, mode, cost_mult=1.0):
     curve[-1] = eq
 
     trace_metrics = metrics(curve)
-    if mode == "strategy" and abs(trace_metrics["cumulative_return"] - base["metrics"]["cumulative_return"]) > 1e-9:
+    if mode == "strategy" and abs(cost_mult - 1.0) < 1e-12 and abs(trace_metrics["cumulative_return"] - base["metrics"]["cumulative_return"]) > 1e-9:
         raise RuntimeError("TRACE REPRODUCTION GATE FAILED: " + json.dumps({
             "trace": trace_metrics,
             "authoritative": base["metrics"],
