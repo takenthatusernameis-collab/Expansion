@@ -38,7 +38,7 @@ def load_panel():
 
 def load_spot():
     spot={s:{} for s in S}
-    base=CMROOT/"binance_spot"
+    base=Path("data/cache/harmony_gateway_v4/binance_spot")
     if not base.exists():
         return spot
     for s in S:
