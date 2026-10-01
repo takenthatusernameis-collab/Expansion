@@ -1,0 +1,42 @@
+name: Harmony discovery batch 012
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-DISCOVERY-BATCH-012.yaml"
+      - "experiments/HARMONY-FIN-0062.yaml"
+      - "experiments/HARMONY-FIN-0063.yaml"
+      - "experiments/HARMONY-FIN-0064.yaml"
+      - "experiments/HARMONY-FIN-0065.yaml"
+      - "experiments/run_harmony_discovery_batch_012.py"
+      - "tests/test_discovery_batch_012.py"
+      - ".github/workflows/harmony-discovery-batch-012.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discovery-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified futures deep-history cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+          fail-on-cache-miss: true
+      - name: Install test runner
+        run: python -m pip install --disable-pip-version-check --no-input pytest
+      - name: Validate frozen batch contract
+        run: python -m pytest -q tests/test_discovery_batch_012.py
+      - name: Execute bounded discovery/deep gate
+        run: python experiments/run_harmony_discovery_batch_012.py
+      - name: Upload batch evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-discovery-batch-012
+          path: artifacts/HARMONY-DISCOVERY-BATCH-012
+          if-no-files-found: error
+          retention-days: 90
