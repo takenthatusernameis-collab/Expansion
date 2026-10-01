@@ -1,0 +1,41 @@
+name: Harmony external data gateway 001
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-DATA-GATEWAY-001.yaml"
+      - "data_sources/harmony_data_gateway.py"
+      - "experiments/run_harmony_data_gateway_001.py"
+      - ".github/workflows/harmony-data-gateway-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore external-data cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/harmony_gateway_001
+          key: harmony-data-gateway-001-v1
+      - name: Install runtime
+        run: python -m pip install --disable-pip-version-check --no-input requests pytest
+      - name: Validate gateway
+        run: python - <<'PY'
+from data_sources.harmony_data_gateway import binance_monthly_url
+assert binance_monthly_url("BTCUSDT",2025,10,"1h").endswith("/BTCUSDT/1h/BTCUSDT-1h-2025-10.zip")
+print("gateway smoke PASS")
+PY
+      - name: Acquire fixed external datasets
+        run: python experiments/run_harmony_data_gateway_001.py
+      - name: Upload data-gateway manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-data-gateway-001
+          path: artifacts/HARMONY-DATA-GATEWAY-001
+          if-no-files-found: error
+          retention-days: 90
