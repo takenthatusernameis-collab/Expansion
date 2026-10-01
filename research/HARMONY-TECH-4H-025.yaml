@@ -82,6 +82,17 @@ deep_validation:
   costs_bps: [11, 16.5, 22]
   oos_halves_required_positive: true
   promotion_guarded_requires: "OOS Sharpe >= 0.90 at 11bp, >=0.50 at 22bp, positive both OOS halves, and no benchmark-only explanation."
+execution_accounting:
+  signal_timing: "evaluate on completed 4h bar; enter at next 4h bar open"
+  normal_exit: "exit at the open of the bar exactly 6 bars after entry"
+  stop_loss: false
+  take_profit: false
+  trailing_stop: false
+portfolio_accounting:
+  sizing: "fixed 1/N gross slot per asset across the frozen universe; unused slots remain cash"
+  gross_exposure_cap: 1.0
+  transaction_cost_application: "fee plus slippage multiplied by position weight at each entry and exit; never charged against full portfolio equity per trade"
+
 integrity:
   no_parameter_search: true
   no_universe_search: true
