@@ -1,0 +1,7 @@
+experiment_id: HARMONY-FIN-0063
+strategy_id: monthly_salience_20d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-012
+definition: "Monthly long lowest/short highest 20-day salience-theory return distortion with theta=0.1 and delta=0.7."
+external_evidence:
+  - "Cai & Zhao, Journal of Banking & Finance (2024), DOI 10.1016/j.jbankfin.2023.107052"
