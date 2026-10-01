@@ -121,8 +121,8 @@ def signal(cid,df,i):
     trend=1 if e20>e50 and slope>0 else -1 if e20<e50 and slope<0 else 0
     if trend==0:return 0
     # Common short-pullback diagnostics.
-    pull_long=(float(df["close"].iloc[i-1])<float(df["close"].iloc[i-2]) and float(df["close"].iloc[i])<=float(df["close"].iloc[i-1]))
-    pull_short=(float(df["close"].iloc[i-1])>float(df["close"].iloc[i-2]) and float(df["close"].iloc[i])>=float(df["close"].iloc[i-1]))
+    pull_long=(float(df["close"].iloc[i-1])<float(df["close"].iloc[i-2]))
+    pull_short=(float(df["close"].iloc[i-1])>float(df["close"].iloc[i-2]))
     prev_hi=max(float(df["high"].iloc[i-1]),float(df["high"].iloc[i-2]));prev_lo=min(float(df["low"].iloc[i-1]),float(df["low"].iloc[i-2]))
     if cid=="TC01":
         return 1 if trend==1 and pull_long and min(float(df["low"].iloc[i-2]),float(df["low"].iloc[i-1]))>e50 and c>prev_hi else -1 if trend==-1 and pull_short and max(float(df["high"].iloc[i-2]),float(df["high"].iloc[i-1]))<e50 and c<prev_lo else 0
