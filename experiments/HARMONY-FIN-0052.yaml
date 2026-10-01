@@ -1,0 +1,7 @@
+experiment_id: HARMONY-FIN-0052
+strategy_id: daily_last_day_reversal_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-009
+definition: "Daily long lowest/short highest immediately prior completed daily return."
+external_evidence:
+  - "Zaremba et al., International Review of Financial Analysis (2021), DOI 10.1016/j.irfa.2021.101908"
