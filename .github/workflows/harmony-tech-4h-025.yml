@@ -34,6 +34,10 @@ jobs:
         run: python -m pytest -q tests/test_harmony_tech_4h_025.py
       - name: Download 4h archives and build full indicator warehouse
         run: python experiments/run_harmony_tech_4h_025.py
+      - uses: actions/cache/save@v4
+        with:
+          path: data/cache/harmony_gateway_v8/raw_4h
+          key: harmony-tech-4h-025-raw-v1
       - uses: actions/upload-artifact@v4
         with:
           name: harmony-tech-4h-025
