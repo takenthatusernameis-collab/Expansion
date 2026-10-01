@@ -1,0 +1,31 @@
+batch_id: HARMONY-DISCOVERY-BATCH-011
+status: preregistered_frozen
+dataset:
+  cache_key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+  universe: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+  discovery_end: "2024-05-21"
+  oos_start: "2024-05-22"
+  end: "2025-10-31"
+costs:
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+cheap_gate:
+  minimum_rebalances: 20
+  minimum_cumulative_return_after_costs: 0.0
+  minimum_sharpe_after_costs: 0.0
+  deep_capacity: 1
+integrity:
+  no_parameter_search: true
+  no_universe_search: true
+  no_direction_search: true
+  no_candidate_mutation: true
+  holdout_access_forbidden: true
+candidate:
+  HARMONY-FIN-0057:
+    mechanism: 52-week-high-anchoring
+    schedule: weekly
+    feature: "Nearness52 = prior completed week close divided by maximum close over the prior 52 completed weekly observations"
+    direction: "long highest 3; short lowest 3"
+    external_evidence:
+      - "Jia, Simkins, Yan, Zhang & Zhao, Journal of Banking & Finance (2026), DOI 10.1016/j.jbankfin.2025.107592"
+    translation_note: "This uses weekly closes and a strictly prior 52-week window to prevent lookahead; it is a fixed translation test, not an exact replication of every portfolio-construction choice in the paper."
