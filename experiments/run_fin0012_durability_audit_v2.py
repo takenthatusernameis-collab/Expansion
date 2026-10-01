@@ -1003,7 +1003,7 @@ with equity_path.open("w", newline="") as f:
         })
 
 manifest_final = {
-    "engine_source_commit": ENGINE_SOURCE_COMMIT,
+    "engine_source_commit": "8388dc680571bf3fa849d349b60de99e38ebf8ea",
     "engine_source_path": ".github/workflows/harmony-fin-0012.yml",
     "cache_key": "harmony-binance-um-2021-01-2025-10-v4",
     "files": [{"path": p, "sha256": h, "bytes": z} for p,h,z in sorted(cache_hashes)],
@@ -1030,7 +1030,7 @@ This is a research status, not a trading recommendation.
 
 ## 1. Exact accepted result reproduced
 
-Yes. The verbatim FIN-0012 engine from accepted execution commit {ENGINE_SOURCE_COMMIT} reproduced every accepted reproduction-gate value within 1e-9.
+Yes. The verbatim FIN-0012 engine from accepted execution commit {"8388dc680571bf3fa849d349b60de99e38ebf8ea"} reproduced every accepted reproduction-gate value within 1e-9.
 
 {json.dumps(gate, indent=2, sort_keys=True)}
 
