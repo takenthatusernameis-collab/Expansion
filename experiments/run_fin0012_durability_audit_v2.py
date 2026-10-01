@@ -817,7 +817,7 @@ def residual_metrics_for_trace_v2(trace):
 
 cost_stress_v2 = {}
 for mult in (1.0, 1.5, 2.0):
-    tr = trace_simulate(split, len(dates), "strategy", mult, True)
+    tr = trace_simulate(split, len(dates), "strategy", mult)
     cost_stress_v2[f"{mult:.1f}x"] = {
         "raw": diagnostic_metrics_v2([tr["curve"][i]/tr["curve"][i-1]-1.0 for i in range(1, len(tr["curve"]))]),
         "one_way_turnover": tr["turnover"],
