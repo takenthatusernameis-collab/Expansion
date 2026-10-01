@@ -1,0 +1,3141 @@
+{
+  "assets": {
+    "ADAUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "20749e72a9284667aa6c1dbb0b4f3756581d48effc7ab088b1f25d5a251deba0",
+      "raw_4h_bars": 11694,
+      "request_hashes": [
+        {
+          "bytes": 9527,
+          "month": 7,
+          "sha256": "8fad2118b9f6a6ed5c4ee6840d11f1d06b3f522d0fecf9c0d9777547e1edd766",
+          "year": 2020
+        },
+        {
+          "bytes": 9307,
+          "month": 8,
+          "sha256": "454ad54ede64e14bfc0b7cdeda64cb47800b137a384591cfc2159400b9b186ac",
+          "year": 2020
+        },
+        {
+          "bytes": 8988,
+          "month": 9,
+          "sha256": "98804aa97d25c01905e742221b219a1d3807cc0b3c808cff3c56e445dd2ceae1",
+          "year": 2020
+        },
+        {
+          "bytes": 9213,
+          "month": 10,
+          "sha256": "9a6c283a75381178a3bfbeb6461dfb54f01cfd7cae5439fe83fb5b7346e227da",
+          "year": 2020
+        },
+        {
+          "bytes": 9138,
+          "month": 11,
+          "sha256": "95935aa2d275da4d829f3311cb3b270c6062055256d23494c10b2c13dba60de1",
+          "year": 2020
+        },
+        {
+          "bytes": 9474,
+          "month": 12,
+          "sha256": "5d2b3827b1efd064bfc8db8acb2312f48fd55a3f469b47457038d06647954fbc",
+          "year": 2020
+        },
+        {
+          "bytes": 9856,
+          "month": 1,
+          "sha256": "8aaf1d3e728377264313e5fa91e056b6152f93a0267b53d7e2b9749ba7350ad8",
+          "year": 2021
+        },
+        {
+          "bytes": 9217,
+          "month": 2,
+          "sha256": "901793a72cfbbca8be64d826eb702cf65ee18c4532878ba61a2ee09ed0d5aab1",
+          "year": 2021
+        },
+        {
+          "bytes": 10068,
+          "month": 3,
+          "sha256": "9ed08a647520926ec9becc55233890067b59920e6e7d9a6b8d8d6c598e5c4807",
+          "year": 2021
+        },
+        {
+          "bytes": 9730,
+          "month": 4,
+          "sha256": "136cedeeb6a68ffbc74272c717746349d99e5b8f36b0c2f5fb30f69ec0ed9d07",
+          "year": 2021
+        },
+        {
+          "bytes": 10092,
+          "month": 5,
+          "sha256": "76aa09266de6f9ab3a2456415766d07ea9b15fe9b946b0f793c61ae1914f100d",
+          "year": 2021
+        },
+        {
+          "bytes": 9384,
+          "month": 6,
+          "sha256": "02a375e2c2d9440ab004deb80b1ef02db83e1645357caf71486d221800070794",
+          "year": 2021
+        },
+        {
+          "bytes": 9447,
+          "month": 7,
+          "sha256": "fc29981f4b9041870d71ed09d18f99a0acf2d0976da340fa20ab065e0365761e",
+          "year": 2021
+        },
+        {
+          "bytes": 9741,
+          "month": 8,
+          "sha256": "f5e6d4ee8955a921921649d0af3c5a3ebc9184f1156ff6cdefb98e7295393617",
+          "year": 2021
+        },
+        {
+          "bytes": 9421,
+          "month": 9,
+          "sha256": "bcbd77c2d0b2d0d057fa6c3aabc10e3ba09a326d906fb4df4d306ccd0090ef7e",
+          "year": 2021
+        },
+        {
+          "bytes": 9451,
+          "month": 10,
+          "sha256": "9e99d6b600362311f3adc828da2f6f69740475d130753bcb180f6f94e0d54484",
+          "year": 2021
+        },
+        {
+          "bytes": 9266,
+          "month": 11,
+          "sha256": "a1b91262484c8a82a04c4b26b10b66a14c0d5bb51ac01ccbfae9cf1aec97792b",
+          "year": 2021
+        },
+        {
+          "bytes": 9476,
+          "month": 12,
+          "sha256": "0568fae209ab72098e1a0ce4f2d09d71d301f81b748d9550c1b389fcc0f2c1ee",
+          "year": 2021
+        },
+        {
+          "bytes": 9744,
+          "month": 1,
+          "sha256": "6e3fbd8f753c63fe42e90d1c421b611ee37595496295cc85c465a61970f48901",
+          "year": 2022
+        },
+        {
+          "bytes": 8718,
+          "month": 2,
+          "sha256": "405816f443e83e3d0c82744f67485dd8115869b55375d8aaeaac82e3e281303a",
+          "year": 2022
+        },
+        {
+          "bytes": 9578,
+          "month": 3,
+          "sha256": "1e2760119ae69a84231e9a66d8475c7f00dcc5e2b2953117471fe3b185c90d39",
+          "year": 2022
+        },
+        {
+          "bytes": 9213,
+          "month": 4,
+          "sha256": "017fc0c04af127070154c74aaf69565d6b4127079b55f74ff1e67d7c28b286d0",
+          "year": 2022
+        },
+        {
+          "bytes": 9641,
+          "month": 5,
+          "sha256": "0841aea9fbf0244b0ca85f5cd591150cb94a526e45e92c6fdc07288d5ff1b9ce",
+          "year": 2022
+        },
+        {
+          "bytes": 9326,
+          "month": 6,
+          "sha256": "a2b080b037cd93c7fb06c59c283a2e2f454f2631bcaa0c846ddf63d905212b7a",
+          "year": 2022
+        },
+        {
+          "bytes": 9437,
+          "month": 7,
+          "sha256": "78a0b4ea0f4bc16009eecee854c60c4c4713c0be6b0da9f590de60a854104d02",
+          "year": 2022
+        },
+        {
+          "bytes": 9404,
+          "month": 8,
+          "sha256": "f848d01f0ab5d7688e339fe8a70e259d647324950bb089d2b84708d4aa279751",
+          "year": 2022
+        },
+        {
+          "bytes": 9116,
+          "month": 9,
+          "sha256": "fdfa2be23a827a3c0ab157e3767824adea981a13783fd1a4137ce7aeab75fcdc",
+          "year": 2022
+        },
+        {
+          "bytes": 9287,
+          "month": 10,
+          "sha256": "0bbc10c763790c5404f79fde3601e831dcc26c82a9fd87872fb8af2a8dbb1bc0",
+          "year": 2022
+        },
+        {
+          "bytes": 9054,
+          "month": 11,
+          "sha256": "45d5de140fbe35227e1be68a32b300db41262d0c96c6b3f7b50ad5a7164f70dd",
+          "year": 2022
+        },
+        {
+          "bytes": 9032,
+          "month": 12,
+          "sha256": "7d91bd8d91efbf43d6085dcdb3a352ecb4f9adad4cba6ea68f18cda39a319213",
+          "year": 2022
+        },
+        {
+          "bytes": 9343,
+          "month": 1,
+          "sha256": "de879d677145c87843cf129a4ded326a9099ba2971ccaf4ba2020de2f57a5cef",
+          "year": 2023
+        },
+        {
+          "bytes": 8422,
+          "month": 2,
+          "sha256": "06ef94207284a7ddc88656193aabc769e49fc515f9f798f2fc3f0b5b71abbb0c",
+          "year": 2023
+        },
+        {
+          "bytes": 9375,
+          "month": 3,
+          "sha256": "19d85a34e8649340cddb6bf10b191686dae6e9b84c5dabd10924ff58fe893119",
+          "year": 2023
+        },
+        {
+          "bytes": 8999,
+          "month": 4,
+          "sha256": "e3466d2a783baa0a467a7130cecbde5cd5ea442c8ffa18a657ae77c1fa173c70",
+          "year": 2023
+        },
+        {
+          "bytes": 9085,
+          "month": 5,
+          "sha256": "04787880eca1475f96dcd8a8af727da3d2ef29a5961f4a1c11b51dca3f791600",
+          "year": 2023
+        },
+        {
+          "bytes": 9066,
+          "month": 6,
+          "sha256": "10ab72c7cb58cdb532577f7d1b1b794d56e71bb443d2c6c54054c402e74abd25",
+          "year": 2023
+        },
+        {
+          "bytes": 9163,
+          "month": 7,
+          "sha256": "2967eb6c48cb51d7dd285d837e59a923c38038ee5a338ced36ac978cc132f023",
+          "year": 2023
+        },
+        {
+          "bytes": 9038,
+          "month": 8,
+          "sha256": "5cf72e38378c3b1d47b1c8dbd062a4c20f21c02109a3e049150f75d1563b7932",
+          "year": 2023
+        },
+        {
+          "bytes": 8541,
+          "month": 9,
+          "sha256": "4404b5747c4d48445f7f9ac9c91bf2273f8d5b3bab6a2517602c1dd8b535340a",
+          "year": 2023
+        },
+        {
+          "bytes": 9070,
+          "month": 10,
+          "sha256": "4dae67d4c93951f6ad5608acd5627977907663319d960a58cc1cb33a58334e3f",
+          "year": 2023
+        },
+        {
+          "bytes": 9003,
+          "month": 11,
+          "sha256": "9f8fb543a188175509df1d48781963dd87a2b16874b66d2dc3f6a5bd0f52ec32",
+          "year": 2023
+        },
+        {
+          "bytes": 9538,
+          "month": 12,
+          "sha256": "c82299e3d9d91ab31e4cfd16c1b740feaca96edf31bb544bd1b646d29d14d3c4",
+          "year": 2023
+        },
+        {
+          "bytes": 9382,
+          "month": 1,
+          "sha256": "10cd1cc6df3b5738fe5464530bcbc724e907a472aa7e8cbee6c8eed0c11c5d77",
+          "year": 2024
+        },
+        {
+          "bytes": 8823,
+          "month": 2,
+          "sha256": "98b6782490138eb2a8fcd8fecf4ea0049940192f3e99ceb63c8f1d6f1d1c6ef3",
+          "year": 2024
+        },
+        {
+          "bytes": 9520,
+          "month": 3,
+          "sha256": "3e4ef40be61d344db43a2c8219977a8a0fa2fe5d817929ef62b75bfeba2c2d74",
+          "year": 2024
+        },
+        {
+          "bytes": 9083,
+          "month": 4,
+          "sha256": "9d22f04412dba598c568ea8f93ad2f44caf9104d85855edd60846be5675826ba",
+          "year": 2024
+        },
+        {
+          "bytes": 9178,
+          "month": 5,
+          "sha256": "895b42bc3e27c07483351c0e36036e009c5873f28a8280c9d59fe3c741ccaafa",
+          "year": 2024
+        },
+        {
+          "bytes": 8852,
+          "month": 6,
+          "sha256": "83f895f46b215d776e7cdc7ff93dd1d37626725545bfd60aa147db253a96324d",
+          "year": 2024
+        },
+        {
+          "bytes": 9233,
+          "month": 7,
+          "sha256": "ea1ae3f355874d68b0a7f7739c0f819a5f718cc51b54a81df0c468351796e7c1",
+          "year": 2024
+        },
+        {
+          "bytes": 9189,
+          "month": 8,
+          "sha256": "5b1ab0051bf895f7bcaa3b9ca1379d1b62917dfce01a19b9d3e4bbb2b8cdb110",
+          "year": 2024
+        },
+        {
+          "bytes": 8835,
+          "month": 9,
+          "sha256": "8dcb1ceaa37f7594625f27d120cc19fb3a289fd6bdbdad73edd0aafb1583d21a",
+          "year": 2024
+        },
+        {
+          "bytes": 9051,
+          "month": 10,
+          "sha256": "9dcdf1dfb98425ab364e8b912e2befc853b7413a1478babcbdb0c168dfe3cbf4",
+          "year": 2024
+        },
+        {
+          "bytes": 9449,
+          "month": 11,
+          "sha256": "3c27066508ab021128f9b2f2bf2f9a7e17829cb351eeb76711649157c335b4e1",
+          "year": 2024
+        },
+        {
+          "bytes": 9716,
+          "month": 12,
+          "sha256": "32461914d0e66a78d3b0094b49596c8269f08e09a2a193a7f2063130a432e563",
+          "year": 2024
+        },
+        {
+          "bytes": 9675,
+          "month": 1,
+          "sha256": "12c7bc99dc228bc0a59c2ce47d3f36a8c81bb7ecaecca49420b3a195c412aa9e",
+          "year": 2025
+        },
+        {
+          "bytes": 8754,
+          "month": 2,
+          "sha256": "dc257f91cae18f506bb7d634ef203897c55026e8b1a7e4d4cc397ed96b9ea691",
+          "year": 2025
+        },
+        {
+          "bytes": 9693,
+          "month": 3,
+          "sha256": "f7b0dc55fc204934e92bab053d98f886572abab3a0e1871b10184e296814aeaf",
+          "year": 2025
+        },
+        {
+          "bytes": 9247,
+          "month": 4,
+          "sha256": "ab733fb592be10c03926851ed4f0020b1a2aaef1ed57a89515983d5ee5c69483",
+          "year": 2025
+        },
+        {
+          "bytes": 9566,
+          "month": 5,
+          "sha256": "5c59b3c44bd59aa6b23e8a71a791fb4638281b746c5d15cfcb9d4cdbc6371af1",
+          "year": 2025
+        },
+        {
+          "bytes": 9154,
+          "month": 6,
+          "sha256": "e276d898644fb279372ff0ec258d864bae6b564b1903943fee2b9363a419c438",
+          "year": 2025
+        },
+        {
+          "bytes": 9629,
+          "month": 7,
+          "sha256": "fe7a905ad3c8393b130bc63d0a8bfe86ff49293468afe36197678defd302724b",
+          "year": 2025
+        },
+        {
+          "bytes": 9692,
+          "month": 8,
+          "sha256": "d1bdd3e36b5d8fecdcb4b8ad574ffbb094a7a9cf8e5eda81a768b3afb15d3c82",
+          "year": 2025
+        },
+        {
+          "bytes": 9193,
+          "month": 9,
+          "sha256": "9fc6ca47db6b9cf791ea4d2a94dd49d5ddf487264a01da48e4c204bf9c5687e2",
+          "year": 2025
+        },
+        {
+          "bytes": 9511,
+          "month": 10,
+          "sha256": "b43760adc25f8a306d10037eb84e10db7e30aea55ac0af52122a3a03c3585689",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "BCHUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "2a79c7aeb1ba16d50880af24e47e474024638df814933cb62931daa059bb366d",
+      "raw_4h_bars": 11694,
+      "request_hashes": [
+        {
+          "bytes": 9361,
+          "month": 7,
+          "sha256": "5ef98135c33469a9750dec336e1c7c0d216007aade724fd1a767cae07551dc41",
+          "year": 2020
+        },
+        {
+          "bytes": 9630,
+          "month": 8,
+          "sha256": "85aaa47509a50b2ad240dd771497e938eaf3bf46703e76bc59098dabae66fb2c",
+          "year": 2020
+        },
+        {
+          "bytes": 9143,
+          "month": 9,
+          "sha256": "251420b9bc576de2a6e820c331255e3071e6283e9fd998f84d943354674746e3",
+          "year": 2020
+        },
+        {
+          "bytes": 9529,
+          "month": 10,
+          "sha256": "b71d5826629a31a20f179be61d0a777089362058657158900919573c3c2551a1",
+          "year": 2020
+        },
+        {
+          "bytes": 9360,
+          "month": 11,
+          "sha256": "12d52412b63c480fad7f074c00843514c02cb08a1e51f0d16ae341d2de118744",
+          "year": 2020
+        },
+        {
+          "bytes": 9764,
+          "month": 12,
+          "sha256": "bec64fa8a81f5e2b82e17488fbea78fa7f90f8817f3a72d0651bbd45c8bee05d",
+          "year": 2020
+        },
+        {
+          "bytes": 10040,
+          "month": 1,
+          "sha256": "08b6c9069a2091b3a7d567a5c8bc0ba259e8b84059232a2b50b4a695e33c600e",
+          "year": 2021
+        },
+        {
+          "bytes": 9096,
+          "month": 2,
+          "sha256": "921dd102baa0d5144cdaf446cee0c7c814af5fc37a5c3cebb434bd2987442113",
+          "year": 2021
+        },
+        {
+          "bytes": 9820,
+          "month": 3,
+          "sha256": "45d6276839391f4052120ec8c99b4f767a3166eb0f06a641c5eba342c91bbfe4",
+          "year": 2021
+        },
+        {
+          "bytes": 9760,
+          "month": 4,
+          "sha256": "0c912b3900d0d1d5cc6c74613499234f2011379231b5435b0a895208b9708324",
+          "year": 2021
+        },
+        {
+          "bytes": 10312,
+          "month": 5,
+          "sha256": "ac9f926fa31db0e9b87bbe74657ee5875fde050c88d90f102ed5b4727b02e6c5",
+          "year": 2021
+        },
+        {
+          "bytes": 9630,
+          "month": 6,
+          "sha256": "7a0171808292c5537765382304acecd044b6ee5dc88d14c83a5af9e7724c114c",
+          "year": 2021
+        },
+        {
+          "bytes": 9803,
+          "month": 7,
+          "sha256": "0dee31936da48a5f7ed5806e3d1972dedd86537353d6cd78bc13684d0d3bcec7",
+          "year": 2021
+        },
+        {
+          "bytes": 9877,
+          "month": 8,
+          "sha256": "b9bb5dd4a175a275dad8f6e7b806a736a7660b58205255722a7312f96eeadfe9",
+          "year": 2021
+        },
+        {
+          "bytes": 9559,
+          "month": 9,
+          "sha256": "f0c54d49bc69df2636812be434cea1a6bc6b7344e0f51886c84c2f57e821cdb6",
+          "year": 2021
+        },
+        {
+          "bytes": 9803,
+          "month": 10,
+          "sha256": "2385c93882e4d1594c235a15a52c187535aa66bb44081e6b7fce7d1b8f01d304",
+          "year": 2021
+        },
+        {
+          "bytes": 9478,
+          "month": 11,
+          "sha256": "23755440e5ddbdbc4640b1598f496ee766339dbb1b47a41b355385c19b63a523",
+          "year": 2021
+        },
+        {
+          "bytes": 9683,
+          "month": 12,
+          "sha256": "7ce696a77c7840f860c6b85376e6cfcd0b8163830d661db07695a6a141d5bda0",
+          "year": 2021
+        },
+        {
+          "bytes": 9750,
+          "month": 1,
+          "sha256": "62ab926f8e461e2759f2d564b9763147682816ec13f55c6a84689fec8eb982db",
+          "year": 2022
+        },
+        {
+          "bytes": 8857,
+          "month": 2,
+          "sha256": "53d29051ecbe5ec365e4e29c64e04c12e15b68e0a0c7e2443f60f87ce549e4db",
+          "year": 2022
+        },
+        {
+          "bytes": 9785,
+          "month": 3,
+          "sha256": "2ca908c3cb0143b9ae48861110b9c5023005136f6594c8eed02326f17d5bb6be",
+          "year": 2022
+        },
+        {
+          "bytes": 9452,
+          "month": 4,
+          "sha256": "c7f38450633bce0c9a8c9151a967b777dbf8979dd21a707f6b2204d3f5a37dbd",
+          "year": 2022
+        },
+        {
+          "bytes": 9768,
+          "month": 5,
+          "sha256": "55c8119746d91c91da4f783e284c0aa2be212ce67d9684de56efe74750168bc0",
+          "year": 2022
+        },
+        {
+          "bytes": 9515,
+          "month": 6,
+          "sha256": "cdca67c073196ff1f36ff9819e0a736487e007c9d830a578ac39167edca74772",
+          "year": 2022
+        },
+        {
+          "bytes": 9732,
+          "month": 7,
+          "sha256": "1d71b097b3b32033ecfe8a90c35b64b7d97b2029be80b9a0b67646a301e87158",
+          "year": 2022
+        },
+        {
+          "bytes": 9696,
+          "month": 8,
+          "sha256": "cebcf724a94f82fbcbd74662b9878a3ee18923f24978faa3eb928baadef79770",
+          "year": 2022
+        },
+        {
+          "bytes": 9351,
+          "month": 9,
+          "sha256": "2afbe2227a2a3a0a25ff6613987b1482f1a0fd5a090a85558bc4e65c7227d175",
+          "year": 2022
+        },
+        {
+          "bytes": 9502,
+          "month": 10,
+          "sha256": "0ddda31668f968653328dc1b5fd02f9a09071f9a57d743cdd93d0d30b6a128bb",
+          "year": 2022
+        },
+        {
+          "bytes": 9345,
+          "month": 11,
+          "sha256": "f3ad92c0f203b9a3b79191dcb2b8611cd6d9c7ee1b45361e6bedf0e085e0b46e",
+          "year": 2022
+        },
+        {
+          "bytes": 9362,
+          "month": 12,
+          "sha256": "da039c332dabe8c87cfd49ffe1a116c0b223e6d137b41008ef71031562bb8202",
+          "year": 2022
+        },
+        {
+          "bytes": 9622,
+          "month": 1,
+          "sha256": "a63ff4c839ddd02d0ea3efce3d56ef89aafd4daf29303542d7878233cba9319b",
+          "year": 2023
+        },
+        {
+          "bytes": 8769,
+          "month": 2,
+          "sha256": "5889aead76a651412a589717fb06880ab5dc65d8172ce390caac79239ea325de",
+          "year": 2023
+        },
+        {
+          "bytes": 9595,
+          "month": 3,
+          "sha256": "42a7b99935782a395dee50011e57cfd5e1f1517e6118a2cb44a3c1f6dacbfb94",
+          "year": 2023
+        },
+        {
+          "bytes": 9168,
+          "month": 4,
+          "sha256": "55cab013bf04db9c75cbb46acd7de0ea0d4fd9ce67dcfd1cc368a3da3ee0304d",
+          "year": 2023
+        },
+        {
+          "bytes": 9393,
+          "month": 5,
+          "sha256": "e450edcd5e7dd88e72ab59fe94236da1071302410615ff9c4d99c224ad587d3b",
+          "year": 2023
+        },
+        {
+          "bytes": 9456,
+          "month": 6,
+          "sha256": "73e4f71708032ebc2385e5e36e810d4effd97764c768dd8862f47216c8509206",
+          "year": 2023
+        },
+        {
+          "bytes": 10195,
+          "month": 7,
+          "sha256": "3096522fdef831a07143f14decce9b482fbe55d9e3594352422d9da218ccbd67",
+          "year": 2023
+        },
+        {
+          "bytes": 9930,
+          "month": 8,
+          "sha256": "6df1fdfddb9c5f3cf0989fd71468efcb46486c6624392bf7e66d341e5d3fe6e8",
+          "year": 2023
+        },
+        {
+          "bytes": 9569,
+          "month": 9,
+          "sha256": "2fc6e346ff6a5a604f48965dca15ac5799bb2f434e075e866392064e4a0fdd8f",
+          "year": 2023
+        },
+        {
+          "bytes": 9854,
+          "month": 10,
+          "sha256": "1702a2c697b6c7ca2609dc8f79f71c3876536407f4fb15449768f4613f8eeed4",
+          "year": 2023
+        },
+        {
+          "bytes": 9381,
+          "month": 11,
+          "sha256": "d6d2a2cc7eefcf308cf390c731a455d750dd9c18d721f04f5e681ee7c82bd066",
+          "year": 2023
+        },
+        {
+          "bytes": 9770,
+          "month": 12,
+          "sha256": "3078bfe5ef55c2948e9c178353ecf7508706f8913158e5fad2dab2b3a8b67d77",
+          "year": 2023
+        },
+        {
+          "bytes": 9795,
+          "month": 1,
+          "sha256": "93cfc5c1346d00098c616f48aec919293711e425f05ab3e4a4001035d3fac4ce",
+          "year": 2024
+        },
+        {
+          "bytes": 9145,
+          "month": 2,
+          "sha256": "e60fdeac517542cf5bf03f6ff1c2d18dbe594f43ef86369afd67f9bf0b39f507",
+          "year": 2024
+        },
+        {
+          "bytes": 10213,
+          "month": 3,
+          "sha256": "9900b8d02737d1a6ba4b68b22763ff36974a3eddb92d7d7c77fd3a582d2dbeec",
+          "year": 2024
+        },
+        {
+          "bytes": 9841,
+          "month": 4,
+          "sha256": "c53d10cc197450a4bbc20c1bb8003bdb64d05a90fde0064e41935bbb79057aae",
+          "year": 2024
+        },
+        {
+          "bytes": 9875,
+          "month": 5,
+          "sha256": "6a030d87f24124ef08a2f8d090aa706536b3e2fd950c501fa7922bfe33ff5aa1",
+          "year": 2024
+        },
+        {
+          "bytes": 9476,
+          "month": 6,
+          "sha256": "ed9a921133c19a89ab4d77801c14e098ece5e42369a85faa90e889c059dea53e",
+          "year": 2024
+        },
+        {
+          "bytes": 9891,
+          "month": 7,
+          "sha256": "b44608c3c8e3d3c3208f125aef3053e7a81496ac675c0f79fb01df5f6ee52918",
+          "year": 2024
+        },
+        {
+          "bytes": 9822,
+          "month": 8,
+          "sha256": "570a7ad43126c66f32b25bdc5e18d55cf9019bbf9ed3066747c1d894a6a7fe04",
+          "year": 2024
+        },
+        {
+          "bytes": 9360,
+          "month": 9,
+          "sha256": "2e7ddc1ecb0e73d04c57f4a5581cfae83cc19ba5a2d944d454fdb0681d719b3b",
+          "year": 2024
+        },
+        {
+          "bytes": 9657,
+          "month": 10,
+          "sha256": "8710ebdef6ffdb9b5cdf6aad0cc6a4ec24792baa9b8f0cffaf68f49578b039f7",
+          "year": 2024
+        },
+        {
+          "bytes": 9683,
+          "month": 11,
+          "sha256": "5c11d2b1cf41bd512f2409e65933cf15857b24565ee5a2732795d39a72bd8be7",
+          "year": 2024
+        },
+        {
+          "bytes": 10008,
+          "month": 12,
+          "sha256": "ab0bdcaeb63d107ab30613d7d1923c6a6bc8db05841efbde797b0c10fec0957c",
+          "year": 2024
+        },
+        {
+          "bytes": 9799,
+          "month": 1,
+          "sha256": "2dd8abc4acbf65937913837cbbd6e496aa16eeba96436dfdd13046378d0c9c60",
+          "year": 2025
+        },
+        {
+          "bytes": 8801,
+          "month": 2,
+          "sha256": "01d6ebc1e0b3d838060c5f58bbab4a17e9cd3b132fde12c9e07b877c1433cf82",
+          "year": 2025
+        },
+        {
+          "bytes": 9854,
+          "month": 3,
+          "sha256": "0ec67ffaa8adc93f1e1055b1b2d355a1d7f2c48e47d23a31129ab32d34897af5",
+          "year": 2025
+        },
+        {
+          "bytes": 9533,
+          "month": 4,
+          "sha256": "112b33740e1414a38f48b0c7f35346daa2e63fad0032f309ed633500efc42562",
+          "year": 2025
+        },
+        {
+          "bytes": 9830,
+          "month": 5,
+          "sha256": "a8ddc3c57e2081f97259bf223e053184a810d5b4447634d9fe5473210318620d",
+          "year": 2025
+        },
+        {
+          "bytes": 9589,
+          "month": 6,
+          "sha256": "ca0efdfc631575e477d8a6a7ba06eb9ed22e920d15755033a27d730e8e71e53a",
+          "year": 2025
+        },
+        {
+          "bytes": 9937,
+          "month": 7,
+          "sha256": "67242774c66ebda93c600e44a731afd4f6c8d85ca02abaa872503348237353f5",
+          "year": 2025
+        },
+        {
+          "bytes": 9860,
+          "month": 8,
+          "sha256": "350aafcf613a24dc01caf48ea509001d94d250f93a23547cdb24636586b0b408",
+          "year": 2025
+        },
+        {
+          "bytes": 9498,
+          "month": 9,
+          "sha256": "343b0f1a478f6b57befe5f2a5ae1642307fd1e6f4b4674c72aaa6502f479b194",
+          "year": 2025
+        },
+        {
+          "bytes": 9863,
+          "month": 10,
+          "sha256": "85b4c3facc305ceb044d685441962857ee116c81a594558d627e1d827dd1209d",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "BNBUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "dd34ff4ebd83251a583f6f89267a5e0e56b514da7bae943bb51e0bc5e3bc25a1",
+      "raw_4h_bars": 11694,
+      "request_hashes": [
+        {
+          "bytes": 9222,
+          "month": 7,
+          "sha256": "906ffd18471ca1f32dda25162a5c902966b15821cf0c5c20777d1a5329351fdd",
+          "year": 2020
+        },
+        {
+          "bytes": 9297,
+          "month": 8,
+          "sha256": "897ddc260c40fdd886343364c1686283ed107960259e41976354c802f5aa7136",
+          "year": 2020
+        },
+        {
+          "bytes": 9326,
+          "month": 9,
+          "sha256": "a11f77fe2cb0fb63ea7ced52eca0993b8df443cd7d61f27fd7fb91f0d110672b",
+          "year": 2020
+        },
+        {
+          "bytes": 9403,
+          "month": 10,
+          "sha256": "07c7f346c1706be7710ce603fdb0c26107d3dc7624dfda9ace32da2eefc29d86",
+          "year": 2020
+        },
+        {
+          "bytes": 9176,
+          "month": 11,
+          "sha256": "b7a3b4545ddbe67a9a69a8efb530845fc07ee6cd5f68db90a80a6fe1cb511922",
+          "year": 2020
+        },
+        {
+          "bytes": 9488,
+          "month": 12,
+          "sha256": "17766eec4bd4c309b75cd6772f65a78158396e67f914bd9a996931be838fec4d",
+          "year": 2020
+        },
+        {
+          "bytes": 9652,
+          "month": 1,
+          "sha256": "b8e06c9eb0e215393bfd80c0a8a12d1044aa748bf1df0fa2b405a64e3b772496",
+          "year": 2021
+        },
+        {
+          "bytes": 9366,
+          "month": 2,
+          "sha256": "f55e98d15c55e1c3fee6d7f932d0c186b776b6da6c68cab910a64cc0655679fc",
+          "year": 2021
+        },
+        {
+          "bytes": 10327,
+          "month": 3,
+          "sha256": "7de780e43c29418e5451539a5a626d9d0a66982ad9d7a59373d266b80cdbd0db",
+          "year": 2021
+        },
+        {
+          "bytes": 10276,
+          "month": 4,
+          "sha256": "5de85c4dca66e85372a8abb66136cb4683b4da3f481fc1a99e30350cd6884f18",
+          "year": 2021
+        },
+        {
+          "bytes": 10351,
+          "month": 5,
+          "sha256": "f1172cdb15368499ef36bc9a365c610ba10db2cd362a0b6b1aca9ff813454a6c",
+          "year": 2021
+        },
+        {
+          "bytes": 9850,
+          "month": 6,
+          "sha256": "59c22ad40f1c8653207dd570f2491d9aa72217cc755be6070f6b46315bfc4b9f",
+          "year": 2021
+        },
+        {
+          "bytes": 9940,
+          "month": 7,
+          "sha256": "00bbc369eb2168eba483c89c06e080285e9ef1927386a9b52d82c8a360f45f31",
+          "year": 2021
+        },
+        {
+          "bytes": 9954,
+          "month": 8,
+          "sha256": "2abc7664783890cedd7e68fdf42dfddd1b3ac4bb16745e63a36793af470a3b29",
+          "year": 2021
+        },
+        {
+          "bytes": 9666,
+          "month": 9,
+          "sha256": "a13dc1e45f3d3998148220e2e8729830dce86989f87cf9e57ce4ce81539ec2f6",
+          "year": 2021
+        },
+        {
+          "bytes": 9913,
+          "month": 10,
+          "sha256": "a9a436dd1140c0a0e0a3bbc0f20a6a03784be1ecd9554ff72a9b74af83fe23df",
+          "year": 2021
+        },
+        {
+          "bytes": 9699,
+          "month": 11,
+          "sha256": "c5885c246dac5c5a411a382bdc35ce0531eda4b43121c95ff62e2511538b1716",
+          "year": 2021
+        },
+        {
+          "bytes": 9859,
+          "month": 12,
+          "sha256": "9d705e20c81d6be46cbf7ab2ce802658030ce74ef74938e93e70ae14b47a0b18",
+          "year": 2021
+        },
+        {
+          "bytes": 9972,
+          "month": 1,
+          "sha256": "ea8f665bb1703949f89bdb6a2a3f91fc38e102d381c255a2721398ddbe75d1ae",
+          "year": 2022
+        },
+        {
+          "bytes": 8997,
+          "month": 2,
+          "sha256": "dda8b6516fb3d976e1cf618647cb8fd145e2963b4eafcd97ecbcfa2134e934d0",
+          "year": 2022
+        },
+        {
+          "bytes": 9776,
+          "month": 3,
+          "sha256": "0c9afa2982f366e594dd5b0973c653c916a366703978d48d9fea77ccccebc311",
+          "year": 2022
+        },
+        {
+          "bytes": 9425,
+          "month": 4,
+          "sha256": "e85eaa9878503b824077408898a7ea88c3430db04bf6bd59f71926503e155570",
+          "year": 2022
+        },
+        {
+          "bytes": 9925,
+          "month": 5,
+          "sha256": "9f872849f5955ab08ef17f5386d0515e00ee0ffc27b4c58cb746012b8240bd95",
+          "year": 2022
+        },
+        {
+          "bytes": 9637,
+          "month": 6,
+          "sha256": "5fa8875b1695e181234490e022133858f156e73c91da474cb6123f02f73a919d",
+          "year": 2022
+        },
+        {
+          "bytes": 9850,
+          "month": 7,
+          "sha256": "fef3a49c7308ba1a3fad1ab8f74dde862774f16a03f9a9db4655dc7a2f4b302e",
+          "year": 2022
+        },
+        {
+          "bytes": 9873,
+          "month": 8,
+          "sha256": "e34809b5c93a7ecff1e164aa7c4e164344633681b65c48259dfb1975e7c86442",
+          "year": 2022
+        },
+        {
+          "bytes": 9422,
+          "month": 9,
+          "sha256": "22fdb69d04caec4924431217304e22bbf7623e00f1d93724bedef73dfde41c5e",
+          "year": 2022
+        },
+        {
+          "bytes": 9617,
+          "month": 10,
+          "sha256": "eb9cd1400bc9e565280c9cb6ed6a53a589fc920bd2dd4770238912a9bd111683",
+          "year": 2022
+        },
+        {
+          "bytes": 9692,
+          "month": 11,
+          "sha256": "74e86db1cc05346d802c6225c8177b0f6ae03074db29684d691bc1794cb54b23",
+          "year": 2022
+        },
+        {
+          "bytes": 9668,
+          "month": 12,
+          "sha256": "9fa54da4c94d4a5c307ce39f0d44afb0e87626434b3df653a8e48458d640b8ff",
+          "year": 2022
+        },
+        {
+          "bytes": 9732,
+          "month": 1,
+          "sha256": "e22b982cac2a10ead78267a563c6fe9a0410cc83575ca6b778612c2b4ff76ba1",
+          "year": 2023
+        },
+        {
+          "bytes": 8831,
+          "month": 2,
+          "sha256": "b81546a3037bc3c86fca3af096e48782ff334ac6078a063fdccaff41a7a0ae02",
+          "year": 2023
+        },
+        {
+          "bytes": 9753,
+          "month": 3,
+          "sha256": "644b1f7e0b72da6a48940928b1a4779568c0adb0124aca08df2303fb4ed3362a",
+          "year": 2023
+        },
+        {
+          "bytes": 9265,
+          "month": 4,
+          "sha256": "1a6977e3ce94739c77b44c7151303cf415493ea0656671f6a37a2d6f7065ee4c",
+          "year": 2023
+        },
+        {
+          "bytes": 9430,
+          "month": 5,
+          "sha256": "b8c13ceb9d6825be5dccc3c69976e6e6068f09542b264cbf72e86c14b8241d1b",
+          "year": 2023
+        },
+        {
+          "bytes": 9507,
+          "month": 6,
+          "sha256": "b4a909e2dd8f28a26afd91328916706355d82720ef874aa7687f7ac34f668cca",
+          "year": 2023
+        },
+        {
+          "bytes": 9520,
+          "month": 7,
+          "sha256": "5dff80c4766937a97930469ba63386f5a01d894af65fbcc9e8be2ab834a9ea50",
+          "year": 2023
+        },
+        {
+          "bytes": 9417,
+          "month": 8,
+          "sha256": "5f56f284c5fbe4169171fc1405ea87af08346eabd00c377ae34bc45f9cbb6693",
+          "year": 2023
+        },
+        {
+          "bytes": 8964,
+          "month": 9,
+          "sha256": "f74169d6d507d8002fab469848d281dd367cfca9ffc55742f9aee1f44962e8a2",
+          "year": 2023
+        },
+        {
+          "bytes": 9317,
+          "month": 10,
+          "sha256": "01549be9dc4f65aa6010f6af3ba1c9639e5be2c004b745a0cec7420197baff74",
+          "year": 2023
+        },
+        {
+          "bytes": 9284,
+          "month": 11,
+          "sha256": "ca2a70ab55b84a50f25b8ac7f712cf0ea4474a7a0b4001dac562676164fa29a5",
+          "year": 2023
+        },
+        {
+          "bytes": 9688,
+          "month": 12,
+          "sha256": "efa5903bfb62ad2d903107adbe1ae2aaaf18a714b5543bb6d9246b5472d1a78c",
+          "year": 2023
+        },
+        {
+          "bytes": 9685,
+          "month": 1,
+          "sha256": "f26f44886fcc19a1876af971846c512cc139837d6458f2b511c309a54e155ba0",
+          "year": 2024
+        },
+        {
+          "bytes": 9098,
+          "month": 2,
+          "sha256": "c4d3e0b51614f9a27d3d8948bc106d7e1a76f3c8231ce9f71d20944fdd5a3496",
+          "year": 2024
+        },
+        {
+          "bytes": 10085,
+          "month": 3,
+          "sha256": "fcd15bf1c1465b59da682d0f8a3f1f5a4ce1925019c405db05bb6456dc6d2b80",
+          "year": 2024
+        },
+        {
+          "bytes": 9647,
+          "month": 4,
+          "sha256": "bf9d62fe2410e0db718a47be3d0dc34ca59c2e3ae6b5c26a935466b0771af75a",
+          "year": 2024
+        },
+        {
+          "bytes": 9631,
+          "month": 5,
+          "sha256": "5a0d9b2e4fea40c85ca5d10026971158bbca089ea87e31150b7d4784e3c2df53",
+          "year": 2024
+        },
+        {
+          "bytes": 9455,
+          "month": 6,
+          "sha256": "30bbba751f2510bee34e9ae1ef37727de44b56e459cd4228c72b552944eec63a",
+          "year": 2024
+        },
+        {
+          "bytes": 9664,
+          "month": 7,
+          "sha256": "6739b4e5179b91b5031e91055a2d0c5aad969e49381a5f221eea0d3b2b9efe72",
+          "year": 2024
+        },
+        {
+          "bytes": 9740,
+          "month": 8,
+          "sha256": "feb2dc8dd78e65be6c99cd3abf9ac3cce0acc29e7614a4a7c0bb4d1e11fa5b33",
+          "year": 2024
+        },
+        {
+          "bytes": 9403,
+          "month": 9,
+          "sha256": "c1f6e14712d02fc8157c0d4837154810bbd06b9dbedf2b269d65394b314c6922",
+          "year": 2024
+        },
+        {
+          "bytes": 9580,
+          "month": 10,
+          "sha256": "0178375f3b199013a77ec47101ee6749002b56fef7aa173b1081a307816602e0",
+          "year": 2024
+        },
+        {
+          "bytes": 9583,
+          "month": 11,
+          "sha256": "2a9b6509f2ed9039460325c4cb549a5fe008508956813d7f5eb26951547ed6b7",
+          "year": 2024
+        },
+        {
+          "bytes": 9954,
+          "month": 12,
+          "sha256": "44ed2eeff8956aa7ab2d0290b613ee0493cd1a18978f14e6f473bdd8bcdae243",
+          "year": 2024
+        },
+        {
+          "bytes": 9657,
+          "month": 1,
+          "sha256": "5de40596267e3361b290e07afcceb97d6f9a8e689ae54aad5049b3761748670b",
+          "year": 2025
+        },
+        {
+          "bytes": 9015,
+          "month": 2,
+          "sha256": "6ff13c15635a1e9bfae0935059a53d682ecb1b68415b3361b4efe423ac352997",
+          "year": 2025
+        },
+        {
+          "bytes": 9799,
+          "month": 3,
+          "sha256": "1ae6ffab86549e409b540fde945f800a89ca8aabd33e689b45828b8471c04f51",
+          "year": 2025
+        },
+        {
+          "bytes": 9356,
+          "month": 4,
+          "sha256": "1fa27d8a9516a1dd7bbad9a798f7fe1a5515b594df34e512ad478681c7e7e958",
+          "year": 2025
+        },
+        {
+          "bytes": 9664,
+          "month": 5,
+          "sha256": "44296e3508216ef52a19497dda9b5e53e5f1710f1f46508a4c3afc0e501bcac7",
+          "year": 2025
+        },
+        {
+          "bytes": 9180,
+          "month": 6,
+          "sha256": "9b4cccaa3817604ae8f813b73ceb48ec45f4036bba40769a5f3aa4660049a2c9",
+          "year": 2025
+        },
+        {
+          "bytes": 9754,
+          "month": 7,
+          "sha256": "c61e461dc4f30c6aa614dcb9217ee1d1d6a65a02a2589a8120a6b5e263b68043",
+          "year": 2025
+        },
+        {
+          "bytes": 9774,
+          "month": 8,
+          "sha256": "1cae6c3d9d0874ffcfc9b2aca4063cbc07685a91b377f01439561a1357dcb872",
+          "year": 2025
+        },
+        {
+          "bytes": 9523,
+          "month": 9,
+          "sha256": "0689440194cc2d410063258a2e4404f1e7499b00d990f16ea40e477715a3dca5",
+          "year": 2025
+        },
+        {
+          "bytes": 10263,
+          "month": 10,
+          "sha256": "fa2e8ce47b4b7c3ca4750ffa0e28e43e30b9795ab1fae0778a27cfd61943cfe5",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "BTCUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "d9fe297dcdf3a61b8638d1cca1d8f36cc568666e64eb93aea4d591425036986f",
+      "raw_4h_bars": 11694,
+      "request_hashes": [
+        {
+          "bytes": 10146,
+          "month": 7,
+          "sha256": "cd1efbb9e0a8b9cc7b82a86a446afcd00d3e1bd618a62297653eb3763f9cd07a",
+          "year": 2020
+        },
+        {
+          "bytes": 10368,
+          "month": 8,
+          "sha256": "b360d15cbce58125c3cbb0d8e34a034482983339d9860f19eb1acc92bc1d4899",
+          "year": 2020
+        },
+        {
+          "bytes": 10042,
+          "month": 9,
+          "sha256": "f481189a2ef9cd1e79adbd42b59b9633b60289c552bcf93cee191b618240f352",
+          "year": 2020
+        },
+        {
+          "bytes": 10391,
+          "month": 10,
+          "sha256": "1791e2dd8b1d4dbbb588f2a851102424787037ddb3e13f4ef91b076558c83dca",
+          "year": 2020
+        },
+        {
+          "bytes": 10326,
+          "month": 11,
+          "sha256": "66b146e2ece8779b8b4dd0256ea89fd46956347431535c5229161de8f7e007b0",
+          "year": 2020
+        },
+        {
+          "bytes": 10667,
+          "month": 12,
+          "sha256": "e6802fc8b7a750cab7388bc3b0c3638d1649220a67810252d9ec3c02c8933671",
+          "year": 2020
+        },
+        {
+          "bytes": 10935,
+          "month": 1,
+          "sha256": "0013f302159ee46ad4f81dbd44b595df8f4d764de88b64273b79d01b4f333e23",
+          "year": 2021
+        },
+        {
+          "bytes": 9827,
+          "month": 2,
+          "sha256": "e52a119613bf8d2d7fed60f6a80ddbf0b0f9127d966e7ad1b15ffeca8ecb280a",
+          "year": 2021
+        },
+        {
+          "bytes": 10893,
+          "month": 3,
+          "sha256": "ca4eacc180f975d3c7413bf868a1655dbaea006092e07ba28ea9ea43aad0403c",
+          "year": 2021
+        },
+        {
+          "bytes": 10522,
+          "month": 4,
+          "sha256": "8f2f40d6d567cb2081de7edfcbb8e5c8c33759866b4f75cb178ca7292f84985b",
+          "year": 2021
+        },
+        {
+          "bytes": 11057,
+          "month": 5,
+          "sha256": "529ae82f647603ef517e5de807d14d3c90f072a4543e804239b67c6b588ad8b5",
+          "year": 2021
+        },
+        {
+          "bytes": 10664,
+          "month": 6,
+          "sha256": "5f4a6687e046483d22d2e0db89b6f04ad4d49987344d5a4d7665b46a1eca5b9f",
+          "year": 2021
+        },
+        {
+          "bytes": 10837,
+          "month": 7,
+          "sha256": "951590c2ff4f4c69d4ad0d72f53e6a3d287ba667dcec099ac9afcb7d5635fd22",
+          "year": 2021
+        },
+        {
+          "bytes": 10865,
+          "month": 8,
+          "sha256": "750efc433242daf5424b2aff49f3c3ea6fcca41eb3f2893f3cbc832fdd43cb34",
+          "year": 2021
+        },
+        {
+          "bytes": 10510,
+          "month": 9,
+          "sha256": "c05ab152bd0c4b544d61a22a9ae7a3b65cbfebb3ed54511a350e7fd36bcc83a8",
+          "year": 2021
+        },
+        {
+          "bytes": 10855,
+          "month": 10,
+          "sha256": "d9a13fcd9a6a0b9a506ea1fbe06975bcf0f9ebbcd2de4639df65cbfb0d01333d",
+          "year": 2021
+        },
+        {
+          "bytes": 10480,
+          "month": 11,
+          "sha256": "06ff7fbaf5edf3d77e9a070bca341e2a7781d9e30bb199051d1442df1a79fc0b",
+          "year": 2021
+        },
+        {
+          "bytes": 10813,
+          "month": 12,
+          "sha256": "30124fe8c2de7114781371e867b63fb7e57c8f7590f8f05c03b8e9f3e3a43993",
+          "year": 2021
+        },
+        {
+          "bytes": 10902,
+          "month": 1,
+          "sha256": "600262e137d855af1fb005a605477dda53ae784e682c00ad8ec5a86066c565f6",
+          "year": 2022
+        },
+        {
+          "bytes": 9840,
+          "month": 2,
+          "sha256": "0e072f3d2ab245b0b3327b50ab2b8b664cd2d8d51c3b51876aeb7d6ca0f6b566",
+          "year": 2022
+        },
+        {
+          "bytes": 10692,
+          "month": 3,
+          "sha256": "49000ed74b217b0d5a7b478b0aeb252c3d2987f8a014dad23dca1c0e89cd5bae",
+          "year": 2022
+        },
+        {
+          "bytes": 10295,
+          "month": 4,
+          "sha256": "8e2c9c80707ff1f5965c98761dcfbadfdb583e62d24c8c5d9ff63423cc7c2bfd",
+          "year": 2022
+        },
+        {
+          "bytes": 10748,
+          "month": 5,
+          "sha256": "409dfc24ea1e06de9a00b9e39d68fc23699ca3cb8919f58ec8f6e8af17358322",
+          "year": 2022
+        },
+        {
+          "bytes": 10424,
+          "month": 6,
+          "sha256": "8bafe0fe001a2b764779e7c418f03eb5ca1162ef0315655177c917e6e670b3ad",
+          "year": 2022
+        },
+        {
+          "bytes": 10715,
+          "month": 7,
+          "sha256": "1f66bb3de104e5ce6b568bcc16e466060446a6fb8d6fd46f9b9490be8259f134",
+          "year": 2022
+        },
+        {
+          "bytes": 10582,
+          "month": 8,
+          "sha256": "c7c451a4a9f09f14339286ff654fed40b294fc37328126e43531bd3a1c98fe3d",
+          "year": 2022
+        },
+        {
+          "bytes": 10305,
+          "month": 9,
+          "sha256": "d7bb4d9961577057bbfd54ea8d6aafd81a5df889b011837c989f7b9f120629d2",
+          "year": 2022
+        },
+        {
+          "bytes": 10395,
+          "month": 10,
+          "sha256": "baa731766e96b40c1727dea96e24cb204b6f17012b434a0d196b4736c5e91e58",
+          "year": 2022
+        },
+        {
+          "bytes": 10155,
+          "month": 11,
+          "sha256": "155d3052a60386e20f8dda75bbf814098c0174f7f9e59c2b1022aacd563d5dc6",
+          "year": 2022
+        },
+        {
+          "bytes": 10201,
+          "month": 12,
+          "sha256": "94a9a1ae61658c9b5d35589e400cd6f5516ee330b11ea53879fc126a3b1651c6",
+          "year": 2022
+        },
+        {
+          "bytes": 10465,
+          "month": 1,
+          "sha256": "4475545f9db058f7722538ced9a1c135cd41889abb9eb252bedaac1aaee1916b",
+          "year": 2023
+        },
+        {
+          "bytes": 9573,
+          "month": 2,
+          "sha256": "d9590a2bffb078b0c142f7280a3a280e6225cf71341e8f30ebf02c9ecc0f228c",
+          "year": 2023
+        },
+        {
+          "bytes": 10719,
+          "month": 3,
+          "sha256": "57a2e2e607b58f7bb7e92e57b3ccc03a79e9fd275dced372dd9a8dd10a9017ff",
+          "year": 2023
+        },
+        {
+          "bytes": 10239,
+          "month": 4,
+          "sha256": "b71c07d7dab22741cd41706dda7d93c7b08826b9019d542948696a356b8dd91d",
+          "year": 2023
+        },
+        {
+          "bytes": 10548,
+          "month": 5,
+          "sha256": "c402551012cb8cab3db8f4b2e983edc57b8f2d5da3e878c483f702fec5058138",
+          "year": 2023
+        },
+        {
+          "bytes": 10269,
+          "month": 6,
+          "sha256": "9620b1bae1d2964a3365d70df0c6dcb7322efeaa8336fb91c456a446b02e7ec0",
+          "year": 2023
+        },
+        {
+          "bytes": 10401,
+          "month": 7,
+          "sha256": "30cc6dbc5ef4eac56021a27c2323b4359a143ca36dc7cce5574616e185caf9ad",
+          "year": 2023
+        },
+        {
+          "bytes": 10357,
+          "month": 8,
+          "sha256": "6df3c520bde3fcc94fa09d574040fc70b4020c1058886938add513813059093f",
+          "year": 2023
+        },
+        {
+          "bytes": 9962,
+          "month": 9,
+          "sha256": "a6453bb8c555256f6edad4073d7c4b7af0443a7699cad0cf3c4d5a2323433a41",
+          "year": 2023
+        },
+        {
+          "bytes": 10407,
+          "month": 10,
+          "sha256": "00621f34fd85de12927d044c61df0573ac359b4e14b89fd694cb8906e16ac414",
+          "year": 2023
+        },
+        {
+          "bytes": 10105,
+          "month": 11,
+          "sha256": "22c096eb32612b29d251d4c8146e4561a65de1df15f27169ac8e28818a3b147c",
+          "year": 2023
+        },
+        {
+          "bytes": 10584,
+          "month": 12,
+          "sha256": "c3ce7bd7d7348add8464e3272a422e5d12109c927e6f0152641f89feb1177b94",
+          "year": 2023
+        },
+        {
+          "bytes": 10664,
+          "month": 1,
+          "sha256": "4f971989eb615ec46d21b7f1730eccf95e133c24c9a9d81faabbc12f89f01dee",
+          "year": 2024
+        },
+        {
+          "bytes": 9998,
+          "month": 2,
+          "sha256": "72c0d4432b5369cc53a8e077cb3763b9aa74c6988b285c9983212d765f327597",
+          "year": 2024
+        },
+        {
+          "bytes": 10812,
+          "month": 3,
+          "sha256": "2979a6fe55b2fff6c6c5a851d6f047110f1f304ff884b1cc3dd750aff851f2cc",
+          "year": 2024
+        },
+        {
+          "bytes": 10419,
+          "month": 4,
+          "sha256": "ef0120818c28d50facb94c61ef96dace2c15d9dcbb37595d11042a1e3484b3de",
+          "year": 2024
+        },
+        {
+          "bytes": 10595,
+          "month": 5,
+          "sha256": "e6c04ffbfb59f6403ddf2e1e6018113ef4e1fc6c9782e705eb72ec00c8cdff9e",
+          "year": 2024
+        },
+        {
+          "bytes": 10156,
+          "month": 6,
+          "sha256": "8b48ccc0a2f81c683cfadd32f2b616af401dc275c02eb30c718fdeef4e828510",
+          "year": 2024
+        },
+        {
+          "bytes": 10639,
+          "month": 7,
+          "sha256": "a3245611dcc9b6a7dc4a3a134907e8a9dd3ae422c34cb1a5bda475cdae3f4d91",
+          "year": 2024
+        },
+        {
+          "bytes": 10688,
+          "month": 8,
+          "sha256": "3bc8467576e2f0257754aa8e0517ca82ebaae59000490027878852a79808e255",
+          "year": 2024
+        },
+        {
+          "bytes": 10247,
+          "month": 9,
+          "sha256": "66b9440bc484f8c31dd9c1b6cfe29715dc8303b9bc4c57f37a08a0c2d9cbc929",
+          "year": 2024
+        },
+        {
+          "bytes": 10552,
+          "month": 10,
+          "sha256": "c8f2fd616e8ea6ff8de0e2f5bb01676c6cda17bd0e18914903b333945c195434",
+          "year": 2024
+        },
+        {
+          "bytes": 10349,
+          "month": 11,
+          "sha256": "28f91a142cc2da46ab308862f68ba5c7a6c1ae726d21af2356f774ee0db636f5",
+          "year": 2024
+        },
+        {
+          "bytes": 10680,
+          "month": 12,
+          "sha256": "5a3f9a42a41556fff257dc08c8f1ec33eb3bd7a803e805289ed20e2ad13a755e",
+          "year": 2024
+        },
+        {
+          "bytes": 10695,
+          "month": 1,
+          "sha256": "083b54f2b4d9aeece598eaa98a90ee7a6338492dac9703243ff76e3ca2855d1e",
+          "year": 2025
+        },
+        {
+          "bytes": 9586,
+          "month": 2,
+          "sha256": "abd8c4db055c7d72ba1b3f1ad44338b24c752d9dda78d4b64ea718c27940addd",
+          "year": 2025
+        },
+        {
+          "bytes": 10663,
+          "month": 3,
+          "sha256": "0b72737b4e28f27417b4738a98d5ec0be2665f137d39cbd8bf15c67d39a152bc",
+          "year": 2025
+        },
+        {
+          "bytes": 10272,
+          "month": 4,
+          "sha256": "e30dedb8e3faab67cf63cbec104aa7f65156bae47939e60e07b2e3adf22f65c2",
+          "year": 2025
+        },
+        {
+          "bytes": 10683,
+          "month": 5,
+          "sha256": "dee60341a0ea548e0611af52f1a15e2748748a0d4c73f0d93cb50d53273e71c4",
+          "year": 2025
+        },
+        {
+          "bytes": 10274,
+          "month": 6,
+          "sha256": "36da42e7bef46276cf5020614a5f6e211faa77d021cb0f09e6e988ef3ed8a2d4",
+          "year": 2025
+        },
+        {
+          "bytes": 10630,
+          "month": 7,
+          "sha256": "5677e7817f6fde164d19e7f9870edc740ba96af4e341a4fff53dff2660e8bf73",
+          "year": 2025
+        },
+        {
+          "bytes": 10630,
+          "month": 8,
+          "sha256": "c6aabd1f8586921521facfd029629d0a990f4a4a0ef09648cd1929349a02fba3",
+          "year": 2025
+        },
+        {
+          "bytes": 10221,
+          "month": 9,
+          "sha256": "289171608f6af47e8040b7cba1a1288eda535f4c027d9c0a1111246625a3c1fc",
+          "year": 2025
+        },
+        {
+          "bytes": 10708,
+          "month": 10,
+          "sha256": "f69c52a2f467424279b23991c7cc07c36fbdf2afa37c0e9aa115e8c171368d2b",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "DOGEUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "74e8859031e0bff85ec66190161ed34ee46f1eb626323d584849e3739674b7f0",
+      "raw_4h_bars": 11638,
+      "request_hashes": [
+        {
+          "bytes": 6549,
+          "month": 7,
+          "sha256": "62b0e55cdcd58bbeb288b8632e999bd320c9b2b5c32d6a034c9a331d4cf851b9",
+          "year": 2020
+        },
+        {
+          "bytes": 9078,
+          "month": 8,
+          "sha256": "82d99af6a118e358c6201e70aa496cf9e930423cf17acbe872d34a03f5db151d",
+          "year": 2020
+        },
+        {
+          "bytes": 8618,
+          "month": 9,
+          "sha256": "816ea6569bc28849475cf8dd2996b27fd9115cdefff10008737e7ed28f3698de",
+          "year": 2020
+        },
+        {
+          "bytes": 8749,
+          "month": 10,
+          "sha256": "bc4a8642c1b1c122355c162fa0b390bbd94bec8e6aa3c353856d450d60fd95e0",
+          "year": 2020
+        },
+        {
+          "bytes": 8919,
+          "month": 11,
+          "sha256": "0005cffbb1556eb85aefc795e13816712f1430fc3ad07cc1ae817bfce7d20fe0",
+          "year": 2020
+        },
+        {
+          "bytes": 9270,
+          "month": 12,
+          "sha256": "44679b757f3d42392cc8a8c8015c5fce5256a1dbda7e7ce2a8670bafeb6ea168",
+          "year": 2020
+        },
+        {
+          "bytes": 9993,
+          "month": 1,
+          "sha256": "776496fefb2932e5e99506a1fa953c4430247600247f8a5d570f93e1e12040af",
+          "year": 2021
+        },
+        {
+          "bytes": 9532,
+          "month": 2,
+          "sha256": "546c6f47675bd7c6bfc2dc464e9ad9bf888a247daa91ea9fee73282db4fbaca6",
+          "year": 2021
+        },
+        {
+          "bytes": 9979,
+          "month": 3,
+          "sha256": "ebf3396258a81d2993063cdba234c94b8d9231e1faaea92d231b1c1037cbf850",
+          "year": 2021
+        },
+        {
+          "bytes": 10480,
+          "month": 4,
+          "sha256": "dc7b2b7cb9fb329468cbf6212036786aec70fdb79a633af0e295b806af074531",
+          "year": 2021
+        },
+        {
+          "bytes": 10765,
+          "month": 5,
+          "sha256": "f92eada694a74525a25409c3da8b7fa54c1343438e7a25c80a2cd7f1b7a6a928",
+          "year": 2021
+        },
+        {
+          "bytes": 10155,
+          "month": 6,
+          "sha256": "13089ce599295c1b6df795f2e1d426863e7f8dfa4fe11aff1a0d37fb4c2869f4",
+          "year": 2021
+        },
+        {
+          "bytes": 10221,
+          "month": 7,
+          "sha256": "a5c5fe413302bcbd6033ab699284becd1c5e86810e9cdd314cf7a7acef36f428",
+          "year": 2021
+        },
+        {
+          "bytes": 10413,
+          "month": 8,
+          "sha256": "847d63a89a0a903fff346dc0b037f52d6f937dc4b3285bfea982e327e90971de",
+          "year": 2021
+        },
+        {
+          "bytes": 9812,
+          "month": 9,
+          "sha256": "1ddeac4a3b7a4cfc5dfd27d883410d748324a600d1516bd2903604685951bc32",
+          "year": 2021
+        },
+        {
+          "bytes": 10263,
+          "month": 10,
+          "sha256": "e8619d07c380f9a5a2470074e70249507790c44eb47685edd768d2d963c47381",
+          "year": 2021
+        },
+        {
+          "bytes": 9779,
+          "month": 11,
+          "sha256": "d5cf1dd6c90bbb6a98313d1c7a9ecbfe0f4118567f5c06f7448b8f0d2481f47e",
+          "year": 2021
+        },
+        {
+          "bytes": 9961,
+          "month": 12,
+          "sha256": "72f7a697588e3cd101fb210d385bc70b7a50ff150fd589946d4964ef0b70d138",
+          "year": 2021
+        },
+        {
+          "bytes": 10113,
+          "month": 1,
+          "sha256": "fb0c711bf2631b54edf5bda8e0ac28bf68d5f3fd0c56d220f65be666dd7f0e81",
+          "year": 2022
+        },
+        {
+          "bytes": 9050,
+          "month": 2,
+          "sha256": "99683747ea65d5e7d2c46b6c39161be8aa1dedf2b141a33cd0b757689e0d7b94",
+          "year": 2022
+        },
+        {
+          "bytes": 9901,
+          "month": 3,
+          "sha256": "a1a3dda0bf998a2469409bf10ebcb068493dfe4e67ef7e02420dbf7c5393bdb7",
+          "year": 2022
+        },
+        {
+          "bytes": 9806,
+          "month": 4,
+          "sha256": "d9e1d90445e9fc6306e297d970c17dfe86eb8069cb9605dc36fc1a33cbc7e28c",
+          "year": 2022
+        },
+        {
+          "bytes": 9988,
+          "month": 5,
+          "sha256": "b46535f0dab32b292a4d7cc2ab2927ebc4a4d24d3be57a35c6f2b90249ad7995",
+          "year": 2022
+        },
+        {
+          "bytes": 9620,
+          "month": 6,
+          "sha256": "126152dd8facde6ce001325a24a309f59145556424650bea1033511370de0b75",
+          "year": 2022
+        },
+        {
+          "bytes": 9806,
+          "month": 7,
+          "sha256": "d46ebf6460c9621d57bf7149a6e2215b22e815f90545a7e1ecdc3e2e1209a32f",
+          "year": 2022
+        },
+        {
+          "bytes": 9912,
+          "month": 8,
+          "sha256": "1af02b41e1b0d0ea52fb3428c3fe2cd01e9cf00be0f1adf655de2874f40dd038",
+          "year": 2022
+        },
+        {
+          "bytes": 9410,
+          "month": 9,
+          "sha256": "0ebfd84774e9449d0b78fe59409f60a6e6fccc4c5e379cbc0f158871a8aefb76",
+          "year": 2022
+        },
+        {
+          "bytes": 9874,
+          "month": 10,
+          "sha256": "1524f852848b5d87a2f0cf20b68127adacf263409647227fb32f766a639191e5",
+          "year": 2022
+        },
+        {
+          "bytes": 10066,
+          "month": 11,
+          "sha256": "55a4daac19aed92715763d19e51eae2ab46ca6d45ac684093d2e9731473dd649",
+          "year": 2022
+        },
+        {
+          "bytes": 10068,
+          "month": 12,
+          "sha256": "7c4996a1c0042a99ee4bfdfcc72000823baef6c8f7b794ddba4aac734a97ad6d",
+          "year": 2022
+        },
+        {
+          "bytes": 10039,
+          "month": 1,
+          "sha256": "64960992f7d1096a059250fc7d78a59665aef4a7b6abe4b4d370cd83192eafd1",
+          "year": 2023
+        },
+        {
+          "bytes": 9105,
+          "month": 2,
+          "sha256": "97438baa3088d1c71e9ae08e9ae42e451c6cb1f30b77b7d931200879e31aeca8",
+          "year": 2023
+        },
+        {
+          "bytes": 9864,
+          "month": 3,
+          "sha256": "0748985392257e5c2896322c2557a36bc65bb7942d94e33130fa44d149f71b5e",
+          "year": 2023
+        },
+        {
+          "bytes": 9817,
+          "month": 4,
+          "sha256": "dd6a3c628fa1fdffe718a35fde2a569d54136deb4826b3f78ed229eb1f56cd7b",
+          "year": 2023
+        },
+        {
+          "bytes": 9702,
+          "month": 5,
+          "sha256": "067f7d50692cd40d4917c4e9a0256c84d5d3f863c25998f17d0f57b0c51936cb",
+          "year": 2023
+        },
+        {
+          "bytes": 9439,
+          "month": 6,
+          "sha256": "7abbd5cd7b832bb5fcc5336591197e70d2eeed3e05031960415d9aeafa4472f0",
+          "year": 2023
+        },
+        {
+          "bytes": 9958,
+          "month": 7,
+          "sha256": "28c888c4ebd7b8593210bbbf9fe7d13294a6b98cb2780788b911002cc9ab875a",
+          "year": 2023
+        },
+        {
+          "bytes": 9819,
+          "month": 8,
+          "sha256": "eab7887b23524acb19e3de1b3d15961fa4199ac8856e3f5ed2ef1d14b3b63c24",
+          "year": 2023
+        },
+        {
+          "bytes": 9234,
+          "month": 9,
+          "sha256": "75e036d286615a08745b785291991cc011e78a1afa5b5d5161dcef8470d50e66",
+          "year": 2023
+        },
+        {
+          "bytes": 9758,
+          "month": 10,
+          "sha256": "5cb3aa08e0cf4ad88585a564f6e9b41876aac0054cfad8d4feda4b7653458513",
+          "year": 2023
+        },
+        {
+          "bytes": 9723,
+          "month": 11,
+          "sha256": "c80920cda0865f0c1af8d9d7b7731fed7df4d0d945aa21dd0df7027f944c75d4",
+          "year": 2023
+        },
+        {
+          "bytes": 10037,
+          "month": 12,
+          "sha256": "82a9b2155cf7c930d6f28c49b614b7fcf8f322e28e5a8620bc30b2a532e60920",
+          "year": 2023
+        },
+        {
+          "bytes": 9897,
+          "month": 1,
+          "sha256": "5f9f30a512ca8d7b7ae804259edeb1795cbd7a03c42690b3a708f20d798fa990",
+          "year": 2024
+        },
+        {
+          "bytes": 9191,
+          "month": 2,
+          "sha256": "1d3fe19b98dc090746c9642837eb046af035e8ea4a3597ae452d25d8a7e2729d",
+          "year": 2024
+        },
+        {
+          "bytes": 10538,
+          "month": 3,
+          "sha256": "a600959bb3b1b7b8c9482d139e80eb28bffcb3b855d2f25548392ef0c4c60da4",
+          "year": 2024
+        },
+        {
+          "bytes": 10053,
+          "month": 4,
+          "sha256": "82e17ed010b1f62ce5759c61ff98ef9aff226907ba8ac8823edb015730629d4c",
+          "year": 2024
+        },
+        {
+          "bytes": 10215,
+          "month": 5,
+          "sha256": "4d716dc49f30de821d2196239131a7e2a4e395930a46d2f9374f4721cd2a2bb5",
+          "year": 2024
+        },
+        {
+          "bytes": 9731,
+          "month": 6,
+          "sha256": "3fb04442c340d8f6c652ae7709b8d2694bda5639ad1009f74b5af4e3c7fb7121",
+          "year": 2024
+        },
+        {
+          "bytes": 10023,
+          "month": 7,
+          "sha256": "9bf6ca6127c3680f8e9b874288bf9cff3332aa8c447d30dfaba3eb35041ce13a",
+          "year": 2024
+        },
+        {
+          "bytes": 9989,
+          "month": 8,
+          "sha256": "ba77c1642bf624a17e74a9498d977554ab345d6904b4bd61faeff3a88631dab8",
+          "year": 2024
+        },
+        {
+          "bytes": 9630,
+          "month": 9,
+          "sha256": "5c9c722a9722dd0d91760a58380366190a6dccb44110af63175ab6473192fa1b",
+          "year": 2024
+        },
+        {
+          "bytes": 10185,
+          "month": 10,
+          "sha256": "14e450221a8f64eb39b28e9bdf9a854b7ddaef488457c66a682efde9b8994631",
+          "year": 2024
+        },
+        {
+          "bytes": 10417,
+          "month": 11,
+          "sha256": "28e6c7825c9a5290768e0d44059a8c1751db36875d4281d3fed16374b098e61e",
+          "year": 2024
+        },
+        {
+          "bytes": 10499,
+          "month": 12,
+          "sha256": "5e8defe2c5999a8d0aa7e0e3f5fd5ff3ccb36e81d717829fea42375a8b4e7007",
+          "year": 2024
+        },
+        {
+          "bytes": 10499,
+          "month": 1,
+          "sha256": "aff5380758c3844ed0b08ec4d8edb853e214fed9e690008cee6dd700ef3b5cf9",
+          "year": 2025
+        },
+        {
+          "bytes": 9374,
+          "month": 2,
+          "sha256": "8b9e53038653417772df91f2ff29fd3593edaf7abcfdee5c42249249a45c4dd0",
+          "year": 2025
+        },
+        {
+          "bytes": 10270,
+          "month": 3,
+          "sha256": "ce71c6b730823410869cbe3b97947a39979036e59a4c159c28f9c3d3b0c42d21",
+          "year": 2025
+        },
+        {
+          "bytes": 9913,
+          "month": 4,
+          "sha256": "b6e725ddf49e356e3f75c3a6854c19a234778c1a09ee6b2336525c0317142216",
+          "year": 2025
+        },
+        {
+          "bytes": 10363,
+          "month": 5,
+          "sha256": "fc0d3764cc22828418f3d0ce2b579480d0609af68b86c917a99879d209f0563f",
+          "year": 2025
+        },
+        {
+          "bytes": 9831,
+          "month": 6,
+          "sha256": "29097df785da2a13f51118ada06c4abaa72ee3ee2295a23a40e2e2d08125c660",
+          "year": 2025
+        },
+        {
+          "bytes": 10442,
+          "month": 7,
+          "sha256": "ba100a301f62e6f34a34a79e3c8a0e5f780aabd57100a66ce8911aa9497581f2",
+          "year": 2025
+        },
+        {
+          "bytes": 10349,
+          "month": 8,
+          "sha256": "b3e7032d0f86c2387d55c43a7ccd49e2d9723f83e75d4109bd17d57b5cd4f154",
+          "year": 2025
+        },
+        {
+          "bytes": 10063,
+          "month": 9,
+          "sha256": "96ab8711ede93a3ca9514dda8359e75fd8bad6885c8c0c7f798cd4c09adec243",
+          "year": 2025
+        },
+        {
+          "bytes": 10414,
+          "month": 10,
+          "sha256": "1910ef69a67ff27eb73f60d44113da10c3847580ac293bb588696b9aa42f93c8",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "ETHUSDT": {
+      "feature_rows": 1940,
+      "feature_sha256": "67c4f7127ce825d78e8d0707f66c20a7996b2dbd48790481e2e6906ad01b3517",
+      "raw_4h_bars": 11694,
+      "request_hashes": [
+        {
+          "bytes": 9765,
+          "month": 7,
+          "sha256": "d33ea9f173375edf4333e0c0ba6b372f3244a25fcda46eedd0711f3694ec565f",
+          "year": 2020
+        },
+        {
+          "bytes": 10018,
+          "month": 8,
+          "sha256": "3c5933c1ca5ce183a176ec47121c1028e278972f13f7de60b23a2571d56433ce",
+          "year": 2020
+        },
+        {
+          "bytes": 9791,
+          "month": 9,
+          "sha256": "1751b6dac543a1904ec25ee9dc47248229706bd04c1a8281cdf3a087f1df2932",
+          "year": 2020
+        },
+        {
+          "bytes": 9940,
+          "month": 10,
+          "sha256": "68c8bb266178e0eae9a13cfafba296089ef899657366c926b0a775db4775a871",
+          "year": 2020
+        },
+        {
+          "bytes": 9915,
+          "month": 11,
+          "sha256": "181727ccae17f86847675397aadb4bf61d809da670b2f7a20361e37606bcf717",
+          "year": 2020
+        },
+        {
+          "bytes": 10213,
+          "month": 12,
+          "sha256": "cc56c029bd7917517e027530c50db59d4f07faec503b6b1a1cd963de284efe7d",
+          "year": 2020
+        },
+        {
+          "bytes": 10671,
+          "month": 1,
+          "sha256": "d2ecce9ab2bc4892b9b46b0bb5ec7e6dfce18fcbb2b7b7297f07d99f20bb3439",
+          "year": 2021
+        },
+        {
+          "bytes": 9643,
+          "month": 2,
+          "sha256": "986a6fd65d6b81641fa4c8bd4d5ae4103cf2656714b090ca3f818899775d980b",
+          "year": 2021
+        },
+        {
+          "bytes": 10521,
+          "month": 3,
+          "sha256": "800ed5a09dc1c509dfe82c542d66e5befadd8367fd45138739fb1b1df1f34bb5",
+          "year": 2021
+        },
+        {
+          "bytes": 10297,
+          "month": 4,
+          "sha256": "f4cb924c711658badd2042edee048ce0ba7e437de88d70201170e4e2287f760d",
+          "year": 2021
+        },
+        {
+          "bytes": 10879,
+          "month": 5,
+          "sha256": "0e5dad7fe39cca6afa208c9a82ceabb32ac3e4282fea48c001e0d59a0c1fce14",
+          "year": 2021
+        },
+        {
+          "bytes": 10417,
+          "month": 6,
+          "sha256": "36a97c82ae11cc4ae1d68483ba4eaeec22f73236e47ef3e4d70bcd29a827c444",
+          "year": 2021
+        },
+        {
+          "bytes": 10685,
+          "month": 7,
+          "sha256": "fbea9dba21d039803723702253eaa2b3dd32fae799089c0f3137d81cc2b2726e",
+          "year": 2021
+        },
+        {
+          "bytes": 10660,
+          "month": 8,
+          "sha256": "2a2426bf4003ad2b0e32f8f702fcebce869794da896a6b7e74336e0b678c7d4c",
+          "year": 2021
+        },
+        {
+          "bytes": 10313,
+          "month": 9,
+          "sha256": "3847bccc9aed2af142260dbf267e52e72303f03d26e2b5dfd0e2a86dcad40f0d",
+          "year": 2021
+        },
+        {
+          "bytes": 10581,
+          "month": 10,
+          "sha256": "ff8f0fd14779e879d67aa8ba5500993ff81c6b9db043dddcf1076b6e7ddbb0af",
+          "year": 2021
+        },
+        {
+          "bytes": 10250,
+          "month": 11,
+          "sha256": "a9ba89cdae825fd31c6404febe0d3138fc2ed0dc5085d987e1c20eea09767ace",
+          "year": 2021
+        },
+        {
+          "bytes": 10639,
+          "month": 12,
+          "sha256": "f835997fe562177e90f8070a57a8f6aeb205618004a838590a36925fd59eb2ca",
+          "year": 2021
+        },
+        {
+          "bytes": 10743,
+          "month": 1,
+          "sha256": "aefdb47655576c8bfd25d19e4c4aac732770742b5c36da36d7bc74a373b5da0b",
+          "year": 2022
+        },
+        {
+          "bytes": 9732,
+          "month": 2,
+          "sha256": "a59a2b7e55cbbbf171bcdc8ce43326e34112e7ed19cc66cde3915be7d46b93a5",
+          "year": 2022
+        },
+        {
+          "bytes": 10684,
+          "month": 3,
+          "sha256": "e97ae4f25da02f4f28dc0ed8dbfba48564f1ef7795053715c3a57bc9a0e39b2f",
+          "year": 2022
+        },
+        {
+          "bytes": 10292,
+          "month": 4,
+          "sha256": "2e16ffc266bd0a75b0cf322b3525b8f0a788f01cf5a5f771031b8c13ebedbc83",
+          "year": 2022
+        },
+        {
+          "bytes": 10709,
+          "month": 5,
+          "sha256": "316109c271805d46b1dc062c360ca8559634cf60716622ab083e611bdac8dd5b",
+          "year": 2022
+        },
+        {
+          "bytes": 10437,
+          "month": 6,
+          "sha256": "4f49d948d43dbef27d99ee8b2e6d8b26de688f1bd668dff29bb643965a6702a1",
+          "year": 2022
+        },
+        {
+          "bytes": 10780,
+          "month": 7,
+          "sha256": "88dab76352aee69e76cf4419c897b95cec71da1728c980c08180e7eadfbc113a",
+          "year": 2022
+        },
+        {
+          "bytes": 10834,
+          "month": 8,
+          "sha256": "395461806cebaf139caefd8e166315bae5645dc37862c3f54e996461d7610a57",
+          "year": 2022
+        },
+        {
+          "bytes": 10481,
+          "month": 9,
+          "sha256": "a9abb3c23a98daec48a6ec40b892fd044d956cd111f6ac73d8342870c44fc5b0",
+          "year": 2022
+        },
+        {
+          "bytes": 10692,
+          "month": 10,
+          "sha256": "4ced7f691c1597747ec47fbc28796b242f8bda4caccedad350be1ea59b7d778c",
+          "year": 2022
+        },
+        {
+          "bytes": 10404,
+          "month": 11,
+          "sha256": "e8bf2feb0316329638415eb091d2047e0ccb45bf67be35a519358960632220cc",
+          "year": 2022
+        },
+        {
+          "bytes": 10579,
+          "month": 12,
+          "sha256": "e4de61e87826279741915b3ac6c3c0d1ca9e7cf27aa3b51f20a851681a2a9bfe",
+          "year": 2022
+        },
+        {
+          "bytes": 10660,
+          "month": 1,
+          "sha256": "30c540ffe42118a38af792537f31ff1fc5718222ff2690e3c15e0bb7eb900d78",
+          "year": 2023
+        },
+        {
+          "bytes": 9716,
+          "month": 2,
+          "sha256": "6305813807c4686b42f6d2c5fc98c5e8b8514387bee028ca7db3ad55149f0c8e",
+          "year": 2023
+        },
+        {
+          "bytes": 10723,
+          "month": 3,
+          "sha256": "11f3576565ffc7fe31856522e21b34b6019fdbfe20d62c4fc514335cf2b63d6b",
+          "year": 2023
+        },
+        {
+          "bytes": 10331,
+          "month": 4,
+          "sha256": "1ded5205b9cc5dcc6a2b2083f91ff9051c837329678ea74046dd9707e0c3a8e9",
+          "year": 2023
+        },
+        {
+          "bytes": 10619,
+          "month": 5,
+          "sha256": "d3e13329bef21773ab04eb0a012c08dffa662f1a56c37a132cbfde4dfbe7a391",
+          "year": 2023
+        },
+        {
+          "bytes": 10265,
+          "month": 6,
+          "sha256": "3761714ae78eaa8e5d83676ce6a3e62f4f6c2f093c2467f47b6a031710f47277",
+          "year": 2023
+        },
+        {
+          "bytes": 10439,
+          "month": 7,
+          "sha256": "f7fd7c8360c8f9a82dbe9497ce0a82da6870c3da1d661fc131be918cd04d2c82",
+          "year": 2023
+        },
+        {
+          "bytes": 10407,
+          "month": 8,
+          "sha256": "35057737f6253326086082e04721e9b524abc02663420d686e244bbd5a205b01",
+          "year": 2023
+        },
+        {
+          "bytes": 10017,
+          "month": 9,
+          "sha256": "6cf68eace09d21090d6b2c7c239219cbfd6e2ee62bd71ba6ff4f972b08e0b20b",
+          "year": 2023
+        },
+        {
+          "bytes": 10483,
+          "month": 10,
+          "sha256": "f1fb6449624689487aa5bac62ceb5677550a74dd12c940ffe4f47cb003970982",
+          "year": 2023
+        },
+        {
+          "bytes": 10236,
+          "month": 11,
+          "sha256": "d0ebe3393df55b62b57a48fe06374c129dd2354680206a66aa8d5effb4be6b9d",
+          "year": 2023
+        },
+        {
+          "bytes": 10662,
+          "month": 12,
+          "sha256": "12063ec2fdbf2ee313d3eb96e51d6d2658f69340fb4e77b07a44fb662ed563c8",
+          "year": 2023
+        },
+        {
+          "bytes": 10688,
+          "month": 1,
+          "sha256": "12565385909a9a2f856bb2b17d0b2322a73bfcf4477dd39aa30ce60cc0535e59",
+          "year": 2024
+        },
+        {
+          "bytes": 10068,
+          "month": 2,
+          "sha256": "952679cdbb8b06ff3eee4c58f2c5242a28f3c90cc6f701c0f316956132503c15",
+          "year": 2024
+        },
+        {
+          "bytes": 10850,
+          "month": 3,
+          "sha256": "c519b837a742fe73ba4925633db5295f492fdb4b89adc01c677891dc4f92b187",
+          "year": 2024
+        },
+        {
+          "bytes": 10470,
+          "month": 4,
+          "sha256": "811fe4bf68e2330d1bd7b1410e86b49c5070c67d65473149744572fa3739bd56",
+          "year": 2024
+        },
+        {
+          "bytes": 10737,
+          "month": 5,
+          "sha256": "61599a481a4426b6c521f2cc51877c7f2e2b70d209b8b6f8d0c9c3e82631dc50",
+          "year": 2024
+        },
+        {
+          "bytes": 10334,
+          "month": 6,
+          "sha256": "9d928c4a38c6f4563598fab032470fc730102649b0521e19e9ac3143002082e5",
+          "year": 2024
+        },
+        {
+          "bytes": 10721,
+          "month": 7,
+          "sha256": "808d33dfc19649130a085767ed808df41d1526b6ec581042c2dd72c60586a6e0",
+          "year": 2024
+        },
+        {
+          "bytes": 10762,
+          "month": 8,
+          "sha256": "e7380be84b77f2454a01d919fdeba559e657be29b36c93a18eb224fb82baf979",
+          "year": 2024
+        },
+        {
+          "bytes": 10373,
+          "month": 9,
+          "sha256": "9e9f99beda02120c5ddd7f1e04fdee44ee44b132946fd16147bfaa0dcc1d8c17",
+          "year": 2024
+        },
+        {
+          "bytes": 10655,
+          "month": 10,
+          "sha256": "5d83b67897bad0ea6ba3fdebb64fbf4d84ff8af722c5474f63a88232d74fbec4",
+          "year": 2024
+        },
+        {
+          "bytes": 10545,
+          "month": 11,
+          "sha256": "bc89ceb62a91c65f10aa701eaf6fb60e82a97c0f0949fea86b4f06e387ad4f2a",
+          "year": 2024
+        },
+        {
+          "bytes": 10885,
+          "month": 12,
+          "sha256": "ea2f44862b072e0210e89cf09c7a7c6b686b70a3f1c6408b362c0c1d81e91287",
+          "year": 2024
+        },
+        {
+          "bytes": 10806,
+          "month": 1,
+          "sha256": "c63b0fcfa075cfc73758db91937c52cc210e296bbeab43fb5dec3c72e9e46309",
+          "year": 2025
+        },
+        {
+          "bytes": 9822,
+          "month": 2,
+          "sha256": "2efcfcc9462e224cc3db85ec351b20b506873bfc2f65ca5648eb7a729046d5e6",
+          "year": 2025
+        },
+        {
+          "bytes": 10850,
+          "month": 3,
+          "sha256": "19a5ff1803ac6354dd866712b21542d64fd60faab7575f2086cb5e5c5fb19ae0",
+          "year": 2025
+        },
+        {
+          "bytes": 10498,
+          "month": 4,
+          "sha256": "19c96866fc3f924efad122f00af3eccee3a989aa755b30df02832ef8379c45c9",
+          "year": 2025
+        },
+        {
+          "bytes": 10926,
+          "month": 5,
+          "sha256": "7b57ec089df225787a1c22514d6bdf284011776835e19bd2ca0dde92b09e65e1",
+          "year": 2025
+        },
+        {
+          "bytes": 10525,
+          "month": 6,
+          "sha256": "7a4cd2b299d15d9cfe2b2b4207ded726cd017a90d066f9edf69a43f53597e03e",
+          "year": 2025
+        },
+        {
+          "bytes": 10944,
+          "month": 7,
+          "sha256": "20a105ae46235428b1107c11720461665a27c793ab6c3bfc2b092afcba6a8ce0",
+          "year": 2025
+        },
+        {
+          "bytes": 10991,
+          "month": 8,
+          "sha256": "e13d470b6124a59cfd45db41232d1b13a06fa5c66d8c08500ba28433254345f9",
+          "year": 2025
+        },
+        {
+          "bytes": 10500,
+          "month": 9,
+          "sha256": "1a695c138e375386b77dfca64a17cc05ca74c60d8fd41e0c4c3d404aa103f72d",
+          "year": 2025
+        },
+        {
+          "bytes": 10915,
+          "month": 10,
+          "sha256": "b7fe5f547b6e7de15e9f1388acbbdc880051090a25ddc659622cc96e5fb79560",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "LTCUSDT": {
+      "feature_rows": 1935,
+      "feature_sha256": "17dfc93f5b2de711cbc1414dbcc53071a582f733cb25c71933f3567c58e684e8",
+      "raw_4h_bars": 11664,
+      "request_hashes": [
+        {
+          "bytes": 9136,
+          "month": 7,
+          "sha256": "dcf893776a9cdc991d0277b5da0ab062ce8da52dc060fe57847a1c4fdd64f0a6",
+          "year": 2020
+        },
+        {
+          "bytes": 9391,
+          "month": 8,
+          "sha256": "8944c8387ca7e873721d6e0421f89bcb7bf194964cdd67c432985a22d22c75bc",
+          "year": 2020
+        },
+        {
+          "bytes": 8920,
+          "month": 9,
+          "sha256": "df73e48633e452935415e5c8374c02b09e7c68cca35557a569ec566a3035a934",
+          "year": 2020
+        },
+        {
+          "bytes": 9254,
+          "month": 10,
+          "sha256": "a265728209510a33bbc2199cef423e6904c4d1b2de01b15055fe813e9f7b3d07",
+          "year": 2020
+        },
+        {
+          "bytes": 9352,
+          "month": 11,
+          "sha256": "118e2a5f1732486780c66dc0142b88b730791f281665a7475e32460689697f7f",
+          "year": 2020
+        },
+        {
+          "bytes": 9882,
+          "month": 12,
+          "sha256": "e917198f420a25e10f21e75a05343a1c3edee597107543250995a5acdb9fc5d4",
+          "year": 2020
+        },
+        {
+          "bytes": 10044,
+          "month": 1,
+          "sha256": "5a9dceef9ca68d397a11593956b47306dc81ca7672742879b597170e8a379061",
+          "year": 2021
+        },
+        {
+          "bytes": 9157,
+          "month": 2,
+          "sha256": "60070f3a45dd7a7d9d9a52f0b359f2e44059cc050feb6f7ff20ad3c32ff61e97",
+          "year": 2021
+        },
+        {
+          "bytes": 9973,
+          "month": 3,
+          "sha256": "b20c468a21c41fb6481655efb0e8525ca9a4d224caaaa57a3cbea90573eb5d36",
+          "year": 2021
+        },
+        {
+          "bytes": 9860,
+          "month": 4,
+          "sha256": "42f0b1f7026a65e883927911da6d84aa31275979346a7da83fd3c9fdf3d0f30d",
+          "year": 2021
+        },
+        {
+          "bytes": 10277,
+          "month": 5,
+          "sha256": "1b6009c8ac1940ab651cfed2dcdabfea875342ad349db4e729c729f2c70e08a5",
+          "year": 2021
+        },
+        {
+          "bytes": 9664,
+          "month": 6,
+          "sha256": "64b887f445b472531e95c397f741ee35fa768d0c691d57296ea36a4b0403cec9",
+          "year": 2021
+        },
+        {
+          "bytes": 9806,
+          "month": 7,
+          "sha256": "c462578665050b10bbcb3ffbfc2f37c01d09bed297e4a1f94f523c3817e3810d",
+          "year": 2021
+        },
+        {
+          "bytes": 9921,
+          "month": 8,
+          "sha256": "d9bba7593ad3e87a2450dd720539e6fb850b7ae4c396a7da1a99fbdf41fe44a9",
+          "year": 2021
+        },
+        {
+          "bytes": 9690,
+          "month": 9,
+          "sha256": "6c26971062cf0084a324ab822bcff977be2e5082ed6e306ea7a4b392b084fdcd",
+          "year": 2021
+        },
+        {
+          "bytes": 9885,
+          "month": 10,
+          "sha256": "3f86688b241875132b47c1cc876f46b4a32be296928188e686eda7938081afda",
+          "year": 2021
+        },
+        {
+          "bytes": 9779,
+          "month": 11,
+          "sha256": "69fce68574c325f9360181423fc690d9a31c8ddcad5a2c931f1f858d757990fd",
+          "year": 2021
+        },
+        {
+          "bytes": 9821,
+          "month": 12,
+          "sha256": "afd02da7198a1b1747bfa9558b958a969b97d3843e304762cc5e1ce33aabba6f",
+          "year": 2021
+        },
+        {
+          "bytes": 9899,
+          "month": 1,
+          "sha256": "bd493d723d9ba13d1ad8abab7aede18ea5a5b0f5f7147841353e4a5a96a268ce",
+          "year": 2022
+        },
+        {
+          "bytes": 8049,
+          "month": 2,
+          "sha256": "8f6e67bf6eb5c6fb73d008244369c6d3ffefae3a4c361b70dd82af63907089d0",
+          "year": 2022
+        },
+        {
+          "bytes": 9737,
+          "month": 3,
+          "sha256": "dc386f61031d8a5379ffa42e708f37cfa115fe6cda3f5a1e7fa946d13cc6fcb7",
+          "year": 2022
+        },
+        {
+          "bytes": 8804,
+          "month": 4,
+          "sha256": "2f16d1a691a0434f59273c872084133fb063bbed4e79272ff392b304b99e4414",
+          "year": 2022
+        },
+        {
+          "bytes": 9726,
+          "month": 5,
+          "sha256": "7be336a6cff7e2c881ca740d4e5abdb76d91688d312c1ba99c5a38fc9f8478d1",
+          "year": 2022
+        },
+        {
+          "bytes": 9391,
+          "month": 6,
+          "sha256": "65ff5dce015c03b495a85262243e6e8b19c19a2437ec0c57034870bfa1420dfa",
+          "year": 2022
+        },
+        {
+          "bytes": 9625,
+          "month": 7,
+          "sha256": "399e8c605a904083cdaf39c78130b9a6983c001e2c7e589ec8a00a31e0176ea3",
+          "year": 2022
+        },
+        {
+          "bytes": 9595,
+          "month": 8,
+          "sha256": "93337d797891c76e86c2d48ea93ab6698162c5cb66aec7c28089e8bff47c4d0d",
+          "year": 2022
+        },
+        {
+          "bytes": 9401,
+          "month": 9,
+          "sha256": "886c1208f8c84309072ed9cf093ba5f7a0251745be3457f91386cf5944f1bca3",
+          "year": 2022
+        },
+        {
+          "bytes": 9413,
+          "month": 10,
+          "sha256": "322b2b202f711e98fe53d41fc7fd0a9f68574e28ec689b5825cc8f064842bd53",
+          "year": 2022
+        },
+        {
+          "bytes": 9626,
+          "month": 11,
+          "sha256": "27afca5d7544c401560d1f836c45ffb9e06008502d0fb85212768dfc3682a71e",
+          "year": 2022
+        },
+        {
+          "bytes": 9697,
+          "month": 12,
+          "sha256": "da5f10b14f70d1f1c5f27e569c9c0f42daa718a30c033b4b1b062d77a24469e1",
+          "year": 2022
+        },
+        {
+          "bytes": 9770,
+          "month": 1,
+          "sha256": "a47e91568d064b14245a3edf88ba0e70ffd1e9a572d8bec6cc934215c7419a09",
+          "year": 2023
+        },
+        {
+          "bytes": 8856,
+          "month": 2,
+          "sha256": "dc401d79d28acd60aaec99f233bde7c9810bdb9735f771531bacdbce1cf6b91b",
+          "year": 2023
+        },
+        {
+          "bytes": 9898,
+          "month": 3,
+          "sha256": "6d80b86228e82dcbc9074f2b899f572a3f91c815453b6edef89e9bf07e0c238c",
+          "year": 2023
+        },
+        {
+          "bytes": 9461,
+          "month": 4,
+          "sha256": "2683faeea38192a277b8f5e61c363f472039942436eac0b5b6754c313a2cc6fb",
+          "year": 2023
+        },
+        {
+          "bytes": 9749,
+          "month": 5,
+          "sha256": "321f1ad1edeb1296ba9015818658f07c99e637bf18ec665ee5f376d3f5281c69",
+          "year": 2023
+        },
+        {
+          "bytes": 9508,
+          "month": 6,
+          "sha256": "76eb3e9ead875ba3921f580b789ae3ce05a3617e20a8e7c3b951e71774ed3595",
+          "year": 2023
+        },
+        {
+          "bytes": 9881,
+          "month": 7,
+          "sha256": "60dbef6085f68f472aaa83f04369dbfc4d521c0f874cc2dc8a255dda4872b003",
+          "year": 2023
+        },
+        {
+          "bytes": 9678,
+          "month": 8,
+          "sha256": "89f24980b0a0c57def3038e6b243fc66056fcb6d8a4d88417302413e35471e72",
+          "year": 2023
+        },
+        {
+          "bytes": 9199,
+          "month": 9,
+          "sha256": "d558c2c44438786402400a13186689040b4341f23e4ef78f6623b2f060958ba9",
+          "year": 2023
+        },
+        {
+          "bytes": 9519,
+          "month": 10,
+          "sha256": "fcd71726e4c12fd8438629e6b5e9a4eb16e07d13c67ed2b2cd839fdff3e84838",
+          "year": 2023
+        },
+        {
+          "bytes": 9289,
+          "month": 11,
+          "sha256": "8710e4a546f06c28528962e873cc998299faaeae70304c115e14e0249922ed9a",
+          "year": 2023
+        },
+        {
+          "bytes": 9558,
+          "month": 12,
+          "sha256": "c1a2e44b3dc3cfb1d0b5cfa6a23605ffd2511c41afd45597eaaf5c29100af76b",
+          "year": 2023
+        },
+        {
+          "bytes": 9614,
+          "month": 1,
+          "sha256": "82e38889c8d7f278d8c6714f93fd8281ee7efbc77b9f8260ca0d1e5f794d8023",
+          "year": 2024
+        },
+        {
+          "bytes": 8935,
+          "month": 2,
+          "sha256": "cdb51628043a2f0596f4e573a67a9ac70a2331d43cb4685ec18b1ed616f2d404",
+          "year": 2024
+        },
+        {
+          "bytes": 9935,
+          "month": 3,
+          "sha256": "01734def82a101d527325b72211f4d5e4cfa9bbad189e4a10dcd4240841b9642",
+          "year": 2024
+        },
+        {
+          "bytes": 9497,
+          "month": 4,
+          "sha256": "8a27b01d2a7d631d7f400328ad451229cecc0da5cf2b087244ac1eab32feba4c",
+          "year": 2024
+        },
+        {
+          "bytes": 9523,
+          "month": 5,
+          "sha256": "f27938e2aa89db531dfaef64cb80c80550647ef5a32913cf2a9513eaf365bfac",
+          "year": 2024
+        },
+        {
+          "bytes": 9177,
+          "month": 6,
+          "sha256": "a0ec286a02ce2a94f692102f1eb70c04b80258dd44b0d6804cd79434c6dbc114",
+          "year": 2024
+        },
+        {
+          "bytes": 9464,
+          "month": 7,
+          "sha256": "6557b78999faacdf8a66847fdba202a389f4038b9f5926b34874b68d9c852ffd",
+          "year": 2024
+        },
+        {
+          "bytes": 9537,
+          "month": 8,
+          "sha256": "21edece4beb677077b54e8002413915f43191641121be73f3cb15753e17f86b0",
+          "year": 2024
+        },
+        {
+          "bytes": 9176,
+          "month": 9,
+          "sha256": "dee0c50f438e9fc663ddb7975aba4855f305999db71e1927c31b96e4308cf8db",
+          "year": 2024
+        },
+        {
+          "bytes": 9443,
+          "month": 10,
+          "sha256": "5a5d9b749244213bdc0072daf514ea0b4c8808658b79f8e2684e81a826001162",
+          "year": 2024
+        },
+        {
+          "bytes": 9523,
+          "month": 11,
+          "sha256": "846af4fef85e27ed672e942f4bcf1eb3f7d150322487e77503efc29ddd015306",
+          "year": 2024
+        },
+        {
+          "bytes": 10089,
+          "month": 12,
+          "sha256": "5bb92f723c6d3df384edd22fbe68ae80dda1aeea7efe073ceeaa4523a32d58ec",
+          "year": 2024
+        },
+        {
+          "bytes": 10008,
+          "month": 1,
+          "sha256": "39a4a81301f5f49969fa6134970d8d4524df60dded097822a3011e19e6e9bb9a",
+          "year": 2025
+        },
+        {
+          "bytes": 9207,
+          "month": 2,
+          "sha256": "ae7a0cf4ac423eba8422240e1272e38462bdb654730b88170366710ecc2f8d87",
+          "year": 2025
+        },
+        {
+          "bytes": 9818,
+          "month": 3,
+          "sha256": "4e6b60893fc8131bf9cdc5184a1260b899714fc52b0bf7813212722591ae0051",
+          "year": 2025
+        },
+        {
+          "bytes": 9351,
+          "month": 4,
+          "sha256": "bcd8d611bd0c715f783f4180528b3a741ac9c479eab04881a89a4bfd74005238",
+          "year": 2025
+        },
+        {
+          "bytes": 9794,
+          "month": 5,
+          "sha256": "40bd4ef617ee7c5c17ed3d3ac9d67d5bf733b8cd726fe9ab3f9522c5bd9c7498",
+          "year": 2025
+        },
+        {
+          "bytes": 9219,
+          "month": 6,
+          "sha256": "6f95b425c435c684917523258e32b3bc761af3d84727e8f8cd94187a549b8b60",
+          "year": 2025
+        },
+        {
+          "bytes": 9868,
+          "month": 7,
+          "sha256": "357a102fc6db5057765a9cd0abcd98ec3babb877cd0f864d4f51fbd68ab3c3a6",
+          "year": 2025
+        },
+        {
+          "bytes": 9936,
+          "month": 8,
+          "sha256": "496ef5479d0bcfec807edf74f2febfbe6e44a09ac09c48377f877e7c766f002b",
+          "year": 2025
+        },
+        {
+          "bytes": 9407,
+          "month": 9,
+          "sha256": "68192e864b11f4bca9b94f3954a68643f0ae6b777f081de9bfaeb09bba686175",
+          "year": 2025
+        },
+        {
+          "bytes": 9859,
+          "month": 10,
+          "sha256": "c4e3c1f70f0b22f170171bc1f9973d91ed0f688b7222304d7eaa3d0a7e6c6552",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    },
+    "XRPUSDT": {
+      "feature_rows": 1935,
+      "feature_sha256": "a61d6314bff5c60b8ea589fd225b54037713a8ce6ef785b45577dc5d6dcd3ceb",
+      "raw_4h_bars": 11664,
+      "request_hashes": [
+        {
+          "bytes": 9167,
+          "month": 7,
+          "sha256": "c72683e2258d4a14d10b96db5b7b65b9f9fb27277c792c6093053675b929a4a1",
+          "year": 2020
+        },
+        {
+          "bytes": 9415,
+          "month": 8,
+          "sha256": "a255d99ffdfc5ed58f49b23886bd33617a3817e291915db8879db8841e004122",
+          "year": 2020
+        },
+        {
+          "bytes": 8882,
+          "month": 9,
+          "sha256": "547cf3b45fdc6b5159080fb48803c7d450398ca7b880125b3a39948a730776ef",
+          "year": 2020
+        },
+        {
+          "bytes": 9117,
+          "month": 10,
+          "sha256": "e1a1585d8f921ae6a601dcfda56c43c4878d68b881edc886553e8bd67a25a64d",
+          "year": 2020
+        },
+        {
+          "bytes": 9405,
+          "month": 11,
+          "sha256": "700045331ef91a6abbb0f401bf68e4a6aa218db44ebbc3b96201b9939d5bc264",
+          "year": 2020
+        },
+        {
+          "bytes": 10146,
+          "month": 12,
+          "sha256": "d511ef1748eda0b31c67c3152d5f0f71c2de2bf98822b32981da19ab48acf20c",
+          "year": 2020
+        },
+        {
+          "bytes": 9858,
+          "month": 1,
+          "sha256": "da54a231471dbc2272c88521d26a615cbc98d7750917fed1dafb6815d44abc9e",
+          "year": 2021
+        },
+        {
+          "bytes": 9135,
+          "month": 2,
+          "sha256": "62ea0a1d8d15ed1ce2b82af10d91f7fd5e7bceb2f4695ad70c1173c1819d2046",
+          "year": 2021
+        },
+        {
+          "bytes": 9803,
+          "month": 3,
+          "sha256": "1ff0075bfa830a47ec1b938bc1c6a761f4bfd07d86c6a6082af789de9c03d368",
+          "year": 2021
+        },
+        {
+          "bytes": 10094,
+          "month": 4,
+          "sha256": "71392b0e58dbc6d84a5708374779c5fc61b6cfd278cd4c1008db6eafd9907570",
+          "year": 2021
+        },
+        {
+          "bytes": 10313,
+          "month": 5,
+          "sha256": "c14de279e5ce646538b8cb259505cfe90d69ee0343422681c853e44ae7b99f5a",
+          "year": 2021
+        },
+        {
+          "bytes": 9783,
+          "month": 6,
+          "sha256": "1e289ed2b6eed88d3e05a499387ab478a47347d3016d9b2d8c06928eb4cf9dec",
+          "year": 2021
+        },
+        {
+          "bytes": 9918,
+          "month": 7,
+          "sha256": "ba811cb8f3a2d7a54fdd656ff39530ef11adf090f34f35235b084ef39af11b0b",
+          "year": 2021
+        },
+        {
+          "bytes": 10214,
+          "month": 8,
+          "sha256": "81f80cefaf1d14dae1bf2e768f364b10886ceee6c101ea664ae464eb997c2ed9",
+          "year": 2021
+        },
+        {
+          "bytes": 9735,
+          "month": 9,
+          "sha256": "33c6af0bab30684e84c8ce41987807c4078b00c089078f2189c4854bf90464fc",
+          "year": 2021
+        },
+        {
+          "bytes": 9935,
+          "month": 10,
+          "sha256": "e4067be656f23a437d4d8d6551ab8da48c1602c665a7a3dbb20a1a44e5221880",
+          "year": 2021
+        },
+        {
+          "bytes": 9649,
+          "month": 11,
+          "sha256": "f31d2cbcb58d6919e1c63e36d07e3b8c48916968e39c8c94d4e093999d07ec14",
+          "year": 2021
+        },
+        {
+          "bytes": 9922,
+          "month": 12,
+          "sha256": "c28f97cfd0804d7c13e9658550284c09bdacd77ceb5e493abd58fe9b77b4ea83",
+          "year": 2021
+        },
+        {
+          "bytes": 9867,
+          "month": 1,
+          "sha256": "a8c915ef654ab8119dd6315b24eeb648bf37045e241a1735849221496f2dbef7",
+          "year": 2022
+        },
+        {
+          "bytes": 8193,
+          "month": 2,
+          "sha256": "1bee39113106f509562ba174f3b5529ed96e818680110f6e5b5122ca4d172662",
+          "year": 2022
+        },
+        {
+          "bytes": 9829,
+          "month": 3,
+          "sha256": "c693d3a6a023f40a27018166e1677347cebfd3463e4a23f195c0120e8855b6d5",
+          "year": 2022
+        },
+        {
+          "bytes": 8985,
+          "month": 4,
+          "sha256": "982ff5dcc00ee3ef316763bfa439ec385e5b323582d36504f7935294e2cd2e10",
+          "year": 2022
+        },
+        {
+          "bytes": 9940,
+          "month": 5,
+          "sha256": "913fc0ea431cb892cd228d1076ddd7bf6164a8039c9c9758a64be67a95eefb0f",
+          "year": 2022
+        },
+        {
+          "bytes": 9451,
+          "month": 6,
+          "sha256": "b2f82b5892813b91f570a4d52ce391e8e7d09cfe77222f17b85562829626de8c",
+          "year": 2022
+        },
+        {
+          "bytes": 9699,
+          "month": 7,
+          "sha256": "2b390683cbcd8497b1d65d465b51bc4c8807c8192f1f446761c29bbae615baaf",
+          "year": 2022
+        },
+        {
+          "bytes": 9583,
+          "month": 8,
+          "sha256": "24c05866cb6dc73b984d7391e06cb8fae25743b06ff19e50ba44cf63ca06a912",
+          "year": 2022
+        },
+        {
+          "bytes": 9694,
+          "month": 9,
+          "sha256": "de15c0ef2dce9faf9e4100141b9fee2ef7654cd635d43b3ff811bcc18b054111",
+          "year": 2022
+        },
+        {
+          "bytes": 10015,
+          "month": 10,
+          "sha256": "253a563ceaf36a07d1f5c8a9650e99d70a7bc08b790e6555a3b938c4547efd79",
+          "year": 2022
+        },
+        {
+          "bytes": 9689,
+          "month": 11,
+          "sha256": "fbf9da5edb472159baeaff07f77c557ad6ced8affc04a9239ee4f97977290e6e",
+          "year": 2022
+        },
+        {
+          "bytes": 9648,
+          "month": 12,
+          "sha256": "4426ee0188c2144c9e3311739d49fe44668ff9f2280c8f4c708ceff9fce43989",
+          "year": 2022
+        },
+        {
+          "bytes": 9833,
+          "month": 1,
+          "sha256": "3a59dfecdb13396b75dd7c181c82f903752cb358170b6a1b9babf0c0f5e10044",
+          "year": 2023
+        },
+        {
+          "bytes": 8789,
+          "month": 2,
+          "sha256": "c2ae0a6c9f94a003a31680d30d6e66767e9ef3515afd118c4379eb8163ff2e12",
+          "year": 2023
+        },
+        {
+          "bytes": 10012,
+          "month": 3,
+          "sha256": "7154e5484ac62f15f312895fd05051967a6c65554a892943b418a2b22d3b9dcb",
+          "year": 2023
+        },
+        {
+          "bytes": 9515,
+          "month": 4,
+          "sha256": "c657bc1f58c55ecbbe0bf75cf448757ca9464c7f5c3e1401225b0296f872e576",
+          "year": 2023
+        },
+        {
+          "bytes": 9769,
+          "month": 5,
+          "sha256": "ecc24eb012340b86b4bab834ade6303a042330218aa9cf484a92d4ffe53f6f76",
+          "year": 2023
+        },
+        {
+          "bytes": 9583,
+          "month": 6,
+          "sha256": "aa8c402a3aa785b45cfa55d0d2aafe481496a715e1ada0d22d8817a7c7ad411b",
+          "year": 2023
+        },
+        {
+          "bytes": 9989,
+          "month": 7,
+          "sha256": "2a5cd9465bdaf6114c9f91b4a00aa0682a92361d9e138771e7f3e41f24f297f8",
+          "year": 2023
+        },
+        {
+          "bytes": 9925,
+          "month": 8,
+          "sha256": "cb8fba328badf4498c9288bdebb11605a0ed0e16cb04975b5e9b67c611d06256",
+          "year": 2023
+        },
+        {
+          "bytes": 9349,
+          "month": 9,
+          "sha256": "84e66e292f79ad525ecdd94897d0c55cefaeda951b75970e96d443b720a975c3",
+          "year": 2023
+        },
+        {
+          "bytes": 9756,
+          "month": 10,
+          "sha256": "352a883828d68a99d844d148951ca4628b7ed92579c6bef6c42caa79d908521c",
+          "year": 2023
+        },
+        {
+          "bytes": 9585,
+          "month": 11,
+          "sha256": "858889baccfe247c0217c90f92637b73304b941359e5ebfc597923ac4212bcb3",
+          "year": 2023
+        },
+        {
+          "bytes": 9785,
+          "month": 12,
+          "sha256": "c7c0b2ba74b760d7d7b9058a4e32e03f50f6b0d116b950637b3a87c904414206",
+          "year": 2023
+        },
+        {
+          "bytes": 9780,
+          "month": 1,
+          "sha256": "18966f98f99ffd8a31b0985ff8794d724bc38294dd0dd3bffd14e96d79b62e9f",
+          "year": 2024
+        },
+        {
+          "bytes": 9184,
+          "month": 2,
+          "sha256": "74f556dc3897dbbf20a7ed702821ac9faf13fd2134f36c8580e1e17b686a9072",
+          "year": 2024
+        },
+        {
+          "bytes": 10049,
+          "month": 3,
+          "sha256": "e78a02d4989d0a86ddb698c2df4e585326b7008f55ff156058f8b36d2c87125d",
+          "year": 2024
+        },
+        {
+          "bytes": 9657,
+          "month": 4,
+          "sha256": "5ee1e1da7ffc5b831b944a06e8cb5545b9c5ebdc19162346492751f238bfbdad",
+          "year": 2024
+        },
+        {
+          "bytes": 9660,
+          "month": 5,
+          "sha256": "f9afc1fff0ca09928fdb3d9e997015435cda3b96c9b0e2b8723d7bca2ef4ec1a",
+          "year": 2024
+        },
+        {
+          "bytes": 9280,
+          "month": 6,
+          "sha256": "36022436ba0eeaf2466075cc43a089aba164350fe236bcf986069f73c11b90c6",
+          "year": 2024
+        },
+        {
+          "bytes": 10015,
+          "month": 7,
+          "sha256": "1df2ee239290058fafe4ce17e05eb1eab737aafa0fd23592c417b932bccfa88b",
+          "year": 2024
+        },
+        {
+          "bytes": 9925,
+          "month": 8,
+          "sha256": "40485925f18b866fd619243c625120531caa8ea846f215a5c633a8245494a5ea",
+          "year": 2024
+        },
+        {
+          "bytes": 9447,
+          "month": 9,
+          "sha256": "b30a972ad845f039865aa6b23d982e2e4656f5573d03f1d98adf5c7d3dd80ff2",
+          "year": 2024
+        },
+        {
+          "bytes": 9626,
+          "month": 10,
+          "sha256": "4515b2476a0aa56091c4b2c0239f1fe8d6cee05e5f4643cc6c83ffba8edd155c",
+          "year": 2024
+        },
+        {
+          "bytes": 9958,
+          "month": 11,
+          "sha256": "b39c391df59bfae7909902bfdb5feafa1eb326fd5bd32926488a12c960d3747a",
+          "year": 2024
+        },
+        {
+          "bytes": 10480,
+          "month": 12,
+          "sha256": "6534cdbdf038ea32cceafb7d5e72926d6faf5102080c7db24a867bfca4d7c33c",
+          "year": 2024
+        },
+        {
+          "bytes": 10360,
+          "month": 1,
+          "sha256": "7ea75bf81e0cad9b2472c970d3f9c52ff18678a74ebde0a4b872bc1f31a02590",
+          "year": 2025
+        },
+        {
+          "bytes": 9382,
+          "month": 2,
+          "sha256": "44793136045e6f2e72a3e00c408aa5f464d9b2978aa5d5110b9ef63f19c716ef",
+          "year": 2025
+        },
+        {
+          "bytes": 10315,
+          "month": 3,
+          "sha256": "55554ea3f92661ccf8c33605483b8696b3257722efea436a1f5364f951c7692b",
+          "year": 2025
+        },
+        {
+          "bytes": 9937,
+          "month": 4,
+          "sha256": "797fcd38b4288270d81d25b46a89b880f8a804cd26dedd70581c665a17880878",
+          "year": 2025
+        },
+        {
+          "bytes": 10205,
+          "month": 5,
+          "sha256": "c229f0acabcb2e7be43bee9dec8c0b5d48b99b6e53ce71bb526d6dad42f00c63",
+          "year": 2025
+        },
+        {
+          "bytes": 9777,
+          "month": 6,
+          "sha256": "c388879e7bac20923653304bee9db4026ebcd012ecf81e9ca772b9b9999c9220",
+          "year": 2025
+        },
+        {
+          "bytes": 10328,
+          "month": 7,
+          "sha256": "2c8af921475b076ba85c49cacc0927b56e03872b893edecc116041b14de207b5",
+          "year": 2025
+        },
+        {
+          "bytes": 10306,
+          "month": 8,
+          "sha256": "2d4c939cf292d9d4a2b9afa980ccd93a69af602ea783eb77d0952838df214b1b",
+          "year": 2025
+        },
+        {
+          "bytes": 9846,
+          "month": 9,
+          "sha256": "f54b784b61b928ac7fee7c4c5c6656ab97f0736cfc561c055c2fa646ba84f587",
+          "year": 2025
+        },
+        {
+          "bytes": 10244,
+          "month": 10,
+          "sha256": "6460621cdd2def1fd77c83c86f2a811957c0aaf259b505d176a529af172c6009",
+          "year": 2025
+        }
+      ],
+      "status": "materialized"
+    }
+  },
+  "gateway_id": "HARMONY-DATA-GATEWAY-006"
+}
