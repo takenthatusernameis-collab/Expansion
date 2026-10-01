@@ -48,19 +48,21 @@ def load_spot():
     return spot
 
 def load_cm():
-    p=CMROOT/"coinmetrics_asset_metrics.json"
-    if not p.exists(): raise RuntimeError("gateway 002 asset metric cache missing")
-    rows=json.loads(p.read_text())
+    import csv as _csv
     cm={a:{} for a in A}
-    for r in rows:
-        a=r.get("asset"); d=str(r.get("time",""))[:10]
-        if a not in cm or not d: continue
-        vals={}
-        for k,v in r.items():
-            if k in ("asset","time") or v in (None,""): continue
-            try: vals[k]=float(v)
-            except (TypeError,ValueError): pass
-        if vals: cm[a][d]=vals
+    for a in A:
+        p=CMROOT/"coinmetrics_public"/f"{a}.csv"
+        if not p.exists(): raise RuntimeError(f"gateway 002 public Coin Metrics snapshot missing: {p}")
+        with p.open(newline="",encoding="utf-8") as f:
+            for row in _csv.DictReader(f):
+                d=row.get("time","")[:10]
+                if not d: continue
+                vals={}
+                for k,v in row.items():
+                    if k=="time" or v in (None,""): continue
+                    try: vals[k]=float(v)
+                    except (TypeError,ValueError): pass
+                if vals: cm[a][d]=vals
     return cm
 
 def week_ends(dates):
