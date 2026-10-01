@@ -18,7 +18,7 @@ ASSETS=["APTUSDT","ARBUSDT","OPUSDT","INJUSDT","SUIUSDT","SEIUSDT","TIAUSDT","JT
 START="2023-01-01";END="2025-10-31";DISCOVERY_END="2024-05-21";OOS_START="2024-05-22"
 BASE_URL="https://data.binance.vision/data/futures/um/monthly/klines"
 
-def sha(b): return hashlib.sha256(b).hexdigest()
+def sha(b):\n    if isinstance(b, Path): b=b.read_bytes()\n    return hashlib.sha256(b).hexdigest()
 
 def months():
     out=[];y,m=2023,1
