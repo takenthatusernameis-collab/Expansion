@@ -1,0 +1,47 @@
+name: Harmony discovery batch 014
+
+on:
+  push:
+    paths:
+      - "research/HARMONY-DISCOVERY-BATCH-014.yaml"
+      - "experiments/run_harmony_discovery_batch_014.py"
+      - "tests/test_harmony_discovery_batch_014.py"
+      - ".github/workflows/harmony-discovery-batch-014.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore external data gateway cache
+        id: gateway_cache
+        uses: actions/cache@v4
+        with:
+          path: data/cache/harmony_gateway_001
+          key: harmony-data-gateway-001-v1
+      - name: Restore verified deep-history cache
+        uses: actions/cache/restore@v4
+        with:
+          path: data/cache/binance/futures_um/deep_history_2019
+          key: harmony-binance-um-deep-history-2019-2025-10-v1-36777989764
+          fail-on-cache-miss: true
+      - name: Install runtime
+        run: python -m pip install --disable-pip-version-check --no-input requests pytest
+      - name: Populate external-data cache on miss
+        if: steps.gateway_cache.outputs.cache-hit != 'true'
+        run: python experiments/run_harmony_data_gateway_001.py
+      - name: Validate frozen batch
+        run: python -m pytest -q tests/test_harmony_discovery_batch_014.py
+      - name: Execute cheap screen and conditional deep gate
+        run: python experiments/run_harmony_discovery_batch_014.py
+      - name: Upload batch evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-discovery-batch-014
+          path: artifacts/HARMONY-DISCOVERY-BATCH-014
+          if-no-files-found: error
+          retention-days: 90
