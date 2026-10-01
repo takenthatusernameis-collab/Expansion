@@ -81,6 +81,29 @@ def rank_weights(scores):
     for _,s in scores[-3:]: w[s]=-1/6
     return w
 
+def coverage_probe(dates,supply):
+    signal_days=[d for d in dates if monday(d)]
+    by_asset={a:{"usable_signal_days":0,"missing_signal_days":0,"missing_observations":0} for a in A}
+    for d in signal_days:
+        prior=[x for x in dates if x<d]
+        if len(prior)<91:
+            continue
+        weeks=[]
+        for k in range(12):
+            end_i=len(prior)-1-7*k; start_i=end_i-7
+            if start_i<0: continue
+            weeks.append((prior[start_i],prior[end_i]))
+        for a in A:
+            ok=True; miss=0
+            for d0,d1 in weeks:
+                if d0 not in supply[a] or d1 not in supply[a]:
+                    ok=False; miss += int(d0 not in supply[a]) + int(d1 not in supply[a])
+            if ok: by_asset[a]["usable_signal_days"] += 1
+            else:
+                by_asset[a]["missing_signal_days"] += 1
+                by_asset[a]["missing_observations"] += miss
+    return by_asset
+
 def build_targets(dates,supply):
     out={}; attempts=usable=0
     for d in dates:
@@ -147,10 +170,11 @@ def residual_sharpe(sc,bc,ec):
 
 def main():
     dates,px,funding=load_panel(); supply=load_supply()
+    coverage_by_asset=coverage_probe(dates,supply)
     targets,attempts,usable=build_targets(dates,supply); coverage=usable/attempts if attempts else 0.0
     result={"batch_id":"HARMONY-DISCOVERY-BATCH-019","candidate":"FIN-0093",
             "source_commit":"f1a36afb962731c387bb03982758ab0103063da5",
-            "attempts":attempts,"usable":usable,"coverage":coverage,
+            "attempts":attempts,"usable":usable,"coverage":coverage,"coverage_by_asset":coverage_by_asset,
             "integrity":{"holdout_access":False,"parameter_search":False,"universe_search":False,"direction_search":False,"candidate_mutation":False}}
     if usable<40 or coverage<.80:
         result.update({"status":"DATA_BLOCKED","passed_cheap":[],"selected_for_deep":[],"deep":{}})
