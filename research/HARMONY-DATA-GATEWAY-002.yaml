@@ -1,0 +1,35 @@
+gateway_id: HARMONY-DATA-GATEWAY-002
+status: preregistered
+purpose: "Remove the external-data bottleneck for the next factor frontier without downloading expensive microstructure data before a candidate clears a cheap gate."
+fixed_assets: [BTC, ETH, LTC, XRP, BNB, BCH, ADA, DOGE]
+period:
+  start: "2020-01-01"
+  end: "2025-10-31"
+lightweight_materialization:
+  coinmetrics_asset_metrics:
+    - AdrNewCnt
+    - CapMrktCurUSD
+    - VolumeTotUSD
+  binance_spot_daily_klines: true
+coverage_probe:
+  coinmetrics_market_quotes:
+    markets:
+      - binance-BTCUSDT-future
+      - binance-ETHUSDT-future
+      - binance-LTCUSDT-future
+      - binance-XRPUSDT-future
+      - binance-BNBUSDT-future
+      - binance-BCHUSDT-future
+      - binance-ADAUSDT-future
+      - binance-DOGEUSDT-future
+    granularity: 1d
+    probe_window:
+      start: "2024-05-22"
+      end: "2024-06-30"
+  policy: "Only after catalog coverage passes may historical quote data be materialized for a preregistered candidate."
+integrity:
+  point_in_time_only: true
+  no_current_value_backfill: true
+  raw_source_hashes_required: true
+  fixed_universe: true
+  no_holdout_access: true
