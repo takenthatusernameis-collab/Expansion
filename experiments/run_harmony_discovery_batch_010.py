@@ -90,7 +90,8 @@ def main():
  cheap={}
  for mult in (1,2):
   curve,turn,rebs,fpnl=simulate(dates,px,funding,tar,mult,DISCOVERY_END)
-  cheap[f"{mult:.1f}x"]={"discovery":seg(dates,curve,"2020-07-10"),"turnover":turn,"rebalance_count":rebs,"funding_pnl_sum":fpnl}
+  dm=metrics(curve); dm.update(start=dates[0],end=DISCOVERY_END)
+  cheap[f"{mult:.1f}x"]={"discovery":dm,"turnover":turn,"rebalance_count":rebs,"funding_pnl_sum":fpnl}
  passed=cheap["1.0x"]["discovery"]["cumulative_return"]>0 and cheap["1.0x"]["discovery"]["sharpe"]>0 and cheap["1.0x"]["rebalance_count"]>=20
  deep={}
  if passed:
