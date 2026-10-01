@@ -296,6 +296,31 @@ def safe_metrics(returns):
         "observations": len(eq),
     }
 
+def diagnostic_metrics(returns):
+    eq = [1.0]
+    for r in returns:
+        eq.append(eq[-1] * (1.0 + r))
+    sd = statistics.stdev(returns) if len(returns) > 1 else 0.0
+    sharpe = statistics.mean(returns) / sd * math.sqrt(365.25) if sd else 0.0
+    downside = [min(0.0, r) for r in returns]
+    dsd = statistics.stdev(downside) if len(downside) > 1 else 0.0
+    sortino = statistics.mean(returns) / dsd * math.sqrt(365.25) if dsd else 0.0
+    peak = eq[0]
+    mdd = 0.0
+    for x in eq:
+        peak = max(peak, x)
+        mdd = min(mdd, x / peak - 1.0) if peak else mdd
+    cagr = None if eq[-1] <= 0 else eq[-1] ** (365.25 / max(1, len(returns))) - 1.0
+    return {
+        "cumulative_return": eq[-1] - 1.0,
+        "cagr": cagr,
+        "sharpe": sharpe,
+        "sortino": sortino,
+        "max_drawdown": mdd,
+        "final_equity": eq[-1],
+        "observations": len(returns),
+    }
+
 ACCEPTED = {
     "cumulative_return": 0.4169009579470373,
     "cagr": 0.273179006712682,
@@ -448,11 +473,11 @@ def segment_rows():
             "start":oos_dates[a],
             "end":oos_dates[b-1],
             "observations":b-a,
-            "cumulative_return": metrics([1.0]+rr)["cumulative_return"],
-            "cagr": metrics([1.0]+rr)["cagr"],
-            "sharpe": (metrics([1.0]+rr)["sharpe"]),
-            "sortino": (metrics([1.0]+rr).get("sortino") if "sortino" in metrics([1.0]+rr) else None),
-            "max_drawdown": metrics([1.0]+rr)["max_drawdown"],
+            "cumulative_return": diagnostic_metrics(rr)["cumulative_return"],
+            "cagr": diagnostic_metrics(rr)["cagr"],
+            "sharpe": diagnostic_metrics(rr)["sharpe"],
+            "sortino": diagnostic_metrics(rr)["sortino"],
+            "max_drawdown": diagnostic_metrics(rr)["max_drawdown"],
             "residual_cumulative_return": "" if not res else safe_metrics(res)["cumulative_return"],
             "residual_sharpe": "" if not res else safe_metrics(res)["sharpe"],
         })
@@ -463,7 +488,7 @@ segments = segment_rows()
 def rolling(window):
     out=[]
     for i in range(window,len(strategy_returns)+1):
-        mm=metrics([1.0]+strategy_returns[i-window:i])
+        mm=diagnostic_metrics(strategy_returns[i-window:i])
         out.append({
             "end":oos_dates[i-1],
             "cumulative_return":mm["cumulative_return"],
@@ -497,11 +522,24 @@ for d,r in zip(oos_dates,strategy_returns):
     month=int(d[5:7])
     qkey=f"{d[:4]}-Q{((month-1)//3)+1}"
     by_quarter.setdefault(qkey,[]).append(r)
-year_metrics={k:metrics([1.0]+v) for k,v in by_year.items()}
-quarter_metrics={k:metrics([1.0]+v) for k,v in by_quarter.items()}
+year_metrics={k:diagnostic_metrics(v) for k,v in by_year.items()}
+quarter_metrics={k:diagnostic_metrics(v) for k,v in by_quarter.items()}
 total=base["metrics"]["cumulative_return"]
 best_year=max(year_metrics.items(),key=lambda kv:kv[1]["cumulative_return"])
 best_quarter=max(quarter_metrics.items(),key=lambda kv:kv[1]["cumulative_return"])
+
+half1 = segments[0]
+half2 = segments[1]
+residual_full = [x for x in residual[WINDOW:] if x is not None]
+residual_full_metrics = safe_metrics(residual_full) if residual_full else {}
+two_x_sharpe = cost_stress["2.0x"]["sharpe"]
+all_residual_quarter_positive = all(x["sharpe"] > 0 for x in factor_quarters if x.get("sharpe") is not None)
+if half1["sharpe"] > 0 and half2["sharpe"] > 0 and all_residual_quarter_positive and two_x_sharpe > 0:
+    durability_status = "DURABILITY_SUPPORTED"
+elif residual_full_metrics.get("sharpe", 0.0) > 0:
+    durability_status = "DURABILITY_MIXED"
+else:
+    durability_status = "DURABILITY_NOT_SUPPORTED"
 
 manifest_files = []
 for s in S:
@@ -539,7 +577,9 @@ manifest_bytes=json.dumps(manifest,sort_keys=True,indent=2).encode()+b"\\n"
 
 payload={
     "version":"2.0",
-    "status":"DURABILITY_DIAGNOSTIC_COMPLETE",
+    "status":durability_status,
+    "diagnostic_global":diagnostic_global,
+    "diagnostic_gate":diagnostic_gate,
     "reproduction_gate":gate,
     "trace_metrics":trace_base["metrics"],
     "temporal_segments":segments,
@@ -614,6 +654,8 @@ report=[
     "",
     "The accepted FIN-0012 engine was executed verbatim from commit 8388dc680571bf3fa849d349b60de99e38ebf8ea.",
     "No candidate mutation, parameter search, universe search, or holdout access was used.",
+    "",
+    f"## Research status: {durability_status}",
     "",
     "## Reproduction gate",
     json.dumps(gate,indent=2,sort_keys=True),
