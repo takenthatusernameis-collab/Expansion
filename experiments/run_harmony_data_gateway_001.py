@@ -1,6 +1,8 @@
-import json
+import json,sys
 from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
+ROOT_DIR=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT_DIR))
 from data_sources.harmony_data_gateway import binance_monthly_url,download_binary,fetch_asset_metrics,fetch_market_metrics,fetch_wikimedia_daily
 
 OUT=Path("artifacts/HARMONY-DATA-GATEWAY-001"); RAW=Path("data/cache/harmony_gateway_001")
