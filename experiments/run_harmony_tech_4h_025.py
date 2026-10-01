@@ -79,7 +79,7 @@ def build_indicators(pair,rows):
     rsi=RSIIndicator(df["close"],14).rsi()
     st=StochasticOscillator(df["high"],df["low"],df["close"],14,3)
     adx=ADXIndicator(df["high"],df["low"],df["close"],14)
-    ar=AroonIndicator(df["close"],window=25)
+    ar=AroonIndicator(df["high"],df["low"],window=25)
     cci=CCIIndicator(df["high"],df["low"],df["close"],20).cci()
     bb=BollingerBands(df["close"],20,2)
     kc=KeltnerChannel(df["high"],df["low"],df["close"],20)
