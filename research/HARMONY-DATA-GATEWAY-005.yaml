@@ -1,0 +1,35 @@
+gateway_id: HARMONY-DATA-GATEWAY-005
+status: preregistered_frozen
+purpose: "Reusable Tier-C 2h Binance USD-M intraday cache for realized-volatility, jump, variance-decomposition, and liquidity-risk mechanisms."
+source:
+  venue: Binance USD-M Futures
+  endpoint: /fapi/v1/continuousKlines
+  contract_type: PERPETUAL
+  interval: 2h
+  endpoint_constraints: "Maximum 200-day start/end span; maximum 1500 returned klines per request."
+  source_note: "Historical bars are acquired in deterministic <=100-day windows and normalized into immutable per-asset daily features."
+assets: [BTCUSDT, ETHUSDT, LTCUSDT, XRPUSDT, BNBUSDT, BCHUSDT, ADAUSDT, DOGEUSDT]
+history:
+  start: "2020-07-10"
+  end: "2025-10-31"
+features:
+  - realized_volatility_1d
+  - realized_up_variance_1d
+  - realized_down_variance_1d
+  - realized_signed_jump_1d
+  - max_bar_variance_share_1d
+  - quote_volume_1d
+  - return_1d
+  - realized_volatility_21d
+  - realized_volatility_63d
+  - volatility_of_volatility_21d
+  - volatility_term_ratio_5d_60d
+  - amihud_like_21d
+  - idiosyncratic_variance_21d
+integrity:
+  current_value_backfill: false
+  interpolation: false
+  silent_universe_drop: false
+  per_asset_coverage_certificate: required
+  request_sha256_manifest: required
+  normalized_feature_sha256: required
