@@ -6,6 +6,8 @@ on:
       - "prompts/harmony_deep_grind_003.md"
       - "experiments/run_harmony_deep_grind_003.py"
       - "experiments/run_alpha_autopsy_v4.py"
+      - "experiments/run_harmony_reconciliation_002.py"
+      - "tests/test_harmony_deep_grind_003.py"
       - ".github/workflows/harmony-deep-grind-003.yml"
   workflow_dispatch:
 
@@ -49,8 +51,8 @@ jobs:
 
       - name: Validate Harmony Deep Grind 003 code and frozen component
         run: |
-          python -m py_compile experiments/run_harmony_deep_grind_003.py experiments/run_alpha_autopsy_v3.py
-          python -m pytest -q tests/test_deep_discovery_batch_007.py
+          python -m py_compile experiments/run_harmony_deep_grind_003.py experiments/run_alpha_autopsy_v4.py experiments/run_harmony_reconciliation_002.py
+          python -m pytest -q tests/test_harmony_deep_grind_003.py tests/test_deep_discovery_batch_007.py
 
       - name: Execute Harmony Deep Grind 003
         run: python experiments/run_harmony_deep_grind_003.py
@@ -64,6 +66,7 @@ jobs:
             artifacts/HARMONY-DEEP-GRIND-003
             artifacts/HARMONY-FIN-0012-DURABILITY-V2
             artifacts/HARMONY-ALPHA-AUTOPSY-V2
+            artifacts/HARMONY-RECONCILIATION-002
             artifacts/HARMONY-CAMPAIGN-002
             artifacts/HARMONY-DEEP-DISCOVERY-BATCH-007
           if-no-files-found: warn
