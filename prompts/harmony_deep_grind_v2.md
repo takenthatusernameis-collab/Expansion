@@ -36,6 +36,10 @@ Run all of these in one bounded session:
 
 The later components must never be altered based on earlier component results.
 
+## Iteration refinement: reconciliation as a hard dependency
+
+The reconciliation is not merely a post-hoc report. It is a measurement-contract test between two implementations of the same frozen experiment. If it fails, downstream alpha-autopsy interpretation must be marked unresolved even when the headline performance is attractive.
+
 ## FIN-0012 reconciliation gate
 
 The reconciliation stage must answer, with exact evidence:
@@ -46,8 +50,14 @@ The reconciliation stage must answer, with exact evidence:
 4. Does the alpha-autopsy artifact clearly label every metric with its accounting layer?
 5. Are placebo percentile statistics computed on the same accounting layer as the quantity being compared?
 6. Does the reconciliation fail closed if the required authority files are missing, ambiguous, or materially inconsistent?
+7. Can every material discrepancy be classified as accounting-layer, signal-timing, data, funding, cost, or implementation error without speculation?
+8. Does the corrected diagnostic preserve the authority of the accepted engine rather than changing it to make the numbers agree?
 
 No downstream interpretation may treat an unreconciled alpha-autopsy metric as authoritative.
+
+## Execution ordering
+
+Run FIN-0012 durability first, then alpha autopsy, then reconciliation, then the two independent research families. The ordering is for dependency and evidence control only: no result may modify the frozen inputs of a later component.
 
 ## Cross-protocol synthesis
 
@@ -71,7 +81,7 @@ Persist:
 - reconciliation gate results;
 - explicit holdout/mutation/search flags.
 
-The final session is PASS only when all required components return 0 and all integrity/reconciliation gates pass. A failed research hypothesis is not itself a session failure; silent inconsistency is.
+The final session is PASS only when all required components return 0 and all integrity/reconciliation gates pass. A reconciliation FAIL is a session FAIL even if every strategy backtest returns success. A failed research hypothesis is not itself a session failure; silent inconsistency is.
 
 ## Required session artifacts
 
@@ -95,5 +105,7 @@ The report must end with exactly these headings:
 - MIXED / INCONCLUSIVE EVIDENCE
 - REJECTED / ARCHIVED EVIDENCE
 - HIGHEST-VALUE NEXT TEST
+
+Before the final synthesis, explicitly answer whether any attractive result changed category because of the reconciliation. Never promote a result merely because the discrepancy was explained.
 
 No trading recommendation is implied.
