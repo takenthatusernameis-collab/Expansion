@@ -16,7 +16,7 @@ LOGS = OUT / "session_logs"
 
 COMPONENTS = [
     ("fin0012_durability", [sys.executable, "experiments/run_fin0012_durability_audit_v2.py"]),
-    ("alpha_autopsy_reconciled", [sys.executable, "experiments/run_alpha_autopsy_v3.py"]),
+    ("alpha_autopsy_reconciled", [sys.executable, "-m", "experiments.run_alpha_autopsy_v3"]),
     ("campaign_002", [sys.executable, "experiments/run_harmony_campaign_002.py"]),
     ("deep_discovery_007", [sys.executable, "experiments/run_harmony_deep_discovery_batch_007.py"]),
 ]
