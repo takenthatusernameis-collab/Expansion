@@ -416,14 +416,14 @@ def main():
     manifest={"generated_from_github_sha":__import__("os").environ.get("GITHUB_SHA"),"files":manifest_files,
               "oos_start":OOS_START,"oos_end":END,"placebos":PLACEBOS,"seed_base":SEED,
               "holdout_access":False,"candidate_mutation":False,"parameter_search":False}
-    mb=json.dumps(manifest,sort_keys=True,indent=2).encode()+b"\\n"; (OUT/"input_manifest.json").write_bytes(mb)
+    mb=json.dumps(manifest,sort_keys=True,indent=2).encode()+b"\n"; (OUT/"input_manifest.json").write_bytes(mb)
     msha=sha256(mb)
 
     payload={"version":"1.0","input_manifest_sha256":msha,
              "method":{"factor_window":WINDOW,"placebos":PLACEBOS,"seed_base":SEED,
                        "diagnostic_only":True,"candidate_mutation":False,"holdout_access":False},
              "candidates":{"FIN-0012":r12,"FIN-0024":r24}}
-    raw=json.dumps(payload,sort_keys=True,indent=2).encode()+b"\\n"; (OUT/"alpha_autopsy.json").write_bytes(raw)
+    raw=json.dumps(payload,sort_keys=True,indent=2).encode()+b"\n"; (OUT/"alpha_autopsy.json").write_bytes(raw)
 
     with (OUT/"equity_curves.csv").open("w",newline="") as f:
         fields=list(c12[0].keys())+["candidate"]
@@ -433,7 +433,7 @@ def main():
                 x=row.copy(); x["candidate"]=candidate; w.writerow(x)
 
     placebo_payload={"FIN-0012":p12,"FIN-0024":p24}
-    (OUT/"placebo_summary.json").write_text(json.dumps(placebo_payload,sort_keys=True,indent=2)+"\\n")
+    (OUT/"placebo_summary.json").write_text(json.dumps(placebo_payload,sort_keys=True,indent=2)+"\n")
 
     def classification(r):
         r2=r["rolling_beta_summary"]["r2_mean"]; rs=r["rolling_factor_metrics"]["sharpe"]
@@ -455,7 +455,7 @@ def main():
         "## Interpretation rule",
         "Raw metrics are gross return-series diagnostics. Net metrics are realized-equity diagnostics including transaction costs and funding and are the authoritative layer for executable performance reconciliation. Rolling residual performance remains an attribution diagnostic, not a claim of causal alpha. Placebo percentiles are descriptive null diagnostics and must not be interpreted as promotion evidence.",
     ]
-    (OUT/"alpha_autopsy_report.md").write_text("\\n".join(report)+"\\n")
+    (OUT/"alpha_autopsy_report.md").write_text("\\n".join(report)+"\n")
     print(json.dumps(payload,indent=2,sort_keys=True))
 
 if __name__=="__main__":
