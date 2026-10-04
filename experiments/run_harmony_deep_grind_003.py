@@ -17,6 +17,7 @@ LOGS = OUT / "session_logs"
 COMPONENTS = [
     ("fin0012_durability", [sys.executable, "experiments/run_fin0012_durability_audit_v2.py"]),
     ("alpha_autopsy_reconciled", [sys.executable, "-m", "experiments.run_alpha_autopsy_v4"]),
+    ("fin0012_reconciliation_002", [sys.executable, "experiments/run_harmony_reconciliation_002.py"]),
     ("campaign_002", [sys.executable, "experiments/run_harmony_campaign_002.py"]),
     ("deep_discovery_007", [sys.executable, "experiments/run_harmony_deep_discovery_batch_007.py"]),
 ]
@@ -89,50 +90,15 @@ def run_component(name, cmd):
             "stderr_log": str(stderr_path.relative_to(ROOT)),
         }
 
-def reconcile(fin_path: Path, alpha_path: Path):
-    fin = load_json(fin_path)
-    alpha = load_json(alpha_path)
-    gate = alpha["candidates"]["FIN-0012"]["reconciliation"]["authoritative_fin12_gate"]
-    alpha_net = alpha["candidates"]["FIN-0012"]["net_metrics"]
-    accepted_raw = fin["reproduction_gate"]["values"]
-    accepted = {k: (v[0] if isinstance(v, list) and len(v) == 2 else v) for k, v in accepted_raw.items()}
+def reconcile():
+    p = ROOT / "artifacts/HARMONY-RECONCILIATION-002/reconciliation.json"
+    if not p.is_file():
+        return {"status": "FAIL", "error": "standalone reconciliation artifact missing"}
+    try:
+        return load_json(p)
+    except Exception as exc:
+        return {"status": "FAIL", "error": repr(exc)}
 
-    metric_keys = [
-        "cumulative_return",
-        "cagr",
-        "sharpe",
-        "max_drawdown",
-    ]
-    comparisons = {
-        k: {
-            "authoritative": accepted[k],
-            "alpha_reconciled": alpha_net[k],
-            "abs_difference": abs(accepted[k] - alpha_net[k]),
-            "within_1e-9": abs(accepted[k] - alpha_net[k]) <= 1e-9,
-        }
-        for k in metric_keys
-    }
-
-    gross = alpha["candidates"]["FIN-0012"]["gross_metrics"]
-    net = alpha_net
-    accounting = {
-        "gross_cumulative_return": gross["cumulative_return"],
-        "net_cumulative_return": net["cumulative_return"],
-        "gross_final_equity": gross["final_equity"],
-        "net_final_equity": net["final_equity"],
-        "transaction_costs": alpha["candidates"]["FIN-0012"]["execution"]["transaction_costs"],
-        "funding_pnl": alpha["candidates"]["FIN-0012"]["execution"]["funding_pnl"],
-        "gross_net_difference_explained_by_explicit_cost_layer": True,
-    }
-
-    return {
-        "status": "PASS" if gate["all_within_1e-9"] and all(x["within_1e-9"] for x in comparisons.values()) else "FAIL",
-        "authoritative_fin0012_reproduction_gate": fin["reproduction_gate"],
-        "alpha_reconciliation_gate": gate,
-        "net_metric_comparison": comparisons,
-        "accounting_reconciliation": accounting,
-        "classification": "accounting/implementation artifact resolved" if gate["all_within_1e-9"] else "unresolved",
-    }
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
@@ -140,19 +106,13 @@ def main():
 
     statuses = [run_component(n, c) for n, c in COMPONENTS]
 
-    fin_path = ROOT / "artifacts/HARMONY-FIN-0012-DURABILITY-V2/durability_audit.json"
-    alpha_path = ROOT / "artifacts/HARMONY-ALPHA-AUTOPSY-V2/alpha_autopsy.json"
-    reconciliation = {"status": "NOT_RUN"}
-    if fin_path.is_file() and alpha_path.is_file():
-        try:
-            reconciliation = reconcile(fin_path, alpha_path)
-        except Exception as exc:
-            reconciliation = {"status": "FAIL", "error": repr(exc)}
+    reconciliation = reconcile()
 
     integrity_violations = []
     for root in [
         ROOT / "artifacts/HARMONY-FIN-0012-DURABILITY-V2",
         ROOT / "artifacts/HARMONY-ALPHA-AUTOPSY-V2",
+        ROOT / "artifacts/HARMONY-RECONCILIATION-002",
         ROOT / "artifacts/HARMONY-CAMPAIGN-002",
         ROOT / "artifacts/HARMONY-DEEP-DISCOVERY-BATCH-007",
     ]:
@@ -178,6 +138,7 @@ def main():
         prompt,
         ROOT / "experiments/run_harmony_deep_grind_003.py",
         ROOT / "experiments/run_alpha_autopsy_v4.py",
+        ROOT / "experiments/run_harmony_reconciliation_002.py",
     ]
     provenance = {
         "workflow_sha": os.environ.get("GITHUB_SHA"),
@@ -189,7 +150,10 @@ def main():
     }
 
     component_ok = all(x["return_code"] == 0 for x in statuses)
-    reconciliation_ok = reconciliation.get("status") == "PASS"
+    reconciliation_ok = (
+        reconciliation.get("status") == "PASS"
+        and reconciliation.get("classification") == "implementation/accounting artifact resolved"
+    )
     integrity_ok = not integrity_violations
     session_status = "PASS" if component_ok and reconciliation_ok and integrity_ok else "PARTIAL_OR_FAIL"
 
