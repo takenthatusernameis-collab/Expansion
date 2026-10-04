@@ -259,21 +259,20 @@ def placebo(close, funding, dates, start_idx, weight_builder, gross_per_leg, n_l
                 daily.append(0.0)
             if (i-start_idx)%7==0:
                 deterministic=weight_builder(i,d)
-                if deterministic is None: continue
-                pool=list(SYMBOLS); rng.shuffle(pool)
-                longs=pool[:n_longs]
-                remaining=[s for s in pool if s not in longs]
-                shorts=remaining[:n_shorts]
-                w={s:0.0 for s in SYMBOLS}
-                for s in longs: w[s]=gross_per_leg
-                for s in shorts: w[s]=-gross_per_leg
-                delta=sum(abs(w[s]-prev[s]) for s in SYMBOLS)
-                eq*=max(0.0,1-(FEE+SLIP)*delta)
-                prev=w
+                if deterministic is not None:
+                    pool=list(SYMBOLS); rng.shuffle(pool)
+                    longs=pool[:n_longs]
+                    remaining=[s for s in pool if s not in longs]
+                    shorts=remaining[:n_shorts]
+                    w={s:0.0 for s in SYMBOLS}
+                    for s in longs: w[s]=gross_per_leg
+                    for s in shorts: w[s]=-gross_per_leg
+                    delta=sum(abs(w[s]-prev[s]) for s in SYMBOLS)
+                    eq*=max(0.0,1-(FEE+SLIP)*delta)
+                    prev=w
             curve.append(eq)
         eq*=max(0.0,1-(FEE+SLIP)*sum(abs(v) for v in prev.values()))
-        if curve:
-            curve[-1]=eq
+        curve[-1]=eq
         gross=metrics(daily)
         net=curve_metrics(curve)
         results.append({
@@ -285,6 +284,7 @@ def placebo(close, funding, dates, start_idx, weight_builder, gross_per_leg, n_l
             "gross_mdd":gross["max_drawdown"]
         })
     return results
+
 
 def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_per_leg):
     dates=sorted(set.intersection(*(set(close[s]) for s in SYMBOLS)))
@@ -361,9 +361,9 @@ def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_p
         "placebo":{
             "n":len(placeholders),
             "seed":placebo_seed,
-            "actual_cumulative_percentile":percentile(sm["cumulative_return"],[x["cum"] for x in placeholders]),
-            "actual_sharpe_percentile":percentile(sm["sharpe"],[x["sharpe"] for x in placeholders]),
-            "actual_mdd_percentile":percentile(sm["max_drawdown"],[x["mdd"] for x in placeholders]),
+            "actual_cumulative_percentile":percentile(sm_net["cumulative_return"],[x["cum"] for x in placeholders]),
+            "actual_sharpe_percentile":percentile(sm_net["sharpe"],[x["sharpe"] for x in placeholders]),
+            "actual_mdd_percentile":percentile(sm_net["max_drawdown"],[x["mdd"] for x in placeholders]),
             "cum_mean":statistics.mean(x["cum"] for x in placeholders),
             "cum_median":statistics.median(x["cum"] for x in placeholders),
             "cum_p05":sorted(x["cum"] for x in placeholders)[int(0.05*len(placeholders))],
