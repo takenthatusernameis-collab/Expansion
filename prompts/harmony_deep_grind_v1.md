@@ -108,3 +108,5 @@ The session report must end with exactly:
 - HIGHEST-VALUE NEXT TEST
 
 No trading recommendation is implied.
+## Final execution refinement
+Run the four components sequentially in the same bounded session so shared caches are reused and cross-protocol evidence is available for one final synthesis. Do not let an early component's result alter the later component's frozen inputs.
