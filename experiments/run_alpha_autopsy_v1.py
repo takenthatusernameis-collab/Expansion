@@ -248,7 +248,7 @@ def placebo(close, funding, dates, start_idx, weight_builder, gross_per_leg, n_l
     rets=daily_returns(close,dates); fr=fund_map(funding,dates)
     rng=random.Random(seed); results=[]
     for _ in range(PLACEBOS):
-        prev={s:0.0 for s in SYMBOLS}; eq=1.0; daily=[]
+        prev={s:0.0 for s in SYMBOLS}; eq=1.0; daily=[]; curve=[]
         for i in range(start_idx,len(dates)):
             d=dates[i]
             if i>start_idx:
@@ -270,31 +270,20 @@ def placebo(close, funding, dates, start_idx, weight_builder, gross_per_leg, n_l
                 delta=sum(abs(w[s]-prev[s]) for s in SYMBOLS)
                 eq*=max(0.0,1-(FEE+SLIP)*delta)
                 prev=w
+            curve.append(eq)
         eq*=max(0.0,1-(FEE+SLIP)*sum(abs(v) for v in prev.values()))
+        if curve:
+            curve[-1]=eq
         gross=metrics(daily)
-        # Placebo percentiles must compare executable/net quantities on the same accounting layer.
-        # The equity curve currently contains the realized costs and funding.
-        # Reconstruct a minimal realized path from the stored gross daily path plus final net equity.
-        # For exact percentile accounting, run the same net curve simulation below.
-        net_curve=[1.0]
-        prev2={s:0.0 for s in SYMBOLS}
-        eq2=1.0
-        for i in range(start_idx,len(dates)):
-            d=dates[i]
-            if i>start_idx:
-                r=sum(prev2[s]*rets[s].get(d,0.0) for s in SYMBOLS)
-                f=-sum(prev2[s]*fr[s].get(d,0.0) for s in SYMBOLS)
-                eq2*=1.0+r+f
-            if (i-start_idx)%7==0:
-                pool2=list(SYMBOLS)
-                # Match the already-drawn placebo path deterministically by deriving a fresh shuffle from the
-                # same trial seed is unnecessary for the percentile gate; use the realized terminal net equity
-                # together with gross time-series diagnostics only as a fail-safe fallback.
-            net_curve.append(eq2)
-        # Preserve the historical cumulative null distribution and explicitly expose gross diagnostics.
-        results.append({"cum":eq-1.0,"sharpe":gross["sharpe"],"mdd":gross["max_drawdown"],
-                        "net_cumulative_return":eq-1.0,"gross_sharpe":gross["sharpe"],
-                        "gross_mdd":gross["max_drawdown"]})
+        net=curve_metrics(curve)
+        results.append({
+            "cum":eq-1.0,
+            "sharpe":net["sharpe"],
+            "mdd":net["max_drawdown"],
+            "net_cumulative_return":net["cumulative_return"],
+            "gross_sharpe":gross["sharpe"],
+            "gross_mdd":gross["max_drawdown"]
+        })
     return results
 
 def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_per_leg):
@@ -358,7 +347,7 @@ def process(name, close, funding, raw_weight_builder, n_longs, n_shorts, gross_p
         "accounting_layers":{
             "raw_metrics":"gross_return_series_before_transaction_costs",
             "net_metrics":"realized_equity_after_transaction_costs_and_funding",
-            "placebo_percentiles":"gross_time_series_with_net_cumulative_return",
+            "placebo_percentiles":"realized_equity_net_of_costs_and_funding",
             "diagnostic_only":True
         },
         "rolling_beta_summary":{
