@@ -5,7 +5,7 @@ on:
     paths:
       - "prompts/harmony_deep_grind_003.md"
       - "experiments/run_harmony_deep_grind_003.py"
-      - "experiments/run_alpha_autopsy_v3.py"
+      - "experiments/run_alpha_autopsy_v4.py"
       - ".github/workflows/harmony-deep-grind-003.yml"
   workflow_dispatch:
 
