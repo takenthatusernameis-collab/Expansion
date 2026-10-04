@@ -201,7 +201,7 @@ def main():
         "workflow_commit_sha": os.environ.get("GITHUB_SHA"),
         "prompt_path": "prompts/harmony_deep_grind_003.md",
         "provenance": provenance,
-        "components": [x["name"] for x in COMPONENTS],
+        "components": [x[0] for x in COMPONENTS],
         "integrity_scan": {"status": "PASS" if integrity_ok else "FAIL", "violations": integrity_violations},
     }
     (OUT / "input_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
