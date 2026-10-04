@@ -368,6 +368,10 @@ def main():
             "holdout_access": False,
         },
         "candidates": {"FIN-0012": r12, "FIN-0024": r24},
+        "_persisted_placebo_trials": {
+            "FIN-0012": p12,
+            "FIN-0024": p24,
+        },
     }
     raw = json.dumps(payload, sort_keys=True, indent=2).encode() + b"\n"
     (OUT / "alpha_autopsy.json").write_bytes(raw)
