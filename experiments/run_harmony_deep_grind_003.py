@@ -94,7 +94,8 @@ def reconcile(fin_path: Path, alpha_path: Path):
     alpha = load_json(alpha_path)
     gate = alpha["candidates"]["FIN-0012"]["reconciliation"]["authoritative_fin12_gate"]
     alpha_net = alpha["candidates"]["FIN-0012"]["net_metrics"]
-    accepted = fin["reproduction_gate"]["values"]
+    accepted_raw = fin["reproduction_gate"]["values"]
+    accepted = {k: (v[0] if isinstance(v, list) and len(v) == 2 else v) for k, v in accepted_raw.items()}
 
     metric_keys = [
         "cumulative_return",
