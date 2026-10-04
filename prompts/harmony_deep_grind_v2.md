@@ -52,6 +52,7 @@ The reconciliation stage must answer, with exact evidence:
 6. Does the reconciliation fail closed if the required authority files are missing, ambiguous, or materially inconsistent?
 7. Can every material discrepancy be classified as accounting-layer, signal-timing, data, funding, cost, or implementation error without speculation?
 8. Does the corrected diagnostic preserve the authority of the accepted engine rather than changing it to make the numbers agree?
+9. Does the reconciliation independently recompute recorded placebo percentiles from persisted trial-level null results rather than trusting the summary field?
 
 No downstream interpretation may treat an unreconciled alpha-autopsy metric as authoritative.
 
@@ -74,6 +75,9 @@ After all components:
 
 Persist:
 - exact stdout/stderr for every component;
+- both the pre-reconciliation and post-reconciliation alpha-autopsy artifacts;
+- an explicit machine-checkable reconciliation result;
+
 - return codes and timestamps;
 - workflow commit SHA;
 - data/cache provenance and hashes;
