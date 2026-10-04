@@ -1,0 +1,99 @@
+# Harmony Deep Grind v2 — Measurement Integrity, Durability, and Research-Process Session
+
+## Mission
+
+Run the deepest deterministic Harmony research session available from the existing frozen research machinery, with the primary objective of increasing trustworthy information gain rather than maximizing headline performance.
+
+The session must distinguish:
+- gross signal diagnostics;
+- realized net/executable performance;
+- attribution diagnostics;
+- validation evidence;
+- promotion decisions.
+
+The highest-priority unresolved issue is the previously observed FIN-0012 accounting discrepancy between the authoritative durability engine and the independent alpha-autopsy implementation. Resolve that discrepancy before interpreting derived alpha-attribution or placebo evidence as though it were authoritative.
+
+## Immutable boundary
+
+- Do not optimize, retune, mutate, or promote any candidate.
+- Do not change candidate parameters, universe, direction, ranking, horizon, rebalance cadence, signal timing, weights, cost assumptions, funding treatment, or acceptance gates merely because of observed results.
+- Do not access, infer, or derive any data after 2025-10-31.
+- Do not use final holdout information for selection, interpretation, or tuning.
+- Treat the accepted FIN-0012 engine reproduction as the accounting authority.
+- A mismatch is evidence to explain, not permission to weaken the authority.
+- Preserve failed, mixed, or inconclusive outcomes.
+- Never call a descriptive robustness pattern independent OOS validation unless its protocol supports that claim.
+
+## Frozen research components
+
+Run all of these in one bounded session:
+
+1. FIN-0012 reproducibility-first durability audit.
+2. FIN-0012 / FIN-0024 alpha autopsy with explicit gross-vs-net accounting layers.
+3. A deterministic FIN-0012 reconciliation audit comparing alpha-autopsy net metrics against the authoritative durability trace.
+4. HARMONY-CAMPAIGN-002 funding-carry family: all four frozen candidates, six chronological blocks, 1.0x / 1.5x / 2.0x costs.
+5. HARMONY-DEEP-DISCOVERY-BATCH-007 low-volatility deep-history validation.
+
+The later components must never be altered based on earlier component results.
+
+## FIN-0012 reconciliation gate
+
+The reconciliation stage must answer, with exact evidence:
+
+1. Do alpha-autopsy net metrics reproduce the authoritative FIN-0012 trace within 1e-9?
+2. Do observed execution quantities agree where the protocols are intended to be identical?
+3. If gross metrics differ from net metrics, is the difference explicitly attributable to transaction-cost/funding accounting rather than hidden signal differences?
+4. Does the alpha-autopsy artifact clearly label every metric with its accounting layer?
+5. Are placebo percentile statistics computed on the same accounting layer as the quantity being compared?
+6. Does the reconciliation fail closed if the required authority files are missing, ambiguous, or materially inconsistent?
+
+No downstream interpretation may treat an unreconciled alpha-autopsy metric as authoritative.
+
+## Cross-protocol synthesis
+
+After all components:
+
+- reconcile accounting, data provenance, signal timing, funding, turnover, costs, and benchmark definitions;
+- identify contradictions and negative evidence before highlighting attractive results;
+- separate supported evidence, mixed/inconclusive evidence, rejected/archived evidence, and unresolved questions;
+- identify redundant evidence families;
+- rank unresolved uncertainties by consequence, evidence quality, cheapest decisive test, expected information gain, and overfitting/evaluator-gaming risk;
+- prefer the smallest preregisterable falsification test with high information gain over another optimization pass.
+
+## Research-engineering integrity
+
+Persist:
+- exact stdout/stderr for every component;
+- return codes and timestamps;
+- workflow commit SHA;
+- data/cache provenance and hashes;
+- every generated artifact with SHA-256;
+- reconciliation gate results;
+- explicit holdout/mutation/search flags.
+
+The final session is PASS only when all required components return 0 and all integrity/reconciliation gates pass. A failed research hypothesis is not itself a session failure; silent inconsistency is.
+
+## Required session artifacts
+
+Create 'artifacts/HARMONY-DEEP-GRIND-002/' containing:
+- 'session_report.md'
+- 'session_summary.json'
+- 'component_status.json'
+- 'input_manifest.json'
+- 'evidence_inventory.json'
+- 'session_logs/'
+
+Also persist the component artifacts for:
+- 'HARMONY-FIN-0012-DURABILITY-V2'
+- 'HARMONY-ALPHA-AUTOPSY-V1'
+- 'HARMONY-RECONCILIATION-001'
+- 'HARMONY-CAMPAIGN-002'
+- 'HARMONY-DEEP-DISCOVERY-BATCH-007'
+
+The report must end with exactly these headings:
+- SUPPORTED EVIDENCE
+- MIXED / INCONCLUSIVE EVIDENCE
+- REJECTED / ARCHIVED EVIDENCE
+- HIGHEST-VALUE NEXT TEST
+
+No trading recommendation is implied.
