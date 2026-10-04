@@ -326,6 +326,12 @@ def main():
     r12, d12, s12, b12, e12, p12 = process("FIN-0012", monthly, monthly_f, v1.fin12_weights, 2, 2, 0.25)
     r24, d24, s24, b24, e24, p24 = process("FIN-0024", deep, deep_f, v1.fin24_weights, 3, 3, 1.0 / 6.0)
 
+    with (OUT / "fin0012_daily_path.csv").open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["date", "net_equity", "gross_equity"])
+        for d, net_eq, gross_eq in zip(d12, s12["net_curve"], s12["gross_curve"]):
+            w.writerow([d, f"{net_eq:.17g}", f"{gross_eq:.17g}"])
+
     manifest_files = []
     for root in [v1.MONTHLY_ROOT, v1.DEEP_ROOT]:
         for p in sorted(root.rglob("*")):
