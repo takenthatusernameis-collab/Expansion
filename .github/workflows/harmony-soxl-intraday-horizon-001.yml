@@ -6,6 +6,9 @@ on:
       - research/harmony-soxl-intraday-horizon-001
     paths-ignore:
       - "results/harmony_soxl_intraday_horizon_0042/**"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
