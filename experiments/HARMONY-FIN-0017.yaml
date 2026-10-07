@@ -1,46 +1,41 @@
 experiment_id: HARMONY-FIN-0017
-type: intraday_horizon_single_asset
+type: deep_perpetual_basis_cross_sectional_oos
 status: preregistered_frozen
-strategy_id: horizon_intraday_soxl_v1
-objective: "Test a fixed Horizon-style multi-timeframe momentum vote on the 3x semiconductor ETF SOXL using hourly intraday bars."
-instrument: SOXL
-instrument_description: "Direxion Daily Semiconductor Bull 3X ETF"
+strategy_id: perpetual_basis_cross_sectional_v1
+objective: "Test whether prior-day perpetual-futures premium relative to spot predicts cross-sectional futures returns."
+universe: [BTCUSDT,ETHUSDT,LTCUSDT,XRPUSDT,BNBUSDT,BCHUSDT,ADAUSDT,DOGEUSDT]
 signal:
-  interval: 1h
-  lookbacks_bars: [30, 90, 365]
-  interpretation: "long the completed-bar return at each fixed horizon; positive vote when prior close exceeds the close lookback bars earlier"
-  vote_rule: "3 positive -> 1.0 exposure; 2 positive -> 2/3 exposure; otherwise 0 exposure"
-  long_only: true
-  signal_cutoff: "signal at bar t may use closes through t-1 only"
-execution:
-  order_price: "current bar open"
-  overnight: "previous target exposure carries from prior close to current open"
-  intrabar: "current target exposure applies from current open to current close"
-  end_of_sample: "mark at final close; no discretionary liquidation"
+  basis_definition: "futures close(t-1) / spot close(t-1) - 1"
+  ranking: "descending prior-day basis"
+  portfolio: "long top 3 and short bottom 3; equal weight within each side; 0.5 gross per side"
+  rebalance: "first common observation with prior-day basis; then every seventh common observation"
+  tie_break: "symbol ascending"
+  signal_cutoff: "completed futures and spot closes from t-1 only"
 costs:
-  primary_fee_rate: 0.0003
-  primary_slippage_rate: 0.0002
-  stress_multipliers: [1.0, 1.5, 2.0]
+  fee_rate: 0.0006
+  slippage_rate: 0.0005
+  funding: "native recorded funding events at their timestamps"
 data:
-  provider: "Yahoo Finance chart API"
-  interval: 1h
-  regular_session_only: true
-  discovery_oos_split: 0.70
-  fixed_end_utc: "2026-10-07T00:00:00Z"
-  maximum_requested_lookback_days: 720
-  provenance: "Direct Yahoo Finance chart endpoint response; raw OHLC is retained with SHA-256."
-benchmarks:
-  - SOXL_buy_and_hold
-  - cash
+  futures_source: HARMONY-DEEP-HISTORY-2019-001
+  spot_source: HARMONY-SPOT-DEEP-HISTORY-001
+  requested_history_start: "2019-01-01"
+  execution_end: "2025-10-31"
+  exact_intersection_only: true
+  no_forward_fill: true
+  holdout_access_forbidden: true
 validation:
-  primary: chronological 70/30 OOS
-  secondary: cost stress 1.0x/1.5x/2.0x
-  integrity:
-    - duplicate timestamp rejection
-    - monotonic timestamp rejection
-    - null OHLC rejection
-    - nonpositive price rejection
-    - lookahead unit tests
+  discovery_boundary: "2024-05-21"
+  oos_segment: "2024-05-22 through 2025-10-31"
+  temporal_stability: "two equal chronological OOS halves"
+  benchmarks: ["same-universe equal-weight long-only","BTCUSDT buy-and-hold"]
+  cost_stress: ["1.0x","1.5x","2.0x"]
+integrity:
   no_parameter_grid: true
-  no_post_hoc_tuning: true
-  no_live_trading: true
+  no_post_hoc_search: true
+  no_universe_search: true
+  no_candidate_mutation: true
+  distinct_from: ["funding_carry","cross_sectional_momentum","time_series_momentum","liquidity_reversal","taker_flow","signed_jump"]
+deep_backtest:
+  full_trace_required: true
+  exact_data_inception_required: true
+  use_longest_verified_common_history: true
