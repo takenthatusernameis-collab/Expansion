@@ -39,11 +39,11 @@ jobs:
 
       - name: Test strategy primitives
         run: |
-          PYTHONPATH=. python -m pytest -q tests/test_harmony_soxl_intraday_horizon_0042.py
+          PYTHONPATH=. python -m pytest -q tests/test_harmony_soxl_intraday_horizon_001.py
 
       - name: Execute frozen research
         run: |
-          PYTHONPATH=. python experiments/harmony_soxl_intraday_horizon_0042.py
+          PYTHONPATH=. python experiments/harmony_soxl_intraday_horizon_001.py
 
       - name: Verify result artifact
         run: |
