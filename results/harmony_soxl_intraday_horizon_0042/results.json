@@ -1,0 +1,161 @@
+{
+  "experiment_id": "HARMONY-FIN-0042",
+  "status": "EXECUTED",
+  "instrument": "SOXL",
+  "interval": "1h",
+  "data": {
+    "source": "Yahoo Finance chart API",
+    "start": "2024-10-18T13:30:00+00:00",
+    "end": "2026-10-06T19:30:00+00:00",
+    "requested_start": "2024-10-18T00:00:00+00:00",
+    "requested_end": "2026-10-07T00:00:00+00:00",
+    "rows": 3419,
+    "content_sha256": "fbb4239327b866e610604855640fd5190b183bbd5a07d92850552f48de753d71",
+    "meta": {
+      "currency": "USD",
+      "exchangeTimezoneName": "America/New_York",
+      "instrumentType": "ETF",
+      "exchangeName": "PCX",
+      "events": {
+        "dividends": {
+          "1734964200": {
+            "amount": 0.077,
+            "date": 1734964200
+          },
+          "1742909400": {
+            "amount": 0.065,
+            "date": 1742909400
+          },
+          "1750771800": {
+            "amount": 0.068,
+            "date": 1750771800
+          },
+          "1758634200": {
+            "amount": 0.01,
+            "date": 1758634200
+          },
+          "1790083800": {
+            "amount": 0.093,
+            "date": 1790083800
+          }
+        }
+      },
+      "url": "https://query1.finance.yahoo.com/v8/finance/chart/SOXL?period1=1729209600&period2=1791331200&interval=1h&includePrePost=false&events=div%2Csplits&lang=en-US&region=US"
+    }
+  },
+  "signal": {
+    "lookbacks_bars": [
+      30,
+      90,
+      365
+    ],
+    "vote_rule": "3 positive -> 1.0; 2 positive -> 2/3; else 0",
+    "long_only": true,
+    "effective_exposure_mean": 0.485424588086185
+  },
+  "split": {
+    "is_fraction": 0.7,
+    "oos_fraction": 0.3,
+    "split_index": 2393,
+    "oos_start": "2026-03-09T16:30:00+00:00"
+  },
+  "costs": {
+    "fee_rate": 0.0003,
+    "slippage_rate": 0.0002,
+    "combined_one_way_rate": 0.0005,
+    "stress_multipliers": [
+      1.0,
+      1.5,
+      2.0
+    ]
+  },
+  "full_sample": {
+    "total_return": 1.3200778097424135,
+    "cagr": 0.5341511883598484,
+    "sharpe": 1.015763682455819,
+    "max_drawdown": -0.590698946869996,
+    "turnover": 147.66666666666666,
+    "trades": 281,
+    "costs": 0.11159461492855542
+  },
+  "oos": {
+    "total_return": 0.6580387529309213,
+    "cagr": 1.3982954948138677,
+    "sharpe": 1.4234882691830013,
+    "max_drawdown": -0.590698946869996,
+    "turnover": 53.66666666666666,
+    "trades": 92,
+    "costs": 0.06128582009933227
+  },
+  "benchmark_buy_and_hold": {
+    "total_return": 3.5678120416021937,
+    "cagr": 1.1651096091945576,
+    "sharpe": 1.253024708714582,
+    "max_drawdown": -0.7852850503477172,
+    "turnover": 147.66666666666666,
+    "trades": 1,
+    "costs": 0.0
+  },
+  "cost_stress": {
+    "1.0": {
+      "oos": {
+        "total_return": 0.6580387529309213,
+        "cagr": 1.3982954948138677,
+        "sharpe": 1.4234882691830013,
+        "max_drawdown": -0.590698946869996,
+        "turnover": 53.66666666666666,
+        "trades": 92,
+        "costs": 0.06128582009933227
+      },
+      "full": {
+        "total_return": 1.3200778097424135,
+        "cagr": 0.5341511883598484,
+        "sharpe": 1.015763682455819,
+        "max_drawdown": -0.590698946869996,
+        "turnover": 147.66666666666666,
+        "trades": 281,
+        "costs": 0.11159461492855542
+      }
+    },
+    "1.5": {
+      "oos": {
+        "total_return": 0.6358693124715384,
+        "cagr": 1.343089533674763,
+        "sharpe": 1.4234882691830013,
+        "max_drawdown": -0.5936625689435338,
+        "turnover": 53.66666666666666,
+        "trades": 92,
+        "costs": 0.08913021296786014
+      },
+      "full": {
+        "total_return": 1.235811327558821,
+        "cagr": 0.5055578382222012,
+        "sharpe": 1.015763682455819,
+        "max_drawdown": -0.5936625689435338,
+        "turnover": 147.66666666666666,
+        "trades": 281,
+        "costs": 0.16362529175887608
+      }
+    },
+    "2.0": {
+      "oos": {
+        "total_return": 0.6139928250589162,
+        "cagr": 1.289145830194303,
+        "sharpe": 1.4234882691830013,
+        "max_drawdown": -0.5966052092912353,
+        "turnover": 53.66666666666666,
+        "trades": 92,
+        "costs": 0.11522332854682366
+      },
+      "full": {
+        "total_return": 1.1545937028054567,
+        "cagr": 0.4774933116400981,
+        "sharpe": 1.015763682455819,
+        "max_drawdown": -0.5966052092912353,
+        "turnover": 147.66666666666666,
+        "trades": 281,
+        "costs": 0.21328020117627533
+      }
+    }
+  }
+}
