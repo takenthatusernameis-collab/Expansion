@@ -23,7 +23,7 @@ PRIMARY_SLIPPAGE = 0.0002
 COST_STRESSES = (1.0, 1.5, 2.0)
 INITIAL_EQUITY = 1.0
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "results" / "harmony_soxl_intraday_horizon_001"
+OUT = ROOT / "results" / "harmony_soxl_intraday_horizon_0042"
 
 
 @dataclass(frozen=True)
@@ -270,7 +270,7 @@ def main() -> int:
     exposure_series = exposures(frame)
 
     result = {
-        "experiment_id": "HARMONY-FIN-0017",
+        "experiment_id": "HARMONY-FIN-0042",
         "status": "EXECUTED",
         "instrument": SYMBOL,
         "interval": INTERVAL,
@@ -325,7 +325,7 @@ def main() -> int:
     primary["buy_and_hold_curve"].to_csv(OUT / "buy_and_hold_curve.csv", index=False)
     (OUT / "results.json").write_text(json.dumps(result, indent=2, default=str))
     (OUT / "strategy_spec.yaml").write_text(
-        (ROOT / "experiments" / "HARMONY-FIN-0017.yaml").read_text()
+        (ROOT / "experiments" / "HARMONY-FIN-0042.yaml").read_text()
     )
     print(json.dumps(result, indent=2, default=str))
     return 0
