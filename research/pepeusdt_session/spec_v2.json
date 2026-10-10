@@ -1,0 +1,127 @@
+{
+  "experiment_id": "HARMONY-PEPE-SESSION-002",
+  "frozen_at_utc": "2026-10-10",
+  "status": "PREREGISTERED_EXPLORATORY",
+  "symbol": "PEPEUSDT.P",
+  "venue": "OKX",
+  "instrument_id": "PEPE-USDT-SWAP",
+  "market_data": {
+    "endpoint": "GET https://www.okx.com/api/v5/market/history-candles",
+    "bar": "5m",
+    "lookback_start_utc": "2023-01-01T00:00:00Z",
+    "include_only_confirmed_bars": true,
+    "pagination_limit": 300,
+    "preserve_canonical_raw_data_and_sha256": true
+  },
+  "session": {
+    "calendar": "NYSE regular trading sessions",
+    "timezone": "America/New_York",
+    "start_local": "09:30",
+    "end_local": "16:00",
+    "weekdays_and_exchange_holidays": "Use NYSE calendar; exclude holidays and early-close days",
+    "missing_bar_policy": "Only score complete 78-bar sessions; report all excluded sessions",
+    "close_positions": "At 16:00 local session close; never carry overnight or over weekends"
+  },
+  "signal_execution": {
+    "signal_cutoff": "Completed 5-minute bar close",
+    "fill": "Next 5-minute bar open",
+    "allowed_position": [
+      -1,
+      0,
+      1
+    ],
+    "leverage": 1,
+    "late_entries": "No fresh entry during final 15 minutes",
+    "forced_exit": "Last bar close at 16:00 local time",
+    "methods": [
+      {
+        "id": "ORB30",
+        "family": "opening_range_breakout",
+        "definition": "First six bars define high/low; enter long after a completed close above the range or short below; hold until opposite breakout or session end."
+      },
+      {
+        "id": "VWAP_TREND",
+        "family": "intraday_trend",
+        "definition": "Long when close is above session VWAP and EMA(9)>EMA(21); short when below VWAP and EMA(9)<EMA(21); otherwise flat."
+      },
+      {
+        "id": "VWAP_REVERSION",
+        "family": "intraday_mean_reversion",
+        "definition": "Compute z=(close-session_VWAP)/rolling_20_bar_std(close-session_VWAP), min 10 observations; enter long at z<=-2 or short at z>=2; exit when z crosses 0; reverse only at the opposite entry threshold."
+      },
+      {
+        "id": "MOM60",
+        "family": "time_series_momentum",
+        "definition": "Direction of close/close_12_bars_ago - 1; flat until 12 completed bars exist; all thresholds and parameters frozen."
+      }
+    ]
+  },
+  "costs": {
+    "fee_model": "Taker on every entry and exit, including reversals",
+    "taker_fee_bps_per_fill": 5,
+    "slippage_bps_per_fill_scenarios": [
+      5,
+      10,
+      20
+    ],
+    "funding": "Apply OKX realized historical funding only where the official funding-history endpoint supplies coverage; explicitly flag the endpoint's three-month coverage ceiling and prohibit promotion if backtest funding coverage is incomplete."
+  },
+  "evaluation": {
+    "chronological_session_splits": {
+      "discovery": 0.6,
+      "validation": 0.2,
+      "final_oos": 0.2
+    },
+    "benchmarks": [
+      "flat_cash",
+      "long_only_same_session"
+    ],
+    "metrics": [
+      "net_return",
+      "CAGR",
+      "annualized_Sharpe",
+      "annualized_Sortino",
+      "maximum_drawdown",
+      "profit_factor",
+      "win_rate",
+      "expectancy",
+      "trade_count",
+      "turnover",
+      "exposure",
+      "temporal_stability",
+      "block_bootstrap_confidence_interval"
+    ],
+    "robustness": [
+      "taker_fee_plus_5bps_slippage",
+      "taker_fee_plus_10bps_slippage",
+      "taker_fee_plus_20bps_slippage",
+      "two_OOS_halves",
+      "calendar_year_slices",
+      "five_session_block_bootstrap"
+    ],
+    "no_parameter_search": true,
+    "promotion_gate": {
+      "minimum_final_oos_trades_per_candidate": 100,
+      "minimum_baseline_net_oos_sharpe": 0.9,
+      "positive_final_oos_net_return": true,
+      "beat_long_only_session_benchmark": true,
+      "both_oos_halves_positive": true,
+      "positive_severe_cost_oos_sharpe": true,
+      "minimum_funding_history_coverage": 0.95
+    }
+  },
+  "integrity": {
+    "no_live_orders": true,
+    "no_lookahead": true,
+    "no_candidate_mutation_after_execution": true,
+    "negative_or_inconclusive_results_preserved": true,
+    "full_history_not_promotion_eligible_when_funding_history_incomplete": true
+  },
+  "methodology_amendment": {
+    "supersedes": "HARMONY-PEPE-SESSION-001 for session-filter validation only; prior outputs remain preserved",
+    "change": "Use each NYSE calendar date's scheduled open and close in America/New_York; exclude early-close sessions rather than treating 24/7 PEPE candles through 16:00 as regular-session data.",
+    "strategy_definitions_changed": false,
+    "cost_model_changed": false,
+    "reason": "Source audit found that v1 checked session dates but ignored scheduled closing times."
+  }
+}
