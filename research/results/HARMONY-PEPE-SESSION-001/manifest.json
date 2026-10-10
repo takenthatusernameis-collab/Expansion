@@ -1,0 +1,81 @@
+{
+  "bar": "5m",
+  "candidates": [
+    "ORB30",
+    "VWAP_TREND",
+    "VWAP_REVERSION",
+    "MOM60"
+  ],
+  "created_at_utc": "2026-10-10T03:58:41.424744+00:00",
+  "data": {
+    "bar_interval": "5m",
+    "canonical_ohlcv_sha256": "2a55f9d9610ea61fce036bfd87f2e0bb5643a561f15d17cff265508760b8e493",
+    "data_end_utc": "2026-10-10T03:50:00+00:00",
+    "data_start_utc": "2023-05-03T03:55:00+00:00",
+    "download_elapsed_seconds": 373.04,
+    "duplicates_removed": 0,
+    "first_candle_utc": "2023-05-03T03:55:00+00:00",
+    "funding": {
+      "coverage_end_utc": "2026-10-10T00:00:00+00:00",
+      "coverage_limit_note": "OKX documents that this endpoint returns funding history for up to three months; older sessions cannot be fully funding-adjusted from this source.",
+      "coverage_start_utc": "2026-06-29T08:00:00+00:00",
+      "pages_requested": 1,
+      "row_count": 309,
+      "status": "PARTIAL_HISTORY_AVAILABLE"
+    },
+    "funding_canonical_sha256": "7b1b61446a315eec3846221b3d1900bcbbbd9ddd97a61ce797d4b3f9ad49bea6",
+    "funding_coverage_fraction_of_sessions": 0.08333333333333333,
+    "funding_coverage_pct": 8.333333333333332,
+    "last_confirmed_candle_utc": "2026-10-10T03:50:00+00:00",
+    "pages_requested": 1207,
+    "price_history_candle_count": 361728,
+    "row_count": 361728
+  },
+  "experiment_id": "HARMONY-PEPE-SESSION-001",
+  "fee_bps_per_fill": 5.0,
+  "git_commit": "af0e9951d15014c5d3355a0ea0f3f54cd53b26ec",
+  "instrument_id": "PEPE-USDT-SWAP",
+  "output_sha256": {
+    "daily_returns.csv": "5de6d1f9dde2ce4265a944ca221b7c40fbd6ba57ec7f312ddedd51ff934b6c34",
+    "metrics.csv": "f0dd21fb20d88dc56170cb2471de31a94c977cda7e7d57d5986fdf5cc90d4a47",
+    "report.md": "54bfc7a2dbfce5345198861690eed1cccbec671e342caeee04456d68186b15d2",
+    "summary.json": "37c0a68cf5f765a02f6803d613c4a9312b14ed9be0c201218a9d8146a811ce79",
+    "trades.csv": "dc07aff0c8b2cdff9f81274d36a06ea366a945661698c7623d7dfb893ce37694"
+  },
+  "promotion_decisions": {
+    "MOM60": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "ORB30": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "VWAP_REVERSION": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "VWAP_TREND": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY"
+  },
+  "runner": "GitHub Actions 1000006421",
+  "session": "NYSE 09:30-16:00 America/New_York, full 78-bar sessions only",
+  "session_filters": {
+    "complete_sessions": 864,
+    "eligible_observed_dates": 864,
+    "excluded_session_examples": {},
+    "expected_bars_per_complete_session": 78,
+    "incomplete_or_early_close_sessions_excluded": 0,
+    "nyse_calendar_name": "NYSE",
+    "session_end_local": "16:00",
+    "session_start_local": "09:30",
+    "timezone": "America/New_York"
+  },
+  "slippage_bps_per_fill": {
+    "BASE": 5.0,
+    "STRESS_2X_SLIPPAGE": 10.0,
+    "STRESS_4X_SLIPPAGE": 20.0
+  },
+  "spec_sha256": "5ea98a520dae3f454da7664bd4eb0b532381f99d9e0d8b258fc0d5188121f9a8",
+  "split": {
+    "discovery_end": "2025-05-23",
+    "discovery_sessions": 518,
+    "final_oos_end": "2026-10-09",
+    "final_oos_sessions": 174,
+    "final_oos_start": "2026-02-02",
+    "split_rule": "Chronological 60% / 20% / 20% of complete sessions; candidate parameters were not searched.",
+    "validation_end": "2026-01-30",
+    "validation_sessions": 172
+  },
+  "status": "EXECUTED_EXPLORATORY_NO_PROMOTION"
+}
