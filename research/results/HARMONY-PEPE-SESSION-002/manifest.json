@@ -1,0 +1,123 @@
+{
+  "bar": "5m",
+  "candidates": [
+    "ORB30",
+    "VWAP_TREND",
+    "VWAP_REVERSION",
+    "MOM60"
+  ],
+  "created_at_utc": "2026-10-10T04:25:53.852281+00:00",
+  "data": {
+    "bar_interval": "5m",
+    "canonical_ohlcv_sha256": "fb60a1206cba6a10a786ee4a6413a48209e9758d33a28ff0c07db1240b1f97d3",
+    "data_end_utc": "2026-10-10T04:20:00+00:00",
+    "data_start_utc": "2023-05-03T03:55:00+00:00",
+    "download_elapsed_seconds": 413.21,
+    "duplicates_removed": 0,
+    "first_candle_utc": "2023-05-03T03:55:00+00:00",
+    "funding": {
+      "coverage_end_utc": "2026-10-10T00:00:00+00:00",
+      "coverage_limit_note": "OKX documents that this endpoint returns funding history for up to three months; older sessions cannot be fully funding-adjusted from this source.",
+      "coverage_start_utc": "2026-06-29T08:00:00+00:00",
+      "pages_requested": 1,
+      "row_count": 309,
+      "status": "PARTIAL_HISTORY_AVAILABLE"
+    },
+    "funding_canonical_sha256": "7b1b61446a315eec3846221b3d1900bcbbbd9ddd97a61ce797d4b3f9ad49bea6",
+    "funding_coverage_fraction_of_sessions": 0.08411214953271028,
+    "funding_coverage_pct": 8.411214953271028,
+    "last_confirmed_candle_utc": "2026-10-10T04:20:00+00:00",
+    "pages_requested": 1207,
+    "price_history_candle_count": 361734,
+    "row_count": 361734
+  },
+  "experiment_id": "HARMONY-PEPE-SESSION-002",
+  "fee_bps_per_fill": 5.0,
+  "git_commit": "566f43d6bcdc23b9d4ded4deca8082f4e13237e6",
+  "instrument_id": "PEPE-USDT-SWAP",
+  "output_sha256": {
+    "daily_returns.csv": "b00497e10dbd44628461ff82525908a21bdd716d618dfff927e953c362e72659",
+    "metrics.csv": "7c252ce768c0b5bc6900e1a514275754f928add383d7f452111299bba0924db5",
+    "report.md": "12741c5e3b778e75474ff69e8b83885429f571b14b047e31c28fc7c0ff6a40fb",
+    "summary.json": "150729b6e9e4059df74a9fbdb5eef25e266cb6f33ea85633b733880e65ecab0f",
+    "trades.csv": "46ede3065dc9933619c5dbedf66df7dffc52db1930b813f63c9a61857b474df5"
+  },
+  "promotion_decisions": {
+    "MOM60": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "ORB30": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "VWAP_REVERSION": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY",
+    "VWAP_TREND": "NON_PROMOTABLE_INCOMPLETE_FUNDING_HISTORY"
+  },
+  "runner": "GitHub Actions 1000006423",
+  "session": "NYSE 09:30-16:00 America/New_York, full 78-bar sessions only",
+  "session_filters": {
+    "complete_sessions": 856,
+    "early_close_dates_detected": 8,
+    "eligible_observed_dates": 856,
+    "excluded_session_examples": {
+      "2023-07-03": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2023-11-24": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2024-07-03": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2024-11-29": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2024-12-24": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2025-07-03": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2025-11-28": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      },
+      "2025-12-24": {
+        "expected_bars": 78,
+        "observed_bars": 78,
+        "reason": "NYSE early-close session excluded by scheduled market_close"
+      }
+    },
+    "expected_bars_per_complete_session": 78,
+    "incomplete_or_early_close_sessions_excluded": 8,
+    "nyse_calendar_name": "NYSE",
+    "session_end_local": "16:00",
+    "session_start_local": "09:30",
+    "timezone": "America/New_York"
+  },
+  "slippage_bps_per_fill": {
+    "BASE": 5.0,
+    "STRESS_2X_SLIPPAGE": 10.0,
+    "STRESS_4X_SLIPPAGE": 20.0
+  },
+  "spec_sha256": "b24e15482bc77decd34a957a76a5db95ab383e4d72070f999fbe6349d9514bbf",
+  "split": {
+    "discovery_end": "2025-05-23",
+    "discovery_sessions": 513,
+    "final_oos_end": "2026-10-09",
+    "final_oos_sessions": 172,
+    "final_oos_start": "2026-02-04",
+    "split_rule": "Chronological 60% / 20% / 20% of complete sessions; candidate parameters were not searched.",
+    "validation_end": "2026-02-03",
+    "validation_sessions": 171
+  },
+  "status": "EXECUTED_EXPLORATORY_NO_PROMOTION"
+}
