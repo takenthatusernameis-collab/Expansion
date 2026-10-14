@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 330
     env:
-      MOM121_DATA_ARCHIVE_URL: \${{ secrets.MOM121_DATA_ARCHIVE_URL }}
-      MOM121_DATA_ARCHIVE_SHA256: \${{ secrets.MOM121_DATA_ARCHIVE_SHA256 }}
+      MOM121_DATA_ARCHIVE_URL: ${{ secrets.MOM121_DATA_ARCHIVE_URL }}
+      MOM121_DATA_ARCHIVE_SHA256: ${{ secrets.MOM121_DATA_ARCHIVE_SHA256 }}
     steps:
       - uses: actions/checkout@v4
 
