@@ -57,7 +57,7 @@ class UniversePreflightTests(unittest.TestCase):
             path = root / "bars" / "BTC_USDT.csv.gz"
             path.parent.mkdir(parents=True)
             with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
-                writer = csv.writer(handle, lineterminator="\\n")
+                writer = csv.writer(handle, lineterminator="\n")
                 writer.writerow(["ts_ms", "open", "high", "low", "close", "volume", "quote_volume"])
                 writer.writerow([START_MS, "100", "102", "99", "101", "10", "1000"])
                 writer.writerow([START_MS + BAR_MS, "101", "103", "100", "102", "11", "1100"])
@@ -72,11 +72,12 @@ class UniversePreflightTests(unittest.TestCase):
                 timestamps, info = preflight.load_cached_symbol("BTC-USDT")
             self.assertEqual(list(timestamps), [START_MS, START_MS + BAR_MS])
             self.assertTrue(info["cache_reused"])
-            self.assertEqual(info["canonical_uncompressed_csv_bytes"], len(
-                b"ts_ms,open,high,low,close,volume,quote_volume\\n"
-                b"1704067200000,100,102,99,101,10,1000\\n"
-                b"1704068100000,101,103,100,102,11,1100\\n"
-            ))
+            expected = (
+                f"ts_ms,open,high,low,close,volume,quote_volume\\n"
+                f"{START_MS},100,102,99,101,10,1000\\n"
+                f"{START_MS + BAR_MS},101,103,100,102,11,1100\\n"
+            ).encode("utf-8")
+            self.assertEqual(info["canonical_uncompressed_csv_bytes"], len(expected))
 
     def test_summary_evidence_writer_round_trips_json(self):
         with tempfile.TemporaryDirectory() as directory:
