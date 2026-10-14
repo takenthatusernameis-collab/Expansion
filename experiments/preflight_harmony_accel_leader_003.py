@@ -148,7 +148,7 @@ def load_cached_symbol(symbol):
             if high < max(opn, low, close) or low > min(opn, high, close):
                 raise ValueError("cached OHLC bounds fail")
         stream = io.StringIO(newline="")
-        writer = csv.writer(stream, lineterminator="\\n")
+        writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(["ts_ms", "open", "high", "low", "close", "volume", "quote_volume"])
         for row in rows:
             writer.writerow([row[0], *(format(value, ".12g") for value in row[1:])])
