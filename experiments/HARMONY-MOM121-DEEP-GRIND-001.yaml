@@ -1,0 +1,123 @@
+experiment_id: HARMONY-MOM121-DEEP-GRIND-001
+type: fixed_microcap_time_series_momentum_oos
+status: preregistered_data_gate
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration:
+  strategy_id: microcap_12_1_month_momentum_top_quintile_v1
+  hypothesis: >-
+    A cross-sectional long-only portfolio of point-in-time US microcap common
+    stocks ranked by prior 12-1 month total return can deliver a positive,
+    reproducible net return advantage over the equal-weight eligible microcap
+    universe after realistic transaction costs.
+  primary_objective: >-
+    Estimate whether the fixed 12-1 signal retains positive net out-of-sample
+    excess return, acceptable drawdown, placebo separation, and feasible capacity
+    after correcting universe construction and walk-forward accounting.
+  fixed_parameters:
+    market_cap_ceiling_usd: 300000000
+    minimum_price_usd: 1.00
+    momentum_lookback_observations: 12
+    skipped_recent_observations: 1
+    ranking_fraction: 0.20
+    rebalance: monthly
+    target_weights: equal_weight
+    primary_side: long_only
+    primary_benchmark: equal_weight_eligible_microcap_universe
+    portfolio_capital_usd_for_capacity: [100000, 1000000, 10000000]
+    max_order_participation_adv_for_capacity_report: 0.01
+  signal_timing:
+    formation: month_end_t
+    signal: >-
+      Compound the 11 completed monthly total returns ending at t-1; exclude
+      the most recent month-end return r_t. Form weights after the month-end
+      signal is observable and apply them to the subsequent month's return.
+    holdings_return: next_month_total_return_including_delisting_return
+    no_lookahead: true
+
+data_contract:
+  root: data/cache/equities/mom121
+  files:
+    - manifest.json
+    - monthly_panel.csv
+  required_monthly_panel_columns:
+    - month_end
+    - security_id
+    - ticker
+    - exchange
+    - security_type
+    - is_active_at_month_end
+    - price
+    - market_cap_usd
+    - adv20_usd
+    - total_return
+  required_manifest_assertions:
+    point_in_time_universe: true
+    includes_active_and_delisted_securities: true
+    includes_delisting_returns_in_total_return: true
+    total_returns_include_distributions: true
+    market_cap_is_point_in_time: true
+    stable_security_id: true
+  rules:
+    - Every security must use a stable identifier, not ticker alone.
+    - The eligible universe must be reconstructible at each historical formation date.
+    - Delisted, bankrupt, merged, and otherwise inactive securities must remain in the history through their terminal return.
+    - Market capitalization and ADV must be computed using information available at that formation date.
+    - The monthly panel checksum must match the manifest.
+    - Do not forward-fill returns, market cap, volume, or membership.
+    - Inadequate source coverage blocks confirmatory backtesting.
+  optional_dataset_delivery:
+    archive_url_secret: MOM121_DATA_ARCHIVE_URL
+    archive_sha256_secret: MOM121_DATA_ARCHIVE_SHA256
+    archive_must_contain: [manifest.json, monthly_panel.csv]
+
+validation:
+  chronology: fixed_60_20_20_by_month
+  parameter_fitting: none
+  primary_out_of_sample: final_20_percent
+  temporal_stability: report_each_chronological_block_and_equal_halves_of_final_test
+  bootstrap:
+    method: circular_block_bootstrap_on_paired_monthly_excess_returns
+    block_length_months: 12
+    replications: 2000
+    seed: 121
+  placebo:
+    method: random_equal_weight_portfolios_from_the_same_eligible_universe
+    replications: 250
+    seed: 121
+    identical_rebalance_dates_and_cost_accounting: true
+  cost_stress_one_way_bps_per_traded_notional: [25, 50, 100, 200]
+  execution:
+    notional_sizes_usd: [100000, 1000000, 10000000]
+    report_fraction_of_order_notional_exceeding_1pct_adv: true
+  metrics:
+    - gross_and_net_cagr
+    - gross_and_net_sharpe
+    - maximum_drawdown
+    - monthly_excess_return_vs_equal_weight_microcap
+    - turnover_and_cost_drag
+    - placebo_rank_and_bootstrap_interval
+    - capacity_and_adv_participation
+    - results_by_chronological_block
+  minimum_evidence:
+    full_history_months: 120
+    final_test_months: 36
+    confirmed_point_in_time_membership: true
+    confirmed_delisting_returns: true
+    base_cost_positive_oos_excess: true
+    report_all_cost_stresses: true
+  status_policy:
+    missing_or_invalid_point_in_time_data: blocked_data_gate
+    adequate_data_but_short_history: exploratory_only
+    gates_not_met: rejected_or_inconclusive_with_reason
+    all_gates_met: eligible_for_independent_confirmation_not_deployment
+
+integrity:
+  no_parameter_grid: true
+  no_post_hoc_tuning: true
+  no_universe_search: true
+  no_forward_filling: true
+  no_synthetic_data_as_strategy_evidence: true
+  no_holdout_based_decisions: true
+  all_failed_checks_preserved: true
