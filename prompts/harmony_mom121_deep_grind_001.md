@@ -49,3 +49,7 @@ If data is unavailable or fails validation, still upload the gate report and a p
 ## Decision rule
 
 The answer is one of: `blocked_data_gate`, `exploratory_only`, `rejected`, `inconclusive`, or `eligible_for_independent_confirmation`. A favorable in-sample return or top-line Sharpe alone is never a pass. Report the exact reason for any non-pass.
+
+## Explicit execution request — 2026-10-14
+
+The user explicitly requested that this heavy MOM121 study be run in the Expansion execution repository. Start a fresh execution from the current default-branch revision; do not treat a historical workflow success as evidence that today's run executed the backtest. The previous run's recorded result was `blocked_data_gate` because no verified US microcap panel was found. Recheck the configured checksum-pinned archive source at runtime and execute all preregistered calculations only if the full data contract passes. If it remains unavailable, publish a precise blocked-data artifact and identify exactly which source fields and historical coverage are missing. Do not weaken the data gate, substitute the crypto cache or surviving tickers, fabricate metrics, or start unrelated experiments. Keep all work research/backtesting only.
