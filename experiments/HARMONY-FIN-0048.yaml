@@ -1,0 +1,5 @@
+experiment_id: HARMONY-FIN-0048
+strategy_id: weekly_max_return_21d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-008
+definition: "Weekly long highest/short lowest maximum completed daily return over the prior 21 observations."

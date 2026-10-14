@@ -1,0 +1,5 @@
+experiment_id: HARMONY-FIN-0049
+strategy_id: monthly_amihud_30d_v1
+status: preregistered_frozen
+batch_id: HARMONY-DISCOVERY-BATCH-008
+definition: "Monthly long highest/short lowest prior-30-day mean abs(return)/quote-volume illiquidity proxy."
