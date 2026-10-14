@@ -28,9 +28,9 @@ The primary benchmark is equal-weighting the same eligible, momentum-history-qua
 - A zero-trade or zero-exposure period must not inherit prior-period strategy returns.
 - Signals use information available by the formation cutoff and earn only subsequent returns.
 - Include total returns, delisting returns, cash, position weights, turnover, entry/rebalance/exit costs and terminal liquidation.
-- Report gross and net CAGR, Sharpe, drawdown, excess returns vs the matched benchmark, turnover, cost drag, yearly/chronological stability, and ADV participation at USD 100k / 1m / 10m portfolio size.
+- Report gross and net CAGR, Sharpe, drawdown, excess returns vs the matched benchmark, turnover, cost drag, yearly/chronological stability, and ADV participation at USD 100k / 1m / 10m portfolio size, recalculating the 1% ADV threshold separately at each size.
 - Stress one-way traded-notional costs at 25, 50, 100 and 200 bps. Treat 50 bps as the primary base assumption; all costs apply to actual absolute weight changes, not only to winning trades.
-- Use 2,000 circular 12-month block-bootstrap samples of paired final-test excess returns and 250 random-ranking placebos with identical dates, selection count, and costs. Fix random seed 121.
+- Use 2,000 circular 12-month block-bootstrap samples of paired final-test excess returns and 250 random-ranking placebos with identical dates, selection count, and costs; compare benchmark-relative net excess Sharpe rather than raw portfolio Sharpe. Fix random seed 121.
 - Predefine chronology as 60% discovery, 20% validation, 20% final test by month. No parameters may be chosen using validation or final-test returns; this candidate has no fitted parameters.
 - Require at least 120 usable months overall and 36 final-test months. If the fixed history does not meet those minimums, classify results as exploratory only.
 - Preserve every failed test and rejected conclusion. Passing this experiment makes a candidate eligible only for independent confirmation, never automatic deployment.
