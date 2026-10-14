@@ -218,17 +218,20 @@ def run_portfolio(df: pd.DataFrame, targets: dict, bps: float, capacity: bool = 
         cost_fraction = bps / 10000.0 * turnover
         net = factor * (1.0 - cost_fraction) - 1.0
         orders = over = max_part = 0.0
+        order_events = []
         if capacity:
             for sid in set(target) | set(pre):
                 amount = abs(target.get(sid, 0.0) - pre.get(sid, 0.0)) * nav * factor
                 orders += amount
                 if amount <= 0:
                     continue
-                if sid not in rows.index or float(rows.loc[sid].adv20_usd) <= 0:
+                adv = float(rows.loc[sid].adv20_usd) if sid in rows.index else 0.0
+                order_events.append({"order_notional_usd": float(amount), "adv20_usd": adv})
+                if adv <= 0:
                     over += amount
                     max_part = float("inf")
                 else:
-                    p = amount / float(rows.loc[sid].adv20_usd)
+                    p = amount / adv
                     max_part = max(max_part, p)
                     if p > 0.01:
                         over += amount
@@ -238,6 +241,7 @@ def run_portfolio(df: pd.DataFrame, targets: dict, bps: float, capacity: bool = 
             "cost_fraction": float(cost_fraction * factor), "order_notional_usd": float(orders),
             "order_notional_over_1pct_adv_usd": float(over),
             "max_order_participation_adv": max_part if math.isfinite(max_part) else None,
+            "order_events": order_events,
             "holdings_count": len(target),
         })
         nav *= max(0.0, 1.0 + net)
@@ -268,18 +272,51 @@ def metrics(values: list[dict], start: int = 0, end: int | None = None) -> dict[
     wealth = np.cumprod(1 + net)
     peaks = np.maximum.accumulate(np.r_[1.0, wealth])[1:]
     dd = wealth / peaks - 1
-    years, std = len(net) / 12.0, float(np.std(net, ddof=1)) if len(net) > 1 else 0.0
+    years = len(net) / 12.0
+    std = float(np.std(net, ddof=1)) if len(net) > 1 else 0.0
+    excess_std = float(np.std(excess, ddof=1)) if len(excess) > 1 else 0.0
     gw, nw = float(np.prod(1 + gross)), float(wealth[-1])
     return {
         "months": len(x), "gross_total_return": gw - 1, "net_total_return": nw - 1,
         "gross_cagr": gw ** (1 / years) - 1 if years and gw > 0 else None,
         "net_cagr": nw ** (1 / years) - 1 if years and nw > 0 else None,
         "net_sharpe": float(np.mean(net) / std * math.sqrt(12)) if std > 0 else 0.0,
+        "net_excess_sharpe_vs_equal_weight": float(np.mean(excess) / excess_std * math.sqrt(12)) if excess_std > 0 else 0.0,
         "max_drawdown": float(dd.min()), "mean_monthly_excess_vs_equal_weight": float(np.mean(excess)),
         "positive_excess_month_fraction": float(np.mean(excess > 0)),
         "total_turnover_abs": float(sum(r["turnover_abs"] for r in x)),
         "cost_fraction_sum": float(sum(r["cost_fraction"] for r in x)),
     }
+
+
+def capacity_diagnostics(records: list[dict], portfolio_sizes=(100_000, 1_000_000, 10_000_000)) -> dict[str, Any]:
+    events = [e for row in records for e in row.get("order_events", [])]
+    result = {}
+    for size in portfolio_sizes:
+        scale = float(size) / 1_000_000.0
+        total = sum(float(e["order_notional_usd"]) * scale for e in events)
+        over = 0.0
+        max_participation = 0.0
+        for event in events:
+            amount = float(event["order_notional_usd"]) * scale
+            adv = float(event["adv20_usd"])
+            if amount <= 0:
+                continue
+            if adv <= 0:
+                over += amount
+                max_participation = float("inf")
+            else:
+                participation = amount / adv
+                max_participation = max(max_participation, participation)
+                if participation > 0.01:
+                    over += amount
+        result[str(size)] = {
+            "portfolio_capital_usd": int(size),
+            "fraction_order_notional_over_1pct_adv": float(over / total) if total else 0.0,
+            "max_observed_order_participation_adv": max_participation if math.isfinite(max_participation) else None,
+            "total_order_notional_usd": float(total),
+        }
+    return result
 
 
 def bootstrap_ci(excess: np.ndarray) -> dict[str, Any]:
@@ -313,6 +350,15 @@ def run_backtest(df: pd.DataFrame, data_meta: dict) -> dict[str, Any]:
     top, equal, eligible, counts = targets_for(df, scores)
     if sum(bool(v) for v in top.values()) < 13:
         raise DataGateError("Too few months with eligible microcap securities and valid 12-1 signals")
+    valid_months = [m for m, ids in eligible.items() if ids]
+    if not valid_months:
+        raise DataGateError("No eligible point-in-time microcap months after applying the fixed universe and signal rules")
+    first_valid_month = min(valid_months)
+    top = {m: v for m, v in top.items() if m >= first_valid_month}
+    equal = {m: v for m, v in equal.items() if m >= first_valid_month}
+    eligible = {m: v for m, v in eligible.items() if m >= first_valid_month}
+    counts = {str(m): len(ids) for m, ids in eligible.items()}
+    data_meta["usable_strategy_months"] = len(top)
     stress, base_rows = {}, []
     for bps in COSTS:
         strat = run_portfolio(df, top, bps, True)
@@ -333,25 +379,24 @@ def run_backtest(df: pd.DataFrame, data_meta: dict) -> dict[str, Any]:
     test = base_rows[c2:]
     excess = np.array([r["net_return"] - r["benchmark_net_return"] for r in test])
     boot = bootstrap_ci(excess)
-    test_sharpe = metrics(test).get("net_sharpe", 0.0)
+    test_excess_sharpe = metrics(test).get("net_excess_sharpe_vs_equal_weight", 0.0)
     bench_base = run_portfolio(df, equal, 50, False)
     placebo_scores = []
     rng = np.random.default_rng(SEED)
     for _ in range(PLACEBOS):
         p = run_portfolio(df, placebo_targets(eligible, int(rng.integers(0, 2**31 - 1))), 50, False)
-        placebo_scores.append(float(metrics(pair_benchmark(p, bench_base), c2).get("net_sharpe", 0.0)))
+        placebo_scores.append(float(metrics(pair_benchmark(p, bench_base), c2).get("net_excess_sharpe_vs_equal_weight", 0.0)))
     p95 = float(np.quantile(placebo_scores, .95))
-    placebo_p = float((1 + sum(v >= test_sharpe for v in placebo_scores)) / (len(placebo_scores) + 1))
-    traded = sum(r["order_notional_usd"] for r in base_rows)
-    over = sum(r["order_notional_over_1pct_adv_usd"] for r in base_rows)
-    over_share = over / traded if traded else 0.0
-    history_months, test_months = int(data_meta["distinct_months"]), len(test)
+    placebo_p = float((1 + sum(v >= test_excess_sharpe for v in placebo_scores)) / (len(placebo_scores) + 1))
+    capacity = capacity_diagnostics(base_rows)
+    over_share = capacity["1000000"]["fraction_order_notional_over_1pct_adv"]
+    history_months, test_months = int(data_meta.get("usable_strategy_months", data_meta["distinct_months"])), len(test)
     gates = {
         "history_at_least_120_months": history_months >= 120,
         "final_test_at_least_36_months": test_months >= 36,
         "positive_final_test_mean_net_excess_at_50bps": bool(len(excess) and np.mean(excess) > 0),
         "bootstrap_95pct_lower_bound_positive": bool(boot["ci95_lower"] is not None and boot["ci95_lower"] > 0),
-        "above_95th_random_ranking_placebo": test_sharpe > p95,
+        "above_95th_random_ranking_placebo": test_excess_sharpe > p95,
         "at_least_95pct_order_notional_within_1pct_adv_at_1m": over_share <= .05,
         "positive_excess_in_both_final_test_halves": (
             chrono["final_test_first_half"].get("mean_monthly_excess_vs_equal_weight", -1) > 0
@@ -379,15 +424,6 @@ def run_backtest(df: pd.DataFrame, data_meta: dict) -> dict[str, Any]:
         "holdings_count": r["holdings_count"],
     } for r in base_rows]
     pd.DataFrame(monthly).to_csv(OUT / "monthly_returns.csv", index=False)
-    capacity = {}
-    max_part = max((r["max_order_participation_adv"] or 0) for r in base_rows)
-    for size in (100_000, 1_000_000, 10_000_000):
-        scale = size / 1_000_000
-        capacity[str(size)] = {
-            "portfolio_capital_usd": size,
-            "fraction_order_notional_over_1pct_adv": float(over_share),
-            "max_observed_order_participation_adv": float(max_part * scale),
-        }
     return {
         "experiment_id": "HARMONY-MOM121-DEEP-GRIND-001", "status": status, "data": data_meta,
         "fixed_strategy": {"market_cap_ceiling_usd": CAP_CEILING, "minimum_price_usd": MIN_PRICE,
@@ -395,8 +431,9 @@ def run_backtest(df: pd.DataFrame, data_meta: dict) -> dict[str, Any]:
             "base_cost_one_way_bps": 50, "cost_stress_bps": list(COSTS), "seed": SEED},
         "eligible_counts_by_month": counts, "metrics_by_cost_bps": stress,
         "chronological_metrics_at_50bps": chrono, "final_test_bootstrap": boot,
-        "placebo": {"replications": PLACEBOS, "seed": SEED, "final_test_strategy_net_sharpe": test_sharpe,
-            "random_rank_net_sharpe_95th_percentile": p95, "empirical_one_sided_p": placebo_p},
+        "placebo": {"replications": PLACEBOS, "seed": SEED,
+            "final_test_net_excess_sharpe_vs_equal_weight": test_excess_sharpe,
+            "random_rank_net_excess_sharpe_95th_percentile": p95, "empirical_one_sided_p": placebo_p},
         "capacity_by_portfolio_size": capacity, "gates": gates,
         "limitations": ["Historical simulation does not prove future profitability.",
             "Manifest assertions require independent source audit.", "ADV participation is a capacity diagnostic, not a calibrated impact model.",
