@@ -427,7 +427,7 @@ def moving_block_bootstrap(primary: np.ndarray, comparator: np.ndarray) -> dict:
         starts = rng.integers(0, max_start, size=blocks)
         ix = np.concatenate([np.arange(x, x + BOOTSTRAP_BLOCK_DAYS) for x in starts])[:n]
         bp.append(float(np.mean(p[ix])))
-        bd.append(float(np.mean((p - c)[ix]))
+        bd.append(float(np.mean((p - c)[ix])))
     return {
         "status": "computed", "observations": n, "method": "moving_block_bootstrap_paired_daily_returns",
         "block_days": BOOTSTRAP_BLOCK_DAYS, "replications": BOOTSTRAPS, "seed": SEED,
