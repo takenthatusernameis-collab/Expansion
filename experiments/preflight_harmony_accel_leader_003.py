@@ -190,6 +190,18 @@ def fetch_symbol(symbol):
     return array("q", timestamps), summary
 
 
+def enforce_joint_coverage(observed_count, expected_count, max_missing_fraction=MAX_GAP_FRACTION):
+    if expected_count <= 0 or observed_count < 0 or observed_count > expected_count:
+        raise DataGateBlocked("Invalid joint timestamp coverage counts")
+    missing_fraction = (expected_count - observed_count) / expected_count
+    if missing_fraction > max_missing_fraction:
+        raise DataGateBlocked(
+            f"Joint common-panel coverage gate failed ({missing_fraction:.6%} missing; "
+            f"maximum {max_missing_fraction:.6%})"
+        )
+    return missing_fraction
+
+
 def assess_common_panel(timestamp_arrays, symbol_reports):
     first = max(info["first_candle_open_ms"] for info in symbol_reports.values())
     last = min(info["last_confirmed_candle_open_ms"] for info in symbol_reports.values())
@@ -215,12 +227,14 @@ def assess_common_panel(timestamp_arrays, symbol_reports):
         else:
             common_observed.intersection_update(inside)
     joint = len(common_observed or set())
+    joint_missing_fraction = enforce_joint_coverage(joint, expected, MAX_GAP_FRACTION)
     return {
         "common_start_utc": datetime.fromtimestamp(first / 1000, timezone.utc).isoformat(),
         "common_end_candle_open_utc": datetime.fromtimestamp(last / 1000, timezone.utc).isoformat(),
         "common_calendar_span_days": round(common_days, 4), "expected_common_grid_bars": expected,
-        "bars_observed_by_all_symbols": joint, "joint_timestamp_coverage_fraction": round(joint / max(1, expected), 8),
-        "missing_joint_timestamps": expected - joint, "shared_panel_gap_fraction_max": MAX_GAP_FRACTION,
+        "bars_observed_by_all_symbols": joint, "joint_timestamp_coverage_fraction": round(1.0 - joint_missing_fraction, 8),
+        "joint_missing_fraction": joint_missing_fraction, "missing_joint_timestamps": expected - joint,
+        "shared_panel_gap_fraction_max": MAX_GAP_FRACTION,
         "max_consecutive_gap_bars": MAX_CONSECUTIVE_GAP_BARS,
     }
 
