@@ -1,6 +1,11 @@
+import csv
+import gzip
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
+
+import experiments.preflight_harmony_accel_leader_003 as preflight
 from pathlib import Path
 
 from experiments.preflight_harmony_accel_leader_003 import (
@@ -45,6 +50,33 @@ class UniversePreflightTests(unittest.TestCase):
     def test_joint_coverage_rejects_fraction_above_threshold(self):
         with self.assertRaisesRegex(RuntimeError, "Joint common-panel coverage gate failed"):
             enforce_joint_coverage(998, 1000)
+
+    def test_complete_cached_candle_file_is_revalidated_and_reused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "bars" / "BTC_USDT.csv.gz"
+            path.parent.mkdir(parents=True)
+            with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
+                writer = csv.writer(handle, lineterminator="\\n")
+                writer.writerow(["ts_ms", "open", "high", "low", "close", "volume", "quote_volume"])
+                writer.writerow([START_MS, "100", "102", "99", "101", "10", "1000"])
+                writer.writerow([START_MS + BAR_MS, "101", "103", "100", "102", "11", "1100"])
+            quality = {
+                "first_candle_open_ms": START_MS,
+                "last_confirmed_candle_open_ms": START_MS + BAR_MS,
+                "confirmed_rows": 2, "expected_grid_rows": 2,
+                "missing_candle_count": 0, "missing_fraction": 0.0,
+                "max_consecutive_missing_bars": 0, "last_confirmed_bar_age_hours": 0.0,
+            }
+            with patch.object(preflight, "OUT", root), patch.object(preflight, "timestamp_quality", return_value=quality):
+                timestamps, info = preflight.load_cached_symbol("BTC-USDT")
+            self.assertEqual(list(timestamps), [START_MS, START_MS + BAR_MS])
+            self.assertTrue(info["cache_reused"])
+            self.assertEqual(info["canonical_uncompressed_csv_bytes"], len(
+                b"ts_ms,open,high,low,close,volume,quote_volume\\n"
+                b"1704067200000,100,102,99,101,10,1000\\n"
+                b"1704068100000,101,103,100,102,11,1100\\n"
+            ))
 
     def test_summary_evidence_writer_round_trips_json(self):
         with tempfile.TemporaryDirectory() as directory:
