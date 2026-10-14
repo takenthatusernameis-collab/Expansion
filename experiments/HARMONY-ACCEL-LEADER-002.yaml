@@ -4,6 +4,14 @@ status: preregistered
 execution_repository: takenthatusernameis-collab/Expansion
 tracking_repository: takenthatusernameis-collab/Contraction
 
+preregistration_note: >-
+  This follow-up was motivated by HARMONY-ACCEL-LEADER-001's low final-OOS trade
+  count. Although this exact 24-symbol configuration is frozen before execution,
+  the research direction was selected after seeing the earlier result. Historical
+  discovery/validation/final-OOS metrics are therefore exploratory, not independent
+  confirmation. Any passing result requires a genuinely future-only paper-trading
+  confirmation before any live deployment consideration.
+
 hypothesis: >-
   A single-change expansion of the cross-sectional panel from the eight symbols in
   HARMONY-ACCEL-LEADER-001 to a frozen 24-symbol OKX spot universe, with signal,
