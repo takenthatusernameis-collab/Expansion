@@ -1,0 +1,48 @@
+name: Harmony MOM121 Deep Grind 001
+
+on:
+  push:
+    paths:
+      - "experiments/HARMONY-MOM121-DEEP-GRIND-001.yaml"
+      - "experiments/run_harmony_mom121_deep_grind_001.py"
+      - "prompts/harmony_mom121_deep_grind_001.md"
+      - "tests/test_harmony_mom121_deep_grind_001.py"
+      - ".github/workflows/harmony-mom121-deep-grind-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harmony-mom121-deep-grind-001
+  cancel-in-progress: false
+
+jobs:
+  mom121:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      MOM121_DATA_ARCHIVE_URL: \${{ secrets.MOM121_DATA_ARCHIVE_URL }}
+      MOM121_DATA_ARCHIVE_SHA256: \${{ secrets.MOM121_DATA_ARCHIVE_SHA256 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deterministic research dependencies
+        run: python -m pip install --disable-pip-version-check --no-input numpy pandas pytest
+
+      - name: Compile and test data-gate and signal semantics
+        run: |
+          python -m py_compile experiments/run_harmony_mom121_deep_grind_001.py
+          python -m pytest -q tests/test_harmony_mom121_deep_grind_001.py
+
+      - name: Run the preregistered deep backtest or emit a fail-closed data-gate report
+        run: python experiments/run_harmony_mom121_deep_grind_001.py
+
+      - name: Upload immutable MOM121 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-mom121-deep-grind-001
+          path: artifacts/HARMONY-MOM121-DEEP-GRIND-001
+          if-no-files-found: error
+          retention-days: 90
