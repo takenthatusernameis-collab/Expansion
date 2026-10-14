@@ -16,8 +16,32 @@ BASE_URL = "https://www.okx.com"
 START = pd.Timestamp("2023-01-01T00:00:00Z")
 BAR_DELTA = pd.Timedelta(minutes=15)
 BAR_MS = 900_000
-SYMBOLS = ["BTC-USDT", "ETH-USDT", "LTC-USDT", "XRP-USDT",
-           "BNB-USDT", "BCH-USDT", "ADA-USDT", "DOGE-USDT"]
+SYMBOLS = [
+    "BTC-USDT",
+    "ETH-USDT",
+    "LTC-USDT",
+    "XRP-USDT",
+    "BNB-USDT",
+    "BCH-USDT",
+    "ADA-USDT",
+    "DOGE-USDT",
+    "SOL-USDT",
+    "LINK-USDT",
+    "DOT-USDT",
+    "AVAX-USDT",
+    "TRX-USDT",
+    "ETC-USDT",
+    "XLM-USDT",
+    "ATOM-USDT",
+    "FIL-USDT",
+    "EOS-USDT",
+    "UNI-USDT",
+    "AAVE-USDT",
+    "ALGO-USDT",
+    "NEAR-USDT",
+    "MANA-USDT",
+    "SAND-USDT",
+]
 FEE_BPS, SLIPPAGE_BPS = 5.0, [5.0, 10.0, 20.0]
 ATR_PERIOD, ATR_MULTIPLIER = 14, 3.0
 FRESH_BARS, Z_THRESHOLD, VOL_HOURS = 96, 1.0, 168
