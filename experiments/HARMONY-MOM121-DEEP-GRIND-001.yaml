@@ -83,10 +83,11 @@ validation:
     replications: 2000
     seed: 121
   placebo:
-    method: random_equal_weight_portfolios_from_the_same_eligible_universe
+    method: random_rank_portfolios_from_the_same_eligible_universe
     replications: 250
     seed: 121
     identical_rebalance_dates_and_cost_accounting: true
+    compare_strategy_net_excess_sharpe_vs_matched_benchmark: true
   cost_stress_one_way_bps_per_traded_notional: [25, 50, 100, 200]
   execution:
     notional_sizes_usd: [100000, 1000000, 10000000]
