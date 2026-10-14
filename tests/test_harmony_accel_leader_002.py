@@ -5,6 +5,7 @@ import pandas as pd
 
 from experiments.run_harmony_accel_leader_002 import (
     BAR_DELTA,
+    SYMBOLS,
     compute_features,
     freshness_ok,
     ratchet_stop,
@@ -14,6 +15,16 @@ from experiments.run_harmony_accel_leader_002 import (
 
 
 class AccelerationLeaderTests(unittest.TestCase):
+
+    def test_preregistered_universe_has_exactly_24_symbols(self):
+        expected = [
+            "BTC-USDT", "ETH-USDT", "LTC-USDT", "XRP-USDT", "BNB-USDT", "BCH-USDT",
+            "ADA-USDT", "DOGE-USDT", "SOL-USDT", "LINK-USDT", "DOT-USDT", "AVAX-USDT",
+            "TRX-USDT", "ETC-USDT", "XLM-USDT", "ATOM-USDT", "FIL-USDT", "EOS-USDT",
+            "UNI-USDT", "AAVE-USDT", "ALGO-USDT", "NEAR-USDT", "MANA-USDT", "SAND-USDT",
+        ]
+        self.assertEqual(SYMBOLS, expected)
+
     def test_freshness_boundary_is_strict(self):
         self.assertTrue(freshness_ok(None, 10))
         self.assertFalse(freshness_ok(10, 106, window_bars=96))
