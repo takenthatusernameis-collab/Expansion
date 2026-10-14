@@ -1,0 +1,70 @@
+experiment_id: HARMONY-ACCEL-LEADER-003-UNIVERSE-PREFLIGHT
+status: candidate_preflight_only_not_strategy_preregistration
+purpose: >-
+  Validate candidate eligibility, confirmed 15m candles, timestamp integrity,
+  common-panel history and gaps before freezing a universe for a separate strategy
+  experiment. This candidate list is not yet the frozen HARMONY-ACCEL-LEADER-003
+  universe and no strategy performance claims may be made from this preflight.
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+blocked_prior_experiment:
+  id: HARMONY-ACCEL-LEADER-002
+  status: blocked_data_gate
+  reason: EOS-USDT was not a live OKX spot instrument at execution
+requested_history_start_utc: '2023-01-01T00:00:00Z'
+bar: 15m
+venue: OKX spot
+candidate_universe:
+  rationale: >-
+    Preserve the previous 24-market panel except replace EOS-USDT, which failed the
+    live-instrument gate, with OP-USDT as a preflight candidate. Its live state and
+    entire requested history are verified by the preflight runner before it can be
+    frozen for the next experiment.
+  symbols:
+    - BTC-USDT
+    - ETH-USDT
+    - LTC-USDT
+    - XRP-USDT
+    - BNB-USDT
+    - BCH-USDT
+    - ADA-USDT
+    - DOGE-USDT
+    - SOL-USDT
+    - LINK-USDT
+    - DOT-USDT
+    - AVAX-USDT
+    - TRX-USDT
+    - ETC-USDT
+    - XLM-USDT
+    - ATOM-USDT
+    - FIL-USDT
+    - OP-USDT
+    - UNI-USDT
+    - AAVE-USDT
+    - ALGO-USDT
+    - NEAR-USDT
+    - MANA-USDT
+    - SAND-USDT
+preflight_gates:
+  exact_symbol_count: 24
+  unique_symbols: true
+  all_currently_live_okx_spot: true
+  confirmed_candles_only: true
+  history_from_requested_start: true
+  max_missing_fraction_per_symbol: 0.001
+  max_consecutive_missing_bars: 4
+  max_confirmed_bar_age_hours: 2.0
+  minimum_common_history_days: 730
+  shared_panel_gap_fraction_max: 0.001
+  no_forward_fill: true
+  no_symbol_substitution_during_preflight: true
+  preserve_normalized_candles_and_sha256: true
+  preserve_run_manifest_and_blocker_report: true
+outcomes:
+  preflight_success: preflight_pass
+  admissibility_failure: blocked_data_gate
+  implementation_or_api_failure: technical_failure
+after_pass:
+  freeze_exact_symbol_list_and_hash_before_backtest: true
+  create_separate_HARMONY-ACCEL-LEADER-003_preregistration: true
+  preserve_inherited_signal_cost_validation_and_promotion_rules: true
