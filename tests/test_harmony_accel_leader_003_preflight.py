@@ -73,9 +73,9 @@ class UniversePreflightTests(unittest.TestCase):
             self.assertEqual(list(timestamps), [START_MS, START_MS + BAR_MS])
             self.assertTrue(info["cache_reused"])
             expected = (
-                f"ts_ms,open,high,low,close,volume,quote_volume\\n"
-                f"{START_MS},100,102,99,101,10,1000\\n"
-                f"{START_MS + BAR_MS},101,103,100,102,11,1100\\n"
+                f"ts_ms,open,high,low,close,volume,quote_volume\n"
+                f"{START_MS},100,102,99,101,10,1000\n"
+                f"{START_MS + BAR_MS},101,103,100,102,11,1100\n"
             ).encode("utf-8")
             self.assertEqual(info["canonical_uncompressed_csv_bytes"], len(expected))
 
