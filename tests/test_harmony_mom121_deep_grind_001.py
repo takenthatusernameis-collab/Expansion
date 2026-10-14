@@ -37,6 +37,8 @@ def test_mom121_skips_security_with_gap_in_prior_months():
 
 
 def test_missing_point_in_time_panel_blocks_instead_of_fabricating_results(tmp_path, monkeypatch):
+    monkeypatch.delenv("MOM121_DATA_ARCHIVE_URL", raising=False)
+    monkeypatch.delenv("MOM121_DATA_ARCHIVE_SHA256", raising=False)
     monkeypatch.setattr(mom, "DATA", tmp_path / "missing")
     with pytest.raises(mom.DataGateError, match="No point-in-time US microcap panel"):
         mom.load_panel()
