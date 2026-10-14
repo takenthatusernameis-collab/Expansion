@@ -1,0 +1,101 @@
+name: Harmony Acceleration Leader 003 Universe Preflight
+
+on:
+  push:
+    branches:
+      - research/harmony-accel-leader-003-universe-preflight
+    paths:
+      - "experiments/HARMONY-ACCEL-LEADER-003-candidate-universe.yaml"
+      - "experiments/preflight_harmony_accel_leader_003.py"
+      - "tests/test_harmony_accel_leader_003_preflight.py"
+      - ".github/workflows/harmony-accel-leader-003-universe-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harmony-accel-leader-003-universe-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Run candidate-universe preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    outputs:
+      outcome: ${{ steps.outcome.outputs.status }}
+    steps:
+      - name: Check out isolated candidate-preflight branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile and test preflight validator
+        run: |
+          python -m py_compile experiments/preflight_harmony_accel_leader_003.py tests/test_harmony_accel_leader_003_preflight.py
+          python -m unittest discover -s tests -p 'test_harmony_accel_leader_003_preflight.py' -v
+
+      - name: Validate candidate markets and complete 15-minute history
+        id: execute
+        continue-on-error: true
+        run: python experiments/preflight_harmony_accel_leader_003.py
+
+      - name: Preserve normalized candles, hashes, manifest and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-accel-leader-003-universe-preflight
+          path: artifacts/HARMONY-ACCEL-LEADER-003-UNIVERSE-PREFLIGHT/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish explicit preflight outcome
+        id: outcome
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f artifacts/HARMONY-ACCEL-LEADER-003-UNIVERSE-PREFLIGHT/preflight_summary.json ]; then
+            status=technical_failure
+            reason="Preflight did not preserve a summary artifact."
+          else
+            status=$(python -c "import json; print(json.load(open('artifacts/HARMONY-ACCEL-LEADER-003-UNIVERSE-PREFLIGHT/preflight_summary.json'))['status'])")
+            reason=$(python -c "import json; print(json.load(open('artifacts/HARMONY-ACCEL-LEADER-003-UNIVERSE-PREFLIGHT/preflight_summary.json')).get('reason') or '')")
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          {
+            echo "# HARMONY-ACCEL-LEADER-003 universe preflight"
+            echo ""
+            echo "**Outcome: $status**"
+            echo ""
+            echo "$reason"
+            echo ""
+            echo "Data-universe check only. Strategy performance metrics: none."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Preflight outcome: $status"
+          echo "$reason"
+
+  outcome:
+    name: "Final disposition: ${{ needs.preflight.outputs.outcome }}"
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: always()
+    steps:
+      - name: Candidate universe passed preflight (eligibility only)
+        if: needs.preflight.outputs.outcome == 'preflight_pass'
+        run: echo "PASS — the candidate universe may now be frozen and separately preregistered."
+
+      - name: BLOCKED DATA GATE (not a strategy result)
+        if: needs.preflight.outputs.outcome == 'blocked_data_gate'
+        run: |
+          echo "BLOCKED_DATA_GATE — do not freeze or run this candidate universe."
+          exit 1
+
+      - name: TECHNICAL FAILURE
+        if: needs.preflight.outputs.outcome == 'technical_failure' || needs.preflight.outputs.outcome == ''
+        run: |
+          echo "TECHNICAL_FAILURE — no valid preflight conclusion."
+          exit 1
