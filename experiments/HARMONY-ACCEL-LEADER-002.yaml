@@ -1,0 +1,143 @@
+experiment_id: HARMONY-ACCEL-LEADER-002
+type: expanded_fixed_universe_crypto_spot_acceleration_momentum_with_trailing_stop
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration_note: >-
+  This follow-up was motivated by HARMONY-ACCEL-LEADER-001's low final-OOS trade
+  count. Although this exact 24-symbol configuration is frozen before execution,
+  the research direction was selected after seeing the earlier result. Historical
+  discovery/validation/final-OOS metrics are therefore exploratory, not independent
+  confirmation. Any passing result requires a genuinely future-only paper-trading
+  confirmation before any live deployment consideration.
+
+hypothesis: >-
+  A single-change expansion of the cross-sectional panel from the eight symbols in
+  HARMONY-ACCEL-LEADER-001 to a frozen 24-symbol OKX spot universe, with signal,
+  freshness logic, entry timing, ATR stop, costs and validation split unchanged,
+  increases usable fresh-leader opportunities while preserving a genuine edge.
+  The specific improvement is falsified if final-OOS closed trades remain below 50,
+  or net expectancy or annualized Sharpe is non-positive at 20 bps slippage per side,
+  or either final-OOS half has non-positive net return.
+
+data:
+  venue: OKX spot
+  api_endpoint: GET /api/v5/market/history-candles
+  instrument_type_endpoint: GET /api/v5/public/instruments?instType=SPOT
+  bar: 15m
+  requested_start_utc: '2023-01-01T00:00:00Z'
+  symbols: [BTC-USDT, ETH-USDT, LTC-USDT, XRP-USDT, BNB-USDT, BCH-USDT, ADA-USDT, DOGE-USDT, SOL-USDT, LINK-USDT, DOT-USDT, AVAX-USDT, TRX-USDT, ETC-USDT, XLM-USDT, ATOM-USDT, FIL-USDT, EOS-USDT, UNI-USDT, AAVE-USDT, ALGO-USDT, NEAR-USDT, MANA-USDT, SAND-USDT]
+  only_confirmed_candles: true
+  preserve_normalized_candles_and_sha256: true
+  no_forward_fill: true
+  common_timestamp_grid: true
+  fail_closed_on_missing_symbol_or_insufficient_history: true
+  universe_caveat: >-
+    The fixed 24-symbol list controls the experiment but is not a point-in-time all-crypto
+    universe. Results are restricted to this pre-specified panel and cannot establish
+    a market-wide edge or eliminate token listing/survivorship bias. If any symbol
+    fails live-instrument, history, or integrity gates, the run must block rather than
+    silently substituting another asset.
+
+signal:
+  sampling: evaluate after each completed 15m candle close
+  log_return_15m: ln(close_t / close_t_minus_1)
+  one_hour_log_return: sum_of_latest_four_consecutive_15m_log_returns
+  acceleration: one_hour_log_return_t - one_hour_log_return_t_minus_4_bars
+  scale: population_standard_deviation_of_168_completed_hourly_log_returns
+  normalized_acceleration: acceleration / scale
+  primary_signal:
+    leader: highest normalized_acceleration among data-valid eligible symbols
+    minimum_score: 1.0
+    positive_latest_one_hour_log_return: true
+    fresh: symbol was not acceleration leader during prior 96 completed 15m observations
+  freshness: record every bar's leader history independent of whether signal filters pass
+  tie_break: descending_score_then_lexicographic_symbol_ascending
+  execution: entry order at next bar open; signal bar cannot be execution bar
+  one_open_position: true
+  leverage: 1.0
+  notional: use current NAV for each new position before entry costs; compound after completed trades
+  entries_while_in_position: ignored
+  reentry: allowed only on a new qualifying event; the primary freshness gate applies
+
+exit:
+  atr_period: 14
+  atr_interval: 15m
+  initial_stop: signal_close - 3.0 * ATR_at_signal_close
+  high_water_mark: highest_high_since_entry_up_to_completed_bar
+  trailing_stop: max(previous_stop, high_water_mark - 3.0 * completed_bar_ATR)
+  monotonic_stop: true
+  updated_stop_activation: next_bar
+  stop_fill:
+    if_open_at_or_below_stop: opening_price
+    else_if_low_touches_stop: stop_price
+  intrabar_ordering: evaluate pre-existing stop before updating high_water_mark; this is conservative when high/low order is unknown
+  invalid_gap_entry: skip the entry if the next open is at or below the planned initial stop
+  fixed_profit_target: none
+  forced_terminal_liquidation: true
+
+costs:
+  taker_fee_bps_per_side: 5
+  slippage_bps_per_side: [5, 10, 20]
+  include_entry_and_exit_costs: true
+  funding: not_applicable_spot
+
+comparators:
+  - id: fresh_24h_gainer
+    score: compounded_close_return_over_latest_96_consecutive_15m_bars
+    filters: [positive_1h_log_return, not_top_24h_gainer_in_previous_96_bars, positive_24h_return]
+    exit: same_3x_ATR_trailing_stop
+  - id: fresh_raw_acceleration
+    score: unnormalized_acceleration
+    filters: [positive_acceleration, positive_1h_log_return, not_raw_acceleration_leader_in_previous_96_bars]
+    exit: same_3x_ATR_trailing_stop
+  - id: normalized_without_freshness
+    score: normalized_acceleration
+    filters: [score_at_least_1.0, positive_1h_log_return]
+    exit: same_3x_ATR_trailing_stop
+
+validation:
+  chronology: [0.60, 0.20, 0.20]
+  parameter_tuning_on_final_oos: false
+  report_discovery_validation_and_final_oos: true
+  cost_stress: [5, 10, 20]
+  final_oos_metrics:
+    - net_total_return
+    - cagr
+    - annualized_sharpe
+    - annualized_sortino
+    - maximum_drawdown
+    - trade_count
+    - win_rate
+    - profit_factor
+    - expectancy_per_trade
+    - mean_and_median_holding_hours
+    - time_in_market
+    - largest_trade_profit_concentration
+    - relative_performance_vs_fresh_24h_gainer
+    - equal_weight_buy_and_hold_context
+  bootstrap:
+    method: five_day_moving_block_bootstrap_of_daily_returns
+    replications: 1000
+    seed: 1401
+  promotion_gates:
+    final_oos_trades_at_least: 50
+    positive_net_expectancy_at_base_and_highest_slippage: true
+    positive_net_oos_sharpe_at_highest_slippage: true
+    positive_relative_oos_expectancy_vs_fresh_24h_gainer: true
+    positive_oos_result_in_both_halves: true
+    no_material_data_integrity_failure: true
+  interpretation:
+    inadequate_history: blocked_data_gate
+    sufficient_history_but_too_few_trades: inconclusive
+    all_gates_pass: eligible_for_independent_confirmation_only
+
+integrity:
+  do_not_forward_fill_prices: true
+  reject_duplicate_or_nonmonotonic_timestamps: true
+  preserve_failed_runs_and_blocker_reports: true
+  no_parameter_search: true
+  no_claim_of_point_in_time_market_wide_universe: true
+  no_live_orders: true
+  data_and_code_sha256_required: true
