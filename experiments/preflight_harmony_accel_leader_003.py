@@ -117,7 +117,69 @@ def verify_live_universe():
     }
 
 
+
+def load_cached_symbol(symbol):
+    """Reuse only a complete cached normalized candle file that passes all current checks."""
+    cached_path = OUT / "bars" / (symbol.replace("-", "_") + ".csv.gz")
+    if not cached_path.exists():
+        return None
+    try:
+        with gzip.open(cached_path, "rt", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            required = ["ts_ms", "open", "high", "low", "close", "volume", "quote_volume"]
+            if reader.fieldnames != required:
+                raise ValueError("cached candle header differs from the canonical schema")
+            rows = []
+            for record in reader:
+                rows.append((
+                    int(record["ts_ms"]), float(record["open"]), float(record["high"]),
+                    float(record["low"]), float(record["close"]), float(record["volume"]),
+                    float(record["quote_volume"])
+                ))
+        timestamps = [row[0] for row in rows]
+        quality = timestamp_quality(timestamps)
+        for row in rows:
+            ts, opn, high, low, close, volume, quote_volume = row
+            values = (opn, high, low, close, volume, quote_volume)
+            if not all(math.isfinite(value) for value in values):
+                raise ValueError("cached OHLCV contains non-finite values")
+            if min(opn, high, low, close) <= 0 or volume < 0 or quote_volume < 0:
+                raise ValueError("cached OHLCV contains invalid prices or volume")
+            if high < max(opn, low, close) or low > min(opn, high, close):
+                raise ValueError("cached OHLC bounds fail")
+        stream = io.StringIO(newline="")
+        writer = csv.writer(stream, lineterminator="\\n")
+        writer.writerow(["ts_ms", "open", "high", "low", "close", "volume", "quote_volume"])
+        for row in rows:
+            writer.writerow([row[0], *(format(value, ".12g") for value in row[1:])])
+        canonical = stream.getvalue().encode("utf-8")
+        source_run = os.environ.get("PREFLIGHT_CACHE_SOURCE_RUN_ID")
+        source_artifact = os.environ.get("PREFLIGHT_CACHE_SOURCE_ARTIFACT_ID")
+        summary = {
+            "symbol": symbol, "pages": 0, **quality,
+            "first_candle_open_utc": datetime.fromtimestamp(quality["first_candle_open_ms"] / 1000, timezone.utc).isoformat(),
+            "last_confirmed_candle_open_utc": datetime.fromtimestamp(quality["last_confirmed_candle_open_ms"] / 1000, timezone.utc).isoformat(),
+            "canonical_uncompressed_csv_sha256": sha256_bytes(canonical),
+            "canonical_uncompressed_csv_bytes": len(canonical),
+            "compressed_data_file": str(cached_path.relative_to(OUT)),
+            "cache_reused": True,
+            "cache_source_run_id": source_run,
+            "cache_source_artifact_id": source_artifact,
+            "cache_revalidated_at_utc": utc_now(),
+        }
+        print(f"[preflight] revalidated cached {symbol} from run {source_run or 'unspecified'}", flush=True)
+        return array("q", timestamps), summary
+    except Exception as exc:
+        # Invalid or stale cache is never used; fetch the same symbol again from OKX.
+        print(f"[preflight] discarding invalid cache for {symbol}: {exc}", file=sys.stderr, flush=True)
+        cached_path.unlink(missing_ok=True)
+        return None
+
+
 def fetch_symbol(symbol):
+    cached = load_cached_symbol(symbol)
+    if cached is not None:
+        return cached
     rows, cursor, previous_oldest, reached_start, pages = [], None, None, False, 0
     began = time.time()
     while pages < MAX_PAGES:
@@ -284,6 +346,11 @@ def run_preflight():
         "runner_sha256": sha256_bytes(Path(__file__).read_bytes()),
         "candidate_spec_sha256": sha256_bytes(spec_path.read_bytes()) if spec_path.exists() else None,
         "symbol_reports": {}, "data_artifacts_preserved": True, "strategy_metrics_emitted": False,
+        "resume_seed": {
+            "source_run_id": os.environ.get("PREFLIGHT_CACHE_SOURCE_RUN_ID"),
+            "source_artifact_id": os.environ.get("PREFLIGHT_CACHE_SOURCE_ARTIFACT_ID"),
+            "reused_symbols": [],
+        },
     }
     try:
         check_candidate_symbols()
@@ -300,9 +367,22 @@ def run_preflight():
                     timestamps, info = fetch_symbol(symbol)
                     arrays[symbol] = timestamps
                     summary["symbol_reports"][symbol] = info
+                    if info.get("cache_reused"):
+                        summary["resume_seed"]["reused_symbols"].append(symbol)
                 except DataGateBlocked as exc:
                     blockers.append(f"{symbol}: {exc}")
                     summary["symbol_reports"][symbol] = {"symbol": symbol, "status": "blocked_data_gate", "reason": str(exc)}
+                write_json(OUT / "preflight_checkpoint.json", {
+                    "experiment_id": EXPERIMENT_ID,
+                    "status": "running",
+                    "updated_at_utc": utc_now(),
+                    "github_sha": summary.get("github_sha"),
+                    "candidate_symbols": SYMBOLS,
+                    "completed_symbol_count": len(summary["symbol_reports"]),
+                    "symbol_reports": summary["symbol_reports"],
+                    "resume_seed": summary["resume_seed"],
+                    "strategy_metrics_emitted": False,
+                })
             if blockers:
                 summary["status"], summary["reason"] = "blocked_data_gate", "; ".join(blockers)
             else:
