@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from experiments.preflight_harmony_accel_leader_003 import (
-    BAR_MS, START_MS, SYMBOLS, check_candidate_symbols, timestamp_quality, write_json
+    BAR_MS, START_MS, SYMBOLS, check_candidate_symbols, enforce_joint_coverage, timestamp_quality, write_json
 )
 
 
@@ -38,6 +38,13 @@ class UniversePreflightTests(unittest.TestCase):
             check_candidate_symbols(["BTC-USDT"] * 23)
         with self.assertRaisesRegex(RuntimeError, "duplicate"):
             check_candidate_symbols(SYMBOLS[:-1] + [SYMBOLS[0]])
+
+    def test_joint_coverage_accepts_exact_threshold(self):
+        self.assertAlmostEqual(enforce_joint_coverage(999, 1000), 0.001)
+
+    def test_joint_coverage_rejects_fraction_above_threshold(self):
+        with self.assertRaisesRegex(RuntimeError, "Joint common-panel coverage gate failed"):
+            enforce_joint_coverage(998, 1000)
 
     def test_summary_evidence_writer_round_trips_json(self):
         with tempfile.TemporaryDirectory() as directory:
