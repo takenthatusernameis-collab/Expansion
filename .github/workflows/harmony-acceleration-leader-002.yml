@@ -17,7 +17,7 @@ permissions:
 
 concurrency:
   group: harmony-acceleration-leader-002
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   research:
