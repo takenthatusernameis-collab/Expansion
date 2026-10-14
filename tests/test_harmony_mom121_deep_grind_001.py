@@ -58,3 +58,16 @@ def test_manifest_boolean_parser_is_fail_closed():
     assert mom.get_bool("false") is False
     assert mom.get_bool("maybe") is None
     assert mom.get_bool(None) is None
+
+
+
+def test_capacity_diagnostics_recalculate_adv_threshold_for_each_account_size():
+    events = [
+        {"order_notional_usd": 2000.0, "adv20_usd": 100000.0},
+        {"order_notional_usd": 8000.0, "adv20_usd": 1000000.0},
+    ]
+    result = mom.capacity_diagnostics([{"order_events": events}])
+    assert result["100000"]["fraction_order_notional_over_1pct_adv"] == pytest.approx(0.0)
+    assert result["1000000"]["fraction_order_notional_over_1pct_adv"] == pytest.approx(0.2)
+    assert result["10000000"]["fraction_order_notional_over_1pct_adv"] == pytest.approx(1.0)
+    assert result["10000000"]["max_observed_order_participation_adv"] == pytest.approx(0.2)
