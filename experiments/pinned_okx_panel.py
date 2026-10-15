@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Pinned OKX candle loader shared only as authenticated input handling; strategy logic lives elsewhere."""
-#!/usr/bin/env python3
-"""Preregistered exploratory backtest: fresh crypto acceleration leader + ATR trail."""
+"""Authenticated source loader for the preregistered relative-spread screen."""
 from __future__ import annotations
 
 import gzip, hashlib, io, json, math, os, sys, traceback
