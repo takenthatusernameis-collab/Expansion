@@ -62,6 +62,7 @@ data:
   source_artifact_id: 11934457001
   source_preflight_commit: a7da33233e1567db91554d819a39957d084d8fe6
   artifact_sha256: 9e20b58052446be9574ac77f4d9d3fef5f1c22e5c7f1dfb5ec94a309e183edfd
+  artifact_sha256_role: published_archive_provenance_not_recomputed_after_action_extraction
   summary_sha256: 0074d5f245fa4323d7370491d320a756c50bcbb6233b3447a2ef62f2cae6c7fc
   candidate_spec_sha256: 8f561ef21f587dbd1712dd500a891ba58abe891a35c1694e81e2a8ef5bc94186
   requirements:
