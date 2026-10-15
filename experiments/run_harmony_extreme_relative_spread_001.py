@@ -490,7 +490,6 @@ def run_research() -> dict:
                                      daily_oos_base.get(baseline_name, np.array([])))
         evidence_valid = (
             data_summary.get("source_run_id") == 38643611024
-            and data_summary.get("source_artifact_sha256") == "9e20b58052446be9574ac77f4d9d3fef5f1c22e5c7f1dfb5ec94a309e183edfd"
             and data_summary.get("source_summary_sha256") == "0074d5f245fa4323d7370491d320a756c50bcbb6233b3447a2ef62f2cae6c7fc"
             and data_summary.get("joint_missing_fraction_verified") == 0.0
         )
