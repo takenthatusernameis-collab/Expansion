@@ -11,6 +11,15 @@ on:
       - "tests/test_harmony_extreme_relative_spread_001.py"
       - "prompts/harmony_extreme_relative_spread_001.md"
       - ".github/workflows/harmony-extreme-relative-spread-001.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "experiments/HARMONY-EXTREME-RELATIVE-SPREAD-001.yaml"
+      - "experiments/pinned_okx_panel.py"
+      - "experiments/run_harmony_extreme_relative_spread_001.py"
+      - "tests/test_harmony_extreme_relative_spread_001.py"
+      - "prompts/harmony_extreme_relative_spread_001.md"
+      - ".github/workflows/harmony-extreme-relative-spread-001.yml"
   workflow_dispatch:
 
 permissions:
