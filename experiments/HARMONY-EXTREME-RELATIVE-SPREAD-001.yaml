@@ -1,0 +1,181 @@
+experiment_id: HARMONY-EXTREME-RELATIVE-SPREAD-001
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+research_question: >-
+  Do extreme 24-hour crypto movers form a relative spread whose forward persistence,
+  reversal, or directional-regime behavior can support a cost-robust, non-lookahead
+  spread-trading signal that adds value over a simple hourly breakout?
+
+hypothesis: >-
+  At each completed 15-minute close, rank a frozen 24-market OKX spot proxy universe
+  by trailing 24-hour return. Form a synthetic relative spread between the top gainer
+  and bottom loser. A 4-hour synthetic-spread context combined with a 15-minute
+  direction change may improve net outcomes relative to a simple hourly spread
+  breakout after explicit two-leg costs. This is unproven. A failure of any primary
+  promotion gate rejects the historical edge claim; a pass permits only a new
+  forward-only confirmation study.
+
+preregistration_note: >-
+  This hypothesis and its thresholds must be frozen before strategy execution.
+  The source candles were previously examined for a different acceleration-leader
+  experiment, so all results are exploratory rather than independent confirmation.
+  The fixed present-day universe is not point-in-time and has survivorship/listing
+  bias. Price history is spot proxy data; short-spread execution is hypothetical and
+  funding, basis, liquidation and venue-specific perpetual fills are not modeled.
+  Therefore even a full historical pass cannot establish live tradeability.
+
+universe:
+  venue: OKX spot candle proxy
+  exact_symbol_count: 24
+  symbols:
+    - BTC-USDT
+    - ETH-USDT
+    - LTC-USDT
+    - XRP-USDT
+    - BNB-USDT
+    - BCH-USDT
+    - ADA-USDT
+    - DOGE-USDT
+    - SOL-USDT
+    - LINK-USDT
+    - DOT-USDT
+    - AVAX-USDT
+    - TRX-USDT
+    - ETC-USDT
+    - XLM-USDT
+    - ATOM-USDT
+    - FIL-USDT
+    - OP-USDT
+    - UNI-USDT
+    - AAVE-USDT
+    - ALGO-USDT
+    - NEAR-USDT
+    - MANA-USDT
+    - SAND-USDT
+
+data:
+  interval: 15m
+  requested_start_utc: '2023-01-01T00:00:00Z'
+  source_run_id: 38643611024
+  source_artifact_id: 11934457001
+  source_preflight_commit: a7da33233e1567db91554d819a39957d084d8fe6
+  artifact_sha256: 9e20b58052446be9574ac77f4d9d3fef5f1c22e5c7f1dfb5ec94a309e183edfd
+  summary_sha256: 0074d5f245fa4323d7370491d320a756c50bcbb6233b3447a2ef62f2cae6c7fc
+  candidate_spec_sha256: 8f561ef21f587dbd1712dd500a891ba58abe891a35c1694e81e2a8ef5bc94186
+  requirements:
+    revalidate_each_canonical_candle_hash: true
+    require_exact_24_symbol_set: true
+    common_timestamp_grid: true
+    zero_joint_missing_timestamps: true
+    reject_nonfinite_or_invalid_ohlcv: true
+    never_forward_fill_or_refetch: true
+    never_substitute_symbols: true
+    data_failure_emits_no_strategy_metrics: true
+
+construction:
+  completed_bar_only: true
+  rank_signal: trailing_96_completed_15m_close_return
+  top_leg: highest_24h_return
+  bottom_leg: lowest_24h_return
+  deterministic_ties: score_then_symbol_lexicographic
+  synthetic_interval_return: >-
+    For the interval ending at bar t, use the pair selected at bar t-1:
+    log(close_top_t / close_top_t_minus_1) minus
+    log(close_bottom_t / close_bottom_t_minus_1). Never calculate an interval
+    return using a pair selected only after that interval ended.
+  spread_context: sum_of_latest_16_lagged_pair_relative_log_returns
+  primary_signal: >-
+    At a completed bar, when the synthetic 15-minute return changes sign from
+    nonpositive to positive and the trailing 4-hour synthetic-spread return is
+    positive, go long the current top-gainer leg and short the current bottom-loser
+    leg. When the return changes from nonnegative to negative and the 4-hour state is
+    negative, reverse the legs. Select the pair only using information available at
+    that signal close; enter at the next bar open.
+  comparator: >-
+    Simple hourly synthetic-spread breakout: only at completed hourly boundaries,
+    go long the current top-vs-bottom spread when its cumulative synthetic close
+    exceeds all previous 16 synthetic closes; go short when it is below all previous
+    16 synthetic closes. Use identical sizing, stop, holding limit and cost model.
+  exposure:
+    gross_notional_to_nav: 1.0
+    long_leg_notional: 0.5
+    short_leg_notional: 0.5
+    leverage_assumption: 1x_gross
+    one_open_trade_at_a_time: true
+    pair_fixed_for_life_of_trade: true
+    maximum_holding_bars: 96
+  exits:
+    relative_spread_measure: log(long_leg_price / entry_long) - log(short_leg_price / entry_short)
+    spread_atr_proxy: sum_of_each_leg_ATR14_divided_by_its_close
+    initial_stop: minus_3_times_spread_atr_proxy
+    trailing_stop: >-
+      Stop is monotonic. Check gap/open and adverse intrabar relative-spread range
+      against the pre-existing stop first. Then ratchet using the completed-bar close
+      relative spread and current ATR proxy; updated stop applies on the next bar.
+    fill_assumption: >-
+      Gap through stop exits at the synthetic open-spread level; intrabar stop touch
+      exits at stop level; otherwise exits at completed close after 96 bars or at
+      final segment close. Stop ranges assume conservative adverse combination of
+      leg OHLC values; bar-level path/order is unknowable.
+    terminal_liquidation: true
+
+cost_model:
+  fee_bps_per_side_per_leg: 5
+  slippage_bps_per_side_per_leg: [5, 10, 20]
+  gross_notional: 1.0
+  round_trip_cost_on_nav: "2 * (fee_bps + slippage_bps) / 10000"
+  costs_apply_to_both_legs_on_entry_and_exit: true
+  funding_basis_liquidation_and_perpetual_execution: not_modeled
+  no_free_shorting_claim: true
+
+event_study:
+  purpose: distinguish persistence from reversal after gainer-loser formation
+  formation_frequency: once_per_96_bars
+  holding_horizon_bars: 96
+  outcome: >-
+    Fixed-pair forward 24-hour log return: log(top_price_t_plus_96 / top_price_t)
+    minus log(bottom_price_t_plus_96 / bottom_price_t).
+  report: [sample_count, mean, median, positive_fraction, block_bootstrap_95pct_ci]
+  use_for_tuning: false
+
+validation:
+  chronology: [0.60, 0.20, 0.20]
+  final_oos_split_in_half: true
+  cost_scenarios_slippage_bps_per_side: [5, 10, 20]
+  bootstrap:
+    method: 5_day_moving_block_bootstrap_on_daily_oos_returns
+    replications: 2000
+    seed: 1401
+  minimum_final_oos_primary_trades: 50
+  primary_gates:
+    pinned_data_evidence_valid: true
+    minimum_trade_count_met: true
+    base_cost_mean_trade_return_positive: true
+    base_cost_final_oos_net_total_return_positive: true
+    base_cost_daily_return_bootstrap_ci_lower_above_zero: true
+    base_cost_primary_daily_mean_exceeds_hourly_breakout_with_ci_lower_above_zero: true
+    high_cost_net_total_return_positive_at_20bps_slippage: true
+    high_cost_annualized_sharpe_positive_at_20bps_slippage: true
+    base_cost_net_return_positive_in_both_final_oos_halves: true
+
+decision_policy:
+  invalid_or_missing_data: blocked_data_gate
+  valid_data_but_fewer_than_50_primary_oos_trades: inconclusive_insufficient_trades
+  valid_data_and_any_primary_gate_fails_with_at_least_50_trades: rejected_by_preregistered_historical_gates
+  all_gates_pass: eligible_for_future_only_confirmation
+  historical_result_is_independent_confirmation: false
+  live_orders: prohibited
+  strategy_parameter_search: prohibited
+  final_oos_tuning: prohibited
+  main_branch_merge: prohibited
+
+outputs:
+  - summary.json
+  - report.md
+  - trades.csv
+  - daily_equity.csv
+  - event_study.json
+  - data_manifest.json
+  - run_manifest.json
