@@ -1,0 +1,149 @@
+name: Harmony Extreme-Mover Relative Spread 001
+
+on:
+  push:
+    branches:
+      - research/harmony-extreme-relative-spread-001-one-shot
+    paths:
+      - "experiments/HARMONY-EXTREME-RELATIVE-SPREAD-001.yaml"
+      - "experiments/pinned_okx_panel.py"
+      - "experiments/run_harmony_extreme_relative_spread_001.py"
+      - "tests/test_harmony_extreme_relative_spread_001.py"
+      - "prompts/harmony_extreme_relative_spread_001.md"
+      - ".github/workflows/harmony-extreme-relative-spread-001.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "experiments/HARMONY-EXTREME-RELATIVE-SPREAD-001.yaml"
+      - "experiments/pinned_okx_panel.py"
+      - "experiments/run_harmony_extreme_relative_spread_001.py"
+      - "tests/test_harmony_extreme_relative_spread_001.py"
+      - "prompts/harmony_extreme_relative_spread_001.md"
+      - ".github/workflows/harmony-extreme-relative-spread-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: harmony-extreme-relative-spread-001-one-shot
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Check out the isolated research branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download the immutable source preflight artifact
+        id: preflight
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: harmony-accel-leader-003-universe-preflight
+          path: artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001/preflight
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 38643611024
+
+      - name: Install pinned research dependencies
+        run: python -m pip install --disable-pip-version-check --no-input numpy==2.1.3 pandas==2.2.3 pytest==8.3.4
+
+      - name: Compile and execute regression tests
+        run: |
+          python -m py_compile experiments/pinned_okx_panel.py experiments/run_harmony_extreme_relative_spread_001.py tests/test_harmony_extreme_relative_spread_001.py
+          python -m pytest -q tests/test_harmony_extreme_relative_spread_001.py
+
+      - name: Execute the frozen backtest and fixed event study
+        id: research
+        continue-on-error: true
+        run: python experiments/run_harmony_extreme_relative_spread_001.py
+
+      - name: Preserve provenance and complete research evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-extreme-relative-spread-001-evidence
+          path: artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Require a valid research decision, not a profitable outcome
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001/summary.json")
+          if not p.exists():
+              for name in ("execution_error.json", "data_gate.json"):
+                  q = Path("artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001") / name
+                  if q.exists():
+                      print(q.read_text())
+              raise SystemExit("No valid research summary was produced")
+          summary = json.loads(p.read_text())
+          status = summary.get("status")
+          decision = summary.get("decision")
+          print(f"Research status={status}; decision={decision}")
+          if status != "executed_exploratory_backtest":
+              raise SystemExit(f"No valid strategy conclusion: status={status}")
+          if decision not in {
+              "inconclusive_insufficient_trades",
+              "rejected_by_preregistered_historical_gates",
+              "eligible_for_future_only_confirmation",
+          }:
+              raise SystemExit(f"Unexpected or unresolved research decision: {decision}")
+          PY
+
+      - name: Publish the actual run outcome to the draft research PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || 10 }}
+          RUN_ID: ${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+        shell: bash
+        run: |
+          python - <<'PY' > /tmp/pr-comment.md
+          import json
+          from pathlib import Path
+          p = Path("artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001/summary.json")
+          lines = [
+              "## Relative-spread research run",
+              "",
+              f"- Run: {__import__('os').environ['SERVER_URL']}/{__import__('os').environ['REPOSITORY']}/actions/runs/{__import__('os').environ['RUN_ID']}",
+              f"- Commit: {__import__('os').environ['SHA']}",
+          ]
+          if p.exists():
+              s = json.loads(p.read_text())
+              lines += [
+                  f"- Status: {s.get('status')}",
+                  f"- Decision: {s.get('decision')}",
+              ]
+              try:
+                  m = s["metrics"]["primary_turn_4h_context_15m_change"]["final_oos"]["5"]
+                  lines += [
+                      f"- Final-OOS primary trades (5 bps slippage): {m.get('closed_trade_count')}",
+                      f"- Final-OOS net return (5 bps slippage): {m.get('net_total_return')}",
+                      f"- Final-OOS net expectancy/trade: {m.get('expectancy_per_trade')}",
+                  ]
+              except Exception:
+                  lines.append("- Strategy metrics unavailable; inspect the run artifact/logs.")
+          else:
+              lines += ["- No valid summary was produced. Treat this run as blocked/failed, not a strategy conclusion."]
+          Path("/tmp/pr-comment.md").write_text("\\n".join(lines) + "\\n")
+          PY
+          gh api --method POST "/repos/$REPOSITORY/issues/$PR_NUMBER/comments" -f body="$(cat /tmp/pr-comment.md)"
