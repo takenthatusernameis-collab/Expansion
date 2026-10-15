@@ -25,6 +25,8 @@ on:
 permissions:
   contents: read
   actions: read
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: harmony-extreme-relative-spread-001-one-shot
@@ -103,3 +105,45 @@ jobs:
           }:
               raise SystemExit(f"Unexpected or unresolved research decision: {decision}")
           PY
+
+      - name: Publish the actual run outcome to the draft research PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || 10 }}
+          RUN_ID: ${{ github.run_id }}
+          SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+        shell: bash
+        run: |
+          python - <<'PY' > /tmp/pr-comment.md
+          import json
+          from pathlib import Path
+          p = Path("artifacts/HARMONY-EXTREME-RELATIVE-SPREAD-001/summary.json")
+          lines = [
+              "## Relative-spread research run",
+              "",
+              f"- Run: {__import__('os').environ['SERVER_URL']}/{__import__('os').environ['REPOSITORY']}/actions/runs/{__import__('os').environ['RUN_ID']}",
+              f"- Commit: {__import__('os').environ['SHA']}",
+          ]
+          if p.exists():
+              s = json.loads(p.read_text())
+              lines += [
+                  f"- Status: {s.get('status')}",
+                  f"- Decision: {s.get('decision')}",
+              ]
+              try:
+                  m = s["metrics"]["primary_turn_4h_context_15m_change"]["final_oos"]["5"]
+                  lines += [
+                      f"- Final-OOS primary trades (5 bps slippage): {m.get('closed_trade_count')}",
+                      f"- Final-OOS net return (5 bps slippage): {m.get('net_total_return')}",
+                      f"- Final-OOS net expectancy/trade: {m.get('expectancy_per_trade')}",
+                  ]
+              except Exception:
+                  lines.append("- Strategy metrics unavailable; inspect the run artifact/logs.")
+          else:
+              lines += ["- No valid summary was produced. Treat this run as blocked/failed, not a strategy conclusion."]
+          Path("/tmp/pr-comment.md").write_text("\\n".join(lines) + "\\n")
+          PY
+          gh api --method POST "/repos/$REPOSITORY/issues/$PR_NUMBER/comments" -f body="$(cat /tmp/pr-comment.md)"
