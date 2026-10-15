@@ -13,10 +13,10 @@ from experiments.run_harmony_extreme_relative_spread_001 import (
 
 class RelativeSpreadTests(unittest.TestCase):
     def test_pair_ranking_has_deterministic_lexicographic_ties(self):
-        scores = np.array([[0.4, 0.4, -0.2], [0.5, 0.1, -0.1]], dtype=float)
-        top, bottom = build_pairs(scores, ["ZED", "ALPHA", "BETA"])
+        scores = np.array([[0.4, 0.4, -0.2, -0.2], [0.5, 0.1, -0.1, -0.3]], dtype=float)
+        top, bottom = build_pairs(scores, ["ZED", "ALPHA", "BETA", "AARDVARK"])
         self.assertEqual(top.tolist(), [1, 0])
-        self.assertEqual(bottom.tolist(), [2, 2])
+        self.assertEqual(bottom.tolist(), [3, 3])
 
     def test_interval_return_uses_previous_bar_pair_not_current_pair(self):
         close = np.array([
