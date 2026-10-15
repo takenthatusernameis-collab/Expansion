@@ -1,0 +1,50 @@
+name: MOM121 Free Cloud Audit 001 — static validation
+
+on:
+  push:
+    branches:
+      - research/mom121-free-cloud-audit-001
+    paths:
+      - "research/mom121_quantconnect_cloud_audit_001/**"
+      - ".github/workflows/mom121-free-cloud-audit-001.yml"
+  pull_request:
+    paths:
+      - "research/mom121_quantconnect_cloud_audit_001/**"
+      - ".github/workflows/mom121-free-cloud-audit-001.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate Python syntax without requiring QuantConnect imports
+        run: python -m py_compile research/mom121_quantconnect_cloud_audit_001/main.py
+      - name: Confirm this pilot cannot place trades or export market-data rows
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          path = Path("research/mom121_quantconnect_cloud_audit_001/main.py")
+          tree = ast.parse(path.read_text(encoding="utf-8"))
+          called = {
+              node.func.attr
+              for node in ast.walk(tree)
+              if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+          }
+          prohibited = {"set_holdings", "market_order", "limit_order", "stop_market_order", "liquidate"}
+          found = sorted(called & prohibited)
+          if found:
+              raise SystemExit(f"Audit-only pilot unexpectedly contains trading calls: {found}")
+          source = path.read_text(encoding="utf-8")
+          if '"raw_data_exported": False' not in source or '"strategy_metrics_emitted": False' not in source:
+              raise SystemExit("Fail-closed audit assertions are missing")
+          print("PASS: no order APIs; audit-only / no-raw-export assertions present")
+          PY
