@@ -159,6 +159,9 @@ validation:
     high_cost_net_total_return_positive_at_20bps_slippage: true
     high_cost_annualized_sharpe_positive_at_20bps_slippage: true
     base_cost_net_return_positive_in_both_final_oos_halves: true
+    no_primary_margin_breach_or_account_ruin: true
+    required_baseline_metrics_present: true
+    required_primary_expectancy_metric_present: true
 
 decision_policy:
   invalid_or_missing_data: blocked_data_gate
