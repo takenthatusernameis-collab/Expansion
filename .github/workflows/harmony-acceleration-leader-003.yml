@@ -1,0 +1,99 @@
+name: Harmony Acceleration Leader 003 — frozen strategy
+
+on:
+  push:
+    branches:
+      - research/harmony-accel-leader-003-frozen-strategy
+    paths:
+      - "experiments/HARMONY-ACCEL-LEADER-003.yaml"
+      - "experiments/run_harmony_accel_leader_003.py"
+      - "tests/test_harmony_accel_leader_003.py"
+      - "prompts/harmony_accel_leader_003.md"
+      - ".github/workflows/harmony-acceleration-leader-003.yml"
+  pull_request:
+    paths:
+      - "experiments/HARMONY-ACCEL-LEADER-003.yaml"
+      - "experiments/run_harmony_accel_leader_003.py"
+      - "tests/test_harmony_accel_leader_003.py"
+      - "prompts/harmony_accel_leader_003.md"
+      - ".github/workflows/harmony-acceleration-leader-003.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: harmony-acceleration-leader-003-frozen
+  cancel-in-progress: false
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Check out the isolated Experiment 003 branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download the pinned preflight artifact from its original run
+        id: preflight
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: harmony-accel-leader-003-universe-preflight
+          path: artifacts/HARMONY-ACCEL-LEADER-003/preflight
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 38643611024
+
+      - name: Install pinned research dependencies
+        run: python -m pip install --disable-pip-version-check --no-input numpy==2.1.3 pandas==2.2.3 pytest==8.3.4
+
+      - name: Compile and test the signal, stop, data-gate, and promotion-gate semantics
+        run: |
+          python -m py_compile experiments/run_harmony_accel_leader_003.py tests/test_harmony_accel_leader_003.py
+          python -m pytest -q tests/test_harmony_accel_leader_003.py
+
+      - name: Run the fixed experiment only if the artifact passes every pinned integrity gate
+        id: run_research
+        continue-on-error: true
+        run: python experiments/run_harmony_accel_leader_003.py
+
+      - name: Preserve provenance, reports, ledgers, daily equity and source candles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-accel-leader-003-evidence
+          path: artifacts/HARMONY-ACCEL-LEADER-003/
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Fail the workflow for blocked data or technical errors, not for a valid negative result
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/HARMONY-ACCEL-LEADER-003/summary.json")
+          if not p.exists():
+              e = Path("artifacts/HARMONY-ACCEL-LEADER-003/execution_error.json")
+              b = Path("artifacts/HARMONY-ACCEL-LEADER-003/data_gate.json")
+              q = e if e.exists() else b
+              if q.exists():
+                  print(q.read_text())
+              raise SystemExit("No strategy summary was produced")
+          summary = json.loads(p.read_text())
+          status = summary.get("status")
+          disposition = summary.get("disposition")
+          print(f"Research status: {status}; disposition: {disposition}")
+          if status != "executed_exploratory_backtest":
+              raise SystemExit(f"No valid strategy result: status={status}")
+          if disposition not in {"not_promoted", "eligible_for_independent_confirmation_only"}:
+              raise SystemExit(f"Unexpected disposition: {disposition}")
+          PY

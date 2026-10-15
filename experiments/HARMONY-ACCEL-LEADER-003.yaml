@@ -1,0 +1,174 @@
+experiment_id: HARMONY-ACCEL-LEADER-003
+type: fixed_universe_crypto_spot_acceleration_momentum_with_atr_trailing_stop
+status: preregistered
+execution_repository: takenthatusernameis-collab/Expansion
+tracking_repository: takenthatusernameis-collab/Contraction
+
+preregistration_note: >-
+  This separately preregistered candidate is a continuation of the failed-to-execute
+  24-market Experiment 002 after its frozen EOS-USDT universe failed the live-market
+  data gate. Experiment 003 substitutes OP-USDT before execution, then freezes the
+  exact candidate list and its independently validated candle artifact. Experiment
+  001 results informed this research direction, so all historical 60/20/20 metrics
+  remain exploratory, not independent statistical confirmation. Any historical pass
+  only permits a separately preregistered future-only paper trial.
+
+hypothesis: >-
+  On the frozen 24-market OKX spot panel, a fresh leader in volatility-normalized
+  short-horizon return acceleration can generate more qualifying opportunities than
+  the eight-market initial panel while retaining positive net expectancy after fees
+  and stressed slippage, a positive high-cost Sharpe, better base-cost expectancy
+  than the fresh 24-hour-gainer comparator, and positive net returns in both final
+  out-of-sample halves. Any failed promotion gate falsifies the promotion claim.
+
+universe_change:
+  prior_blocked_experiment: HARMONY-ACCEL-LEADER-002
+  prior_block_reason: EOS-USDT was not a live OKX spot instrument; no strategy metrics were produced
+  explicit_change: replace EOS-USDT with OP-USDT before this experiment was preregistered
+  exact_symbol_count: 24
+  symbols:
+    - BTC-USDT
+    - ETH-USDT
+    - LTC-USDT
+    - XRP-USDT
+    - BNB-USDT
+    - BCH-USDT
+    - ADA-USDT
+    - DOGE-USDT
+    - SOL-USDT
+    - LINK-USDT
+    - DOT-USDT
+    - AVAX-USDT
+    - TRX-USDT
+    - ETC-USDT
+    - XLM-USDT
+    - ATOM-USDT
+    - FIL-USDT
+    - OP-USDT
+    - UNI-USDT
+    - AAVE-USDT
+    - ALGO-USDT
+    - NEAR-USDT
+    - MANA-USDT
+    - SAND-USDT
+
+data:
+  venue: OKX spot
+  bar: 15m
+  requested_start_utc: '2023-01-01T00:00:00Z'
+  source_preflight_run_id: 38643611024
+  source_preflight_artifact_id: 11934457001
+  source_preflight_commit: a7da33233e1567db91554d819a39957d084d8fe6
+  source_preflight_artifact_sha256: 9e20b58052446be9574ac77f4d9d3fef5f1c22e5c7f1dfb5ec94a309e183edfd
+  source_preflight_summary_sha256: 0074d5f245fa4323d7370491d320a756c50bcbb6233b3447a2ef62f2cae6c7fc
+  source_candidate_spec_sha256: 8f561ef21f587dbd1712dd500a891ba58abe891a35c1694e81e2a8ef5bc94186
+  only_confirmed_candles: true
+  preserve_normalized_candles_and_sha256: true
+  no_forward_fill: true
+  common_timestamp_grid: true
+  fail_closed_on_missing_symbol_or_insufficient_history: true
+  never_refetch_or_substitute_inputs: true
+  verification:
+    exactly_24_live_spot_markets: true
+    24_canonical_candle_hashes_reverified: true
+    per_symbol_ohlcv_and_timestamp_validation: true
+    zero_missing_common_timestamps: true
+    minimum_common_history_days: 730
+  universe_caveat: >-
+    The frozen present-day 24-market list is not a point-in-time all-crypto universe.
+    Results are exploratory and cannot establish market-wide performance or remove
+    token listing/survivorship bias.
+
+signal:
+  sampling: evaluate after each completed 15m candle close
+  log_return_15m: ln(close_t / close_t_minus_1)
+  one_hour_log_return: sum_of_latest_four_15m_log_returns
+  acceleration: one_hour_log_return_t - one_hour_log_return_t_minus_4_bars
+  scale: population_standard_deviation_of_168_completed_hourly_log_returns
+  normalized_acceleration: acceleration / scale
+  primary_signal:
+    leader: highest_normalized_acceleration_among_data_valid_symbols
+    minimum_score: 1.0
+    positive_latest_one_hour_log_return: true
+    fresh: symbol_was_not_acceleration_leader_during_prior_96_completed_15m_observations
+  freshness: record every bar leader history regardless of trade filters
+  tie_break: descending_score_then_lexicographic_symbol_ascending
+  execution: enter at next bar open; signal bar cannot be execution bar
+  one_open_position: true
+  leverage: 1.0
+  notional: current NAV before entry costs; compound after completed trades
+  entries_while_in_position: ignored
+  reentry: only a new qualifying event; primary freshness gate applies
+
+exit:
+  atr_period: 14
+  atr_interval: 15m
+  initial_stop: signal_close - 3.0 * ATR_at_signal_close
+  high_water_mark: highest_high_since_entry_up_to_completed_bar
+  trailing_stop: max(previous_stop, high_water_mark - 3.0 * completed_bar_ATR)
+  monotonic_stop: true
+  updated_stop_activation: next_bar
+  stop_fill:
+    if_open_at_or_below_stop: opening_price
+    else_if_low_touches_stop: stop_price
+  intrabar_ordering: evaluate preexisting stop before updating high_water_mark
+  invalid_gap_entry: skip entry if next open is at or below planned initial stop
+  fixed_profit_target: none
+  forced_terminal_liquidation: true
+
+costs:
+  taker_fee_bps_per_side: 5
+  slippage_bps_per_side: [5, 10, 20]
+  include_entry_and_exit_costs: true
+  funding: not_applicable_spot
+
+comparators:
+  - id: fresh_24h_gainer
+    score: compounded_close_return_over_latest_96_consecutive_15m_bars
+    filters: [positive_1h_log_return, not_top_24h_gainer_in_previous_96_bars, positive_24h_return]
+    exit: same_3x_ATR_trailing_stop
+  - id: fresh_raw_acceleration
+    score: unnormalized_acceleration
+    filters: [positive_acceleration, positive_1h_log_return, not_raw_acceleration_leader_in_previous_96_bars]
+    exit: same_3x_ATR_trailing_stop
+  - id: normalized_without_freshness
+    score: normalized_acceleration
+    filters: [score_at_least_1.0, positive_1h_log_return]
+    exit: same_3x_ATR_trailing_stop
+
+validation:
+  chronology: [0.60, 0.20, 0.20]
+  parameter_tuning_on_final_oos: false
+  report_discovery_validation_and_final_oos: true
+  cost_stress_slippage_bps_per_side: [5, 10, 20]
+  bootstrap:
+    method: five_day_moving_block_bootstrap_of_daily_returns
+    replications: 1000
+    seed: 1401
+  promotion_gates:
+    final_oos_primary_closed_trades_at_least: 50
+    positive_absolute_primary_net_expectancy_at_base_5bps: true
+    positive_absolute_primary_net_expectancy_at_highest_20bps: true
+    positive_primary_annualized_net_sharpe_at_highest_20bps: true
+    primary_expectancy_exceeds_fresh_gainer_at_base_5bps: true
+    positive_primary_net_total_return_in_both_final_oos_halves_at_5bps: true
+    pinned_preflight_evidence_valid: true
+  interpretation:
+    missing_or_invalid_data: blocked_data_gate
+    adequate_data_but_too_few_trades: inconclusive
+    any_failed_promotion_gate: not_promoted
+    all_historical_gates_pass: eligible_for_independent_confirmation_only
+    live_orders: prohibited
+
+integrity:
+  do_not_forward_fill_prices: true
+  reject_duplicate_or_nonmonotonic_timestamps: true
+  preserve_failed_run_and_blocker_reports: true
+  no_parameter_search: true
+  no_final_oos_tuning: true
+  no_silent_symbol_substitution: true
+  no_marketwide_or_survivorship_free_claim: true
+  no_live_orders: true
+  runner_and_spec_sha256_required: true
+  preflight_summary_sha256_pinned: true
+  every_candle_hash_revalidated: true
