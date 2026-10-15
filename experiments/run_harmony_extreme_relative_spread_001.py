@@ -45,9 +45,9 @@ def build_pairs(return24: np.ndarray, symbols: list[str]) -> tuple[np.ndarray, n
     bottom = np.full(n, -1, dtype=int)
     for t in range(n):
         ranked = [j for j in range(m) if finite(return24[t, j])]
-        ranked.sort(key=lambda j: (-float(return24[t, j]), symbols[j]))
         if len(ranked) >= 2:
-            top[t], bottom[t] = ranked[0], ranked[-1]
+            top[t] = min(ranked, key=lambda j: (-float(return24[t, j]), symbols[j]))
+            bottom[t] = min(ranked, key=lambda j: (float(return24[t, j]), symbols[j]))
     return top, bottom
 
 
@@ -108,7 +108,7 @@ def build_signals(features: dict[str, pd.DataFrame], index: pd.DatetimeIndex) ->
             }
 
         # The candle opens at :45 and is completed at the hour boundary.
-        if index[t].minute == 45 and t >= 16 and np.isfinite(spread_close[t - 16:t + 1]).all():
+        if index[t].minute == 45 and t >= 16 and np.isfinite(spread_ret[t - 16:t + 1]).all():
             past = spread_close[t - 16:t]
             bdir = 1 if spread_close[t] > float(np.max(past)) else (
                 -1 if spread_close[t] < float(np.min(past)) else 0
