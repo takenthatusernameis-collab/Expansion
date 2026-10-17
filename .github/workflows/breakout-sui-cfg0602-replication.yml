@@ -1,0 +1,46 @@
+name: SUI cfg0602 replication and causal audit
+
+on:
+  push:
+    paths:
+      - "replications/breakout-sui-cfg0602/**"
+      - ".github/workflows/breakout-sui-cfg0602-replication.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: expansion-breakout-sui-cfg0602-replication
+  cancel-in-progress: false
+
+jobs:
+  reproduce-and-audit:
+    name: Reproduce, test causality, and audit accounting
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout frozen Expansion revision
+        uses: actions/checkout@v4
+
+      - name: Run deterministic causal simulator unit tests
+        run: python -m unittest discover -s replications/breakout-sui-cfg0602 -p 'test_*.py' -v
+
+      - name: Reproduce source-faithful historical metrics
+        run: python replications/breakout-sui-cfg0602/replicate.py
+
+      - name: Run corrected causal accounting and timing variants
+        run: python replications/breakout-sui-cfg0602/causal_backtest.py
+
+      - name: Upload complete research evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: breakout-sui-cfg0602-audit-${{ github.run_id }}
+          path: |
+            replications/breakout-sui-cfg0602/result.json
+            replications/breakout-sui-cfg0602/trades.csv
+            replications/breakout-sui-cfg0602/daily_returns.csv
+            replications/breakout-sui-cfg0602/causal_backtest.json
+            replications/breakout-sui-cfg0602/causal_daily_returns.csv
+          if-no-files-found: error
+          retention-days: 90
