@@ -32,8 +32,12 @@ jobs:
       - name: Run corrected causal accounting and timing variants
         run: python replications/breakout-sui-cfg0602/causal_backtest.py
 
+      - name: Run full-history audit from listing through latest completed hourly candle
+        run: python replications/breakout-sui-cfg0602/full_history_audit.py
+
       - name: Upload complete research evidence
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: breakout-sui-cfg0602-audit-${{ github.run_id }}
           path: |
@@ -42,5 +46,7 @@ jobs:
             replications/breakout-sui-cfg0602/daily_returns.csv
             replications/breakout-sui-cfg0602/causal_backtest.json
             replications/breakout-sui-cfg0602/causal_daily_returns.csv
-          if-no-files-found: error
+            replications/breakout-sui-cfg0602/full_history_*.json
+            replications/breakout-sui-cfg0602/full_history_*.csv
+          if-no-files-found: warn
           retention-days: 90

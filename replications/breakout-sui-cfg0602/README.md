@@ -45,3 +45,10 @@ No parameter optimization, live trading, workflow changes, or unrelated Expansio
 - Corrected accounting and event alignment can change the result; that is a finding to report, not a bug to tune away.
 - Any new-data validation must be prospective and frozen before outcomes arrive. Do not retune or reselect on these historic results.
 
+
+
+## Full-history extension
+
+The same workflow now also runs \`full_history_audit.py\`, which requests SUIUSDT and BTCUSDT hourly candles from the Binance Spot listing-hour boundary (2023-05-03 12:00 UTC) through the latest fully closed hour observed when the job starts. It validates gap-free coverage and OHLCV invariants, cross-checks every overlapping candle against the previously pinned source CSVs, runs the frozen strategy through the independent causal simulator at zero and 1x/2x/3x costs, and exports market data, trades, daily returns, hashes, and a JSON report.
+
+The full-history result is exploratory, not deployment evidence: the previous holdout remains \`EXPOSED_OR_UNKNOWN\`, and whole-history performance is not an independent holdout. If a public endpoint, completeness check, or pinned-data overlap check fails, the audit writes \`full_history_failure.json\` and exits non-zero rather than claiming full-history coverage.
