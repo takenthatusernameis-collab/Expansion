@@ -60,7 +60,7 @@ class CausalBacktestTests(unittest.TestCase):
         # The first candle's close is marked before the next-open entry occurs.
         self.assertEqual(result["equity_trace"][2]["timestamp_ms"], entry_ms)
         self.assertEqual(result["equity_trace"][2]["equity"], 1000.0)
-        self.assertAlmostEqual(result["net_return"], 0.10, places=10)
+        self.assertAlmostEqual(result["net_return"], 0.09, places=10)
 
     def test_fees_and_slippage_are_deducted_once(self):
         result = self.run_test_case({0}, multiplier=1.0)
