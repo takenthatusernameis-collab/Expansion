@@ -1,0 +1,38 @@
+experiment_id: HARMONY-BREAKOUT-SUI-CFG0602-REPLICATION-001
+status: independent_replication_with_accounting_caveats
+purpose: "Replicate frozen SUIUSDT cfg_0602 without parameter search, then isolate cost-accounting effects."
+source:
+  repository: takenthatusernameis-collab/Quantitative-Breakout-Trading-Strategy-Research-
+  source_report: reports/final_research_report.json
+  holdout_report: reports/holdout_evaluation_report.json
+  candidate_manifest: research/candidate_manifest.json
+candidate:
+  asset: SUIUSDT
+  timeframe: 1h
+  config_id: cfg_0602
+  content_hash: f61acc43bbc4f28b
+  entry_rule: classic_high_breakout
+  entry_lookback_bars: 120
+  atr_period: 14
+  atr_buffer_multiple: 0.0
+  confirmation: two_close
+  trend_filter: none
+  exit: channel_48
+  signal_fill: next_bar_open
+holdout:
+  cutoff_utc: "2026-03-11T15:12:00Z"
+  first_sui_bar_utc: "2026-03-11T16:00:00Z"
+  last_sui_bar_utc: "2026-10-16T15:00:00Z"
+  rows: 5256
+  source_status: EXPOSED_OR_UNKNOWN
+cost_scenarios:
+  "1x": {fee_bps_per_side: 10, slippage_bps_per_side: 5}
+  "2x": {fee_bps_per_side: 20, slippage_bps_per_side: 10}
+  "3x": {fee_bps_per_side: 30, slippage_bps_per_side: 15}
+protocol:
+  - "Pin both candle files by Git blob SHA-1 and canonical CSV SHA-256; fail closed on mismatch."
+  - "Independently reimplement signals, exits, costs, and metrics; do not import the breakout backtester."
+  - "First reproduce source accounting, then use the same event schedule with entry fees correctly charged."
+  - "Compare BTC using common SUI/BTC timestamps and disclose endpoint differences."
+  - "No optimization, winner reselection, live orders, or workflow dispatch."
+  - "Preserve EXPOSED_OR_UNKNOWN; numerical replication does not prove holdout independence."

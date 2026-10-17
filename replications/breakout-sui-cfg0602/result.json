@@ -1,0 +1,162 @@
+{
+  "experiment_id": "HARMONY-BREAKOUT-SUI-CFG0602-REPLICATION-001",
+  "status": "INDEPENDENT_REPLICATION_PASSED_WITH_ACCOUNTING_CAVEATS",
+  "execution_context": {
+    "independent_calculation_executed": true,
+    "expansion_python_runner_committed_for_repeatable_rerun": true,
+    "expansion_python_runner_executed_in_github_actions": false,
+    "github_actions_dispatched": false
+  },
+  "source": {
+    "repo": "https://github.com/takenthatusernameis-collab/Quantitative-Breakout-Trading-Strategy-Research-",
+    "report_blob_sha": "75cf0fc61c5ec3aee4b702572765d68f09c11948",
+    "holdout_report_blob_sha": "9af2c690d10a4d244fa2b9a8c50798c8ed598a0c",
+    "candidate_manifest_blob_sha": "73cc27b7b79ff981a3618c475c0d3788e80fb81a",
+    "holdout_exposure": "EXPOSED_OR_UNKNOWN",
+    "source_code_hash": "1f8a7ec03f84c6ce90c372655e58c692a0c15728dd680396a272e22fb93de576",
+    "candidate_manifest_code_hash": "382e314141d4826e29ae1c00e720aa3320a2f71fe00723ff07dfa025b79abfb8",
+    "code_hash_scopes_reconciled": false
+  },
+  "configuration": {
+    "asset": "SUIUSDT",
+    "timeframe": "1h",
+    "config_id": "cfg_0602",
+    "content_hash": "f61acc43bbc4f28b",
+    "entry_rule": "classic_high_breakout",
+    "entry_lookback": 120,
+    "atr_period": 14,
+    "atr_buffer_multiple": 0,
+    "confirmation": "two_close",
+    "trend_filter": "none",
+    "exit": "channel_48",
+    "fill": "next_bar_open",
+    "holdout_cutoff_utc": "2026-03-11T15:12:00Z",
+    "first_bar_utc": "2026-03-11T16:00:00Z",
+    "last_bar_utc": "2026-10-16T15:00:00Z",
+    "rows": 5256,
+    "initial_capital": 10000
+  },
+  "data_provenance": {
+    "SUIUSDT": {
+      "path": "research/data/candles/SUIUSDT_1h_4879bb0922da366d.csv",
+      "git_blob_sha1": "d4c4ee162f97b0e2cb6b42bfc882a9fc826d32c7",
+      "canonical_sha256": "4879bb0922da366d5e0fc0eb8cbf7c63f7560720eb71f68ca2c8871cf7188bd5",
+      "rows": 26280
+    },
+    "BTCUSDT": {
+      "path": "research/data/candles/BTCUSDT_1h_08c1f8eb22a04e30.csv",
+      "git_blob_sha1": "21335dd40645a4391e756390102ef332e6246bd0",
+      "canonical_sha256": "08c1f8eb22a04e3007d3761f834aea30a6d7d77c2195dbfb19297ecb6507d0bc",
+      "rows": 26280
+    }
+  },
+  "source_faithful_replication": [
+    {
+      "cost_multiplier": 1,
+      "return": 0.4390650391219526,
+      "daily_sharpe": 1.4290844519317052,
+      "max_drawdown": 0.213445771232031,
+      "trade_count": 8,
+      "fee_drag": 0.025185984196373006,
+      "slippage_drag": 0.012591044292082796,
+      "turnover": 16.934640731636343,
+      "win_rate": 0.625
+    },
+    {
+      "cost_multiplier": 2,
+      "return": 0.4162061926722916,
+      "daily_sharpe": 1.3743527483503473,
+      "max_drawdown": 0.21501848739495802,
+      "trade_count": 8,
+      "fee_drag": 0.05000262066420802,
+      "slippage_drag": 0.02499356856477077,
+      "turnover": 16.801558932439868,
+      "win_rate": 0.375
+    },
+    {
+      "cost_multiplier": 3,
+      "return": 0.3936992423256208,
+      "daily_sharpe": 1.3197703787994421,
+      "max_drawdown": 0.21658884624838043,
+      "trade_count": 8,
+      "fee_drag": 0.07445532682336023,
+      "slippage_drag": 0.037210354737090265,
+      "turnover": 16.66982218892358,
+      "win_rate": 0.375
+    }
+  ],
+  "corrected_cost_accounting_same_fills": [
+    {
+      "cost_multiplier": 1,
+      "net_return": 0.42760415293633525,
+      "daily_sharpe": 1.4027432830238733,
+      "max_drawdown": 0.21423153969233863,
+      "trade_count": 8,
+      "fee_drag": 0.016855133967800758,
+      "slippage_drag": 0.008427680205641065,
+      "turnover": 16.855360411284313
+    },
+    {
+      "cost_multiplier": 2,
+      "net_return": 0.39374947516516534,
+      "daily_sharpe": 1.3217497440507244,
+      "max_drawdown": 0.21658531676143522,
+      "trade_count": 8,
+      "fee_drag": 0.03328938209788714,
+      "slippage_drag": 0.016645134732934667,
+      "turnover": 16.64513473293557
+    },
+    {
+      "cost_multiplier": 3,
+      "net_return": 0.36069754046586255,
+      "daily_sharpe": 1.2410171241067751,
+      "max_drawdown": 0.21893205009808617,
+      "trade_count": 8,
+      "fee_drag": 0.0493130683485625,
+      "slippage_drag": 0.02465751217755311,
+      "turnover": 16.438341451702318
+    }
+  ],
+  "btc_benchmark_common_timestamps": [
+    {
+      "cost_multiplier": 1,
+      "gross_return": 0.16240859699441867,
+      "net_return": 0.15892659594600866,
+      "first_timestamp": "2026-03-11T16:00:00Z",
+      "last_timestamp": "2026-10-16T13:00:00Z",
+      "first_close": 70570.71,
+      "last_close": 82032,
+      "common_rows": 5254
+    },
+    {
+      "cost_multiplier": 2,
+      "gross_return": 0.16240859699441867,
+      "net_return": 0.1554550200504381,
+      "first_timestamp": "2026-03-11T16:00:00Z",
+      "last_timestamp": "2026-10-16T13:00:00Z",
+      "first_close": 70570.71,
+      "last_close": 82032,
+      "common_rows": 5254
+    },
+    {
+      "cost_multiplier": 3,
+      "gross_return": 0.16240859699441867,
+      "net_return": 0.1519938329262145,
+      "first_timestamp": "2026-03-11T16:00:00Z",
+      "last_timestamp": "2026-10-16T13:00:00Z",
+      "first_close": 70570.71,
+      "last_close": 82032,
+      "common_rows": 5254
+    }
+  ],
+  "key_findings": [
+    "Independent source-faithful calculation matches reported returns, daily Sharpe, maximum drawdown, trade count, fee/slippage drag, turnover, and win rate at all three cost scenarios.",
+    "With entry fees correctly charged to portfolio capital and the same fills preserved, returns are +42.76%, +39.37%, and +36.07% at 1x/2x/3x costs.",
+    "BTC buy-and-hold on common SUI/BTC timestamps is +15.89%, +15.55%, and +15.20% net at 1x/2x/3x costs. BTC data ends two hours before the final SUI bar; SUI is flat during those final two hours.",
+    "Source gross_total_return and net_total_return are identical because the source metric function assigns both from the same equity curve; entry fees are not consistently deducted from equity.",
+    "Source fee_drag double-counts entry fees when a trade closes; it is not a clean cost decomposition.",
+    "Candidate-manifest and holdout-report code_hash values differ and their scopes are not reconciled in the reviewed artifacts.",
+    "Holdout status remains EXPOSED_OR_UNKNOWN. Reproducing metrics does not prove the holdout was untouched.",
+    "Only eight trades closed. This is a reproducible historical observation, not proof of a durable edge."
+  ]
+}
