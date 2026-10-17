@@ -87,7 +87,9 @@ def backtest(c, mult, corrected):
    raw=op[i+1] if i+1<n else cl[i]; eff=raw*(1-slip_rate); fee=eff*qty*fee_rate; slip=(raw-eff)*qty; proceeds=qty*eff-fee
    pnl=proceeds-cash_at_entry if corrected else proceeds-entry_price*qty-entry_fee-entry_slip
    trades.append({"entry_time":iso(entry_time),"entry_price_effective":entry_price,"exit_time":iso(ts[i+1] if i+1<n else ts[i]),"exit_price_effective":eff,"raw_exit_price":raw,"net_pnl":pnl,"exit_reason":"channel_48","entry_fee":entry_fee,"exit_fee":fee,"entry_slippage":entry_slip,"exit_slippage":slip})
-   fees+=fee; slips+=slip; turnover+=qty*raw; cash=proceeds; qty=0.; active=False; entry_fee=entry_slip=0.
+   fees+=fee; slips+=slip
+   if not corrected: fees+=entry_fee; slips+=entry_slip
+   turnover+=qty*raw; cash=proceeds; qty=0.; active=False; entry_fee=entry_slip=0.
   if not active and i in sig:
    if i+1>=n: eq.append(cash); eqts.append(ts[i]); break
    raw=op[i+1]
@@ -107,7 +109,9 @@ def backtest(c, mult, corrected):
   raw=cl[-1]; eff=raw*(1-slip_rate); fee=eff*qty*fee_rate; slip=(raw-eff)*qty; proceeds=qty*eff-fee
   pnl=proceeds-cash_at_entry if corrected else proceeds-entry_price*qty-entry_fee-entry_slip
   trades.append({"entry_time":iso(entry_time),"entry_price_effective":entry_price,"exit_time":iso(ts[-1]),"exit_price_effective":eff,"raw_exit_price":raw,"net_pnl":pnl,"exit_reason":"end_of_fold","entry_fee":entry_fee,"exit_fee":fee,"entry_slippage":entry_slip,"exit_slippage":slip})
-  fees+=fee; slips+=slip; turnover+=qty*raw; cash=proceeds
+  fees+=fee; slips+=slip
+  if not corrected: fees+=entry_fee; slips+=entry_slip
+  turnover+=qty*raw; cash=proceeds
  m=calc_metrics(eq,eqts,trades,fees,slips,turnover,corrected); m["cost_multiplier"]=mult; m["trades"]=trades
  return m
 def benchmark(btc,sui):
