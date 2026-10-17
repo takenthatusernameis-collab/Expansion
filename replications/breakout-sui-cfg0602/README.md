@@ -23,3 +23,25 @@ The preliminary independent calculation matched the source report's return, dail
 The source report's `EXPOSED_OR_UNKNOWN` holdout status remains unresolved. Eight trades do not establish a durable edge. The source's gross/net fields and fee-drag aggregation have accounting defects documented in `result.json`.
 
 No parameter optimization, live trading, workflow changes, or unrelated Expansion edits are part of this experiment.
+
+## Decisive validation workflow
+
+`replicate.py` is the **source-faithful regression check**. Its job is to determine whether the frozen source metrics can be recreated; because it preserves the source accounting/event schedule, a successful result is not evidence that the metrics are economically correct.
+
+`causal_backtest.py` adds a separate event-time simulation with:
+- fills only at the next bar open after a closed-bar signal;
+- open and close equity marks in timestamp order;
+- entry and exit fees/slippage deducted once from portfolio cash;
+- explicit final-window liquidation costs;
+- a zero-cost reference plus the frozen 1x/2x/3x fee-and-slippage scenarios;
+- both fold-local indicators (closest to the source convention) and pre-window indicator warm-up while trades remain strictly inside the frozen window.
+
+`test_causal_backtest.py` tests next-open timing, accounting, cost monotonicity, window boundaries, and terminal signals. The dedicated GitHub Actions workflow runs those tests and both backtest passes and uploads the resulting ledgers as an artifact; it does not commit generated results back into the repository.
+
+## Interpretation rules
+
+- A passing source-faithful check means **historical implementation reproduction only**.
+- A causal pass is the minimum acceptable basis for interpreting the net historical result, but the eight-trade result and `EXPOSED_OR_UNKNOWN` source holdout status prevent a claim of confirmed edge.
+- Corrected accounting and event alignment can change the result; that is a finding to report, not a bug to tune away.
+- Any new-data validation must be prospective and frozen before outcomes arrive. Do not retune or reselect on these historic results.
+
