@@ -119,18 +119,37 @@ class FullHistoryAuditTests(unittest.TestCase):
         self.assertEqual(result["overlap_rows_compared"], 4)
         self.assertEqual(result["mismatch_rows"], 1)
 
-    def test_buy_and_hold_cost_drag_is_monotonic(self):
+    def test_buy_and_hold_cost_drag_is_monotonic_for_each_entry_convention(self):
         rows = [
             candle(self.start, 100, 102, 99, 101, 10),
             candle(self.start + HOUR, 101, 112, 100, 110, 11),
+            candle(self.start + 2 * HOUR, 110, 111, 105, 108, 12),
         ]
-        zero = audit.benchmark_metrics(rows, 0.0)["net_return"]
-        one = audit.benchmark_metrics(rows, 1.0)["net_return"]
-        two = audit.benchmark_metrics(rows, 2.0)["net_return"]
-        three = audit.benchmark_metrics(rows, 3.0)["net_return"]
-        self.assertGreater(zero, one)
-        self.assertGreater(one, two)
-        self.assertGreater(two, three)
+        for convention in ("first_hour_open", "first_hour_close", "second_hour_open"):
+            with self.subTest(convention=convention):
+                values = [audit.benchmark_metrics(rows, multiplier, convention)["net_return"]
+                          for multiplier in (0.0, 1.0, 2.0, 3.0)]
+                self.assertGreater(values[0], values[1])
+                self.assertGreater(values[1], values[2])
+                self.assertGreater(values[2], values[3])
+
+    def test_buy_and_hold_entry_conventions_are_explicit_and_time_aligned(self):
+        rows = [
+            candle(self.start, 100, 102, 99, 101, 10),
+            candle(self.start + HOUR, 101, 112, 100, 110, 11),
+            candle(self.start + 2 * HOUR, 110, 111, 105, 108, 12),
+        ]
+        first_open = audit.benchmark_metrics(rows, 0.0, "first_hour_open")
+        first_close = audit.benchmark_metrics(rows, 0.0, "first_hour_close")
+        second_open = audit.benchmark_metrics(rows, 0.0, "second_hour_open")
+        self.assertEqual(first_open["buy_price_reference"], 100.0)
+        self.assertEqual(first_close["buy_price_reference"], 101.0)
+        self.assertEqual(second_open["buy_price_reference"], 101.0)
+        self.assertEqual(first_open["entry_timestamp"], audit.iso(self.start))
+        self.assertEqual(first_close["entry_timestamp"], audit.iso(self.start + HOUR - 1))
+        self.assertEqual(second_open["entry_timestamp"], audit.iso(self.start + HOUR))
+        with self.assertRaisesRegex(ValueError, "Unknown benchmark"):
+            audit.benchmark_metrics(rows, 0.0, "invented_convention")
 
 
 if __name__ == "__main__":

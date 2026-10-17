@@ -235,12 +235,38 @@ def compare_overlap(full_series, pinned_series):
     }
 
 
-def benchmark_metrics(candles, multiplier):
+def benchmark_metrics(candles, multiplier, entry_convention="first_hour_open"):
+    """Buy-and-hold with an explicit entry-price convention.
+
+    The first SUI listing-hour candle has a very wide range; reporting only its
+    open-price benchmark can be misleading. Keep that convention for transparency
+    and additionally report first-hour-close and second-hour-open sensitivities.
+    """
+    if not candles:
+        raise ValueError("Benchmark requires at least one candle")
     first = candles[0]
     last = candles[-1]
+    if entry_convention == "first_hour_open":
+        start_price = float(first["open"])
+        entry_timestamp = int(first["timestamp"])
+        entry_index = 0
+        entry_field = "open"
+    elif entry_convention == "first_hour_close":
+        start_price = float(first["close"])
+        entry_timestamp = int(first["timestamp"]) + HOUR - 1
+        entry_index = 0
+        entry_field = "close"
+    elif entry_convention == "second_hour_open":
+        if len(candles) < 2:
+            raise ValueError("Second-hour-open benchmark needs at least two candles")
+        start_price = float(candles[1]["open"])
+        entry_timestamp = int(candles[1]["timestamp"])
+        entry_index = 1
+        entry_field = "open"
+    else:
+        raise ValueError(f"Unknown benchmark entry convention: {entry_convention}")
     fee_rate = 0.001 * multiplier
     slip_rate = 0.0005 * multiplier
-    start_price = float(first["open"])
     end_price = float(last["close"])
     if start_price <= 0 or end_price <= 0:
         raise ValueError("Benchmark boundary price is non-positive")
@@ -249,20 +275,24 @@ def benchmark_metrics(candles, multiplier):
         start_price * (1.0 + slip_rate) * (1.0 + fee_rate)
     )
     net_return = final_value - 1.0
-    duration_years = ((int(last["timestamp"]) + HOUR - 1) - int(first["timestamp"])) / YEAR_MS
-    annualized = (1.0 + net_return) ** (1.0 / duration_years) - 1.0 if duration_years > 0 else None
+    end_timestamp = int(last["timestamp"]) + HOUR - 1
+    duration_years = (end_timestamp - entry_timestamp) / YEAR_MS
+    annualized = (1.0 + net_return) ** (1.0 / duration_years) - 1.0 if duration_years > 0 and final_value > 0 else None
     return {
         "cost_multiplier": multiplier,
         "fee_bps_per_side": SCENARIO_COSTS[multiplier]["fee_bps_per_side"],
         "slippage_bps_per_side": SCENARIO_COSTS[multiplier]["slippage_bps_per_side"],
-        "first_timestamp": iso(int(first["timestamp"])),
-        "last_timestamp": iso(int(last["timestamp"])),
-        "buy_price_open": start_price,
+        "entry_convention": entry_convention,
+        "entry_timestamp": iso(entry_timestamp),
+        "first_evaluation_timestamp": iso(int(candles[entry_index]["timestamp"])),
+        "last_timestamp": iso(end_timestamp),
+        "buy_price_reference": start_price,
+        "buy_price_field": entry_field,
         "sell_price_close": end_price,
         "gross_return": gross_return,
         "net_return": net_return,
         "annualized_net_return": annualized,
-        "common_hourly_rows": len(candles),
+        "hourly_rows_available_from_entry": len(candles) - entry_index,
     }
 
 
@@ -388,9 +418,33 @@ def run_audit():
         summaries[str(multiplier).rstrip("0").rstrip(".") + "x"] = summarize_strategy(result, multiplier)
 
     benchmark_results = {
-        "SUI_buy_and_hold": [benchmark_metrics(sui, multiplier) for multiplier in (0.0, 1.0, 2.0, 3.0)],
-        "BTC_buy_and_hold": [benchmark_metrics(btc, multiplier) for multiplier in (0.0, 1.0, 2.0, 3.0)],
+        "SUI_buy_and_hold_first_hour_open_reference": [
+            benchmark_metrics(sui, multiplier, "first_hour_open") for multiplier in COST_MULTIPLIERS
+        ],
+        "SUI_buy_and_hold_after_first_hour_close": [
+            benchmark_metrics(sui, multiplier, "first_hour_close") for multiplier in COST_MULTIPLIERS
+        ],
+        "SUI_buy_and_hold_from_second_hour_open": [
+            benchmark_metrics(sui, multiplier, "second_hour_open") for multiplier in COST_MULTIPLIERS
+        ],
+        "BTC_buy_and_hold_first_hour_open": [
+            benchmark_metrics(btc, multiplier, "first_hour_open") for multiplier in COST_MULTIPLIERS
+        ],
+        "BTC_buy_and_hold_from_second_hour_open": [
+            benchmark_metrics(btc, multiplier, "second_hour_open") for multiplier in COST_MULTIPLIERS
+        ],
         "cash": {"net_return": 0.0, "annualized_net_return": 0.0, "assumption": "Uninvested initial capital; no fees."},
+    }
+    first_sui_candle = sui[0]
+    listing_candle_diagnostics = {
+        "first_hour_open": float(first_sui_candle["open"]),
+        "first_hour_high": float(first_sui_candle["high"]),
+        "first_hour_low": float(first_sui_candle["low"]),
+        "first_hour_close": float(first_sui_candle["close"]),
+        "high_low_multiple": float(first_sui_candle["high"]) / float(first_sui_candle["low"]),
+        "close_to_open_return": float(first_sui_candle["close"]) / float(first_sui_candle["open"]) - 1.0,
+        "open_equals_low": math.isclose(float(first_sui_candle["open"]), float(first_sui_candle["low"]), rel_tol=0.0, abs_tol=1e-12),
+        "warning": "The first-hour open benchmark is exceptionally sensitive to this candle's opening print; read it alongside first-hour-close and second-hour-open alternatives.",
     }
 
     market_path = HERE / "full_history_candles.csv"
@@ -451,12 +505,14 @@ def run_audit():
         },
         "strategy_results": summaries,
         "benchmarks": benchmark_results,
+        "listing_candle_diagnostics": listing_candle_diagnostics,
         "interpretation_and_limitations": [
             "The audit covers the SUIUSDT hourly history from the publicly announced Binance Spot listing hour to the latest fully closed candle observed at retrieval time.",
             "The strategy rules and configuration hash are frozen; only the available date range changed.",
             "All signals are derived from completed candles and orders fill at the next candle open. An open position is liquidated at the final included close with scenario costs.",
             "0x is a gross, zero-fee/zero-slippage reference. 1x/2x/3x use 10/20/30 bps fees and 5/10/15 bps slippage per side.",
-            "SUI and BTC benchmarks begin at the same first candle open and end at the same last included candle close, with the same round-trip cost assumptions.",
+            "The first SUI listing-hour OHLC has a wide range and an open of 0.10; report the first-open buy-and-hold reference together with first-hour-close and second-hour-open sensitivities. The latter two use the same per-side costs and end price and avoid relying solely on the anomalous listing-hour open.",
+            "BTC first-open benchmark is reported for the same original start boundary; the second-hour-open BTC benchmark matches the second-hour-open SUI benchmark start time.",
             "Historical OHLCV simulation does not model market impact, queue position, spread variation, latency, funding, taxes, or capacity constraints.",
             "The original holdout remains EXPOSED_OR_UNKNOWN and the source code-hash scopes remain unreconciled; this full-history replay is not independent holdout evidence.",
             "The complete history includes the previous evaluation interval, so these results are exploratory and potentially affected by prior selection and multiple testing. They are not a deployment approval.",
@@ -482,6 +538,14 @@ def run_audit():
                                 "top_two_winners_fraction_of_total_net_pnl")}
             for key, metrics in summaries.items()
         },
+        "benchmarks": {
+            key: [{"cost_multiplier": row["cost_multiplier"], "entry_convention": row["entry_convention"],
+                   "entry_timestamp": row["entry_timestamp"], "buy_price_reference": row["buy_price_reference"],
+                   "sell_price_close": row["sell_price_close"], "net_return": row["net_return"],
+                   "annualized_net_return": row["annualized_net_return"]} for row in rows]
+            for key, rows in benchmark_results.items() if isinstance(rows, list)
+        },
+        "listing_candle_diagnostics": listing_candle_diagnostics,
         "artifacts": report["artifacts"],
     }, indent=2, sort_keys=True))
 
