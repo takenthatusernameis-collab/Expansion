@@ -210,6 +210,7 @@ def run_causal(candles, signal_indices, multiplier, start_ts=START, end_ts=END,
     losses = sum(-t["net_pnl"] for t in trades if t["net_pnl"] < 0)
     gains = sum(t["net_pnl"] for t in trades if t["net_pnl"] > 0)
     return {
+        "equity_trace": [{"timestamp_ms": ts, "equity": eq} for ts, eq in zip(equity_times, equity_values)],
         "cost_multiplier": multiplier,
         "fee_bps_per_side": 10.0 * multiplier,
         "slippage_bps_per_side": 5.0 * multiplier,
@@ -242,7 +243,7 @@ def run_causal(candles, signal_indices, multiplier, start_ts=START, end_ts=END,
 
 
 def compact(run):
-    return {k: v for k, v in run.items() if k not in ("daily_equity", "daily_returns", "trades")}
+    return {k: v for k, v in run.items() if k not in ("daily_equity", "daily_returns", "trades", "equity_trace")}
 
 
 def main():
